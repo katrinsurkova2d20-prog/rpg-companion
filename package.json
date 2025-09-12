@@ -5,26 +5,30 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build": "expo export --platform web",
+    "serve": "npx serve -s dist -l 5000"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~5.0.4",
+    "@expo/vector-icons": "^14.1.0",
+    "@react-navigation/material-top-tabs": "*",
+    "@react-navigation/native": "*",
     "expo": "~53.0.22",
+    "expo-asset": "~11.1.7",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
-    "react-native": "0.79.6",
-    "@expo/vector-icons": "^14.1.0",
-    "react-native-paper": "4.9.2",
-    "react-native-pager-view": "6.7.1",
-    "@react-navigation/native": "*",
-    "react-native-safe-area-context": "5.4.0",
-    "@react-navigation/material-top-tabs": "*",
     "react-dom": "19.0.0",
+    "react-native": "0.79.6",
+    "react-native-pager-view": "6.7.1",
+    "react-native-paper": "4.9.2",
+    "react-native-safe-area-context": "5.4.0",
     "react-native-web": "^0.20.0",
-    "@expo/metro-runtime": "~5.0.4",
-    "expo-asset": "~11.1.7"
+    "expo-font": "~13.3.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "serve": "^14.2.5"
   },
   "private": true
 }

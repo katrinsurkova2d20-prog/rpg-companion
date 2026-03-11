@@ -352,6 +352,74 @@ const styles = StyleSheet.create({
   confirmButton: {
     backgroundColor: '#f44336',
   },
+  nameInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  nameInputLabel: {
+    color: '#333',
+    fontSize: 14,
+    fontWeight: '600',
+    marginRight: 8,
+  },
+  nameInput: {
+    flex: 1,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    backgroundColor: '#fff',
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    fontSize: 14,
+    color: '#000',
+    marginRight: 8,
+  },
+  nameInputActive: {
+    borderColor: '#d4af37',
+  },
+  saveNameButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 3,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveNameButtonActive: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#45a049',
+  },
+  saveNameButtonDisabled: {
+    backgroundColor: '#e0e0e0',
+    borderColor: '#ccc',
+  },
+  saveNameButtonText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  saveNameButtonTextDisabled: {
+    color: '#999',
+  },
+  disabledOverlay: {
+    position: 'absolute',
+    top: 60,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(200, 200, 200, 0.4)',
+    zIndex: 1,
+  },
+  disabledLevelContainer: {
+    opacity: 0.5,
+  },
 });
 
 export default styles;

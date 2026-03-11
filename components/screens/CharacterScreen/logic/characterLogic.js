@@ -1,6 +1,3 @@
-// Константа: максимальное количество основных выбираемых навыков
-export const BASE_TAGGED_SKILLS = 3;
-
 // Создаёт начальный массив атрибутов с базовыми значениями (4 для каждого)
 export function createInitialAttributes() {
   return [

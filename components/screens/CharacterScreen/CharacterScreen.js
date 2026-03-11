@@ -12,6 +12,7 @@ import {
   Modal,
   Alert,
   Platform,
+  TextInput,
 } from "react-native";
 import { useCharacter } from "../../CharacterContext";
 import OriginModal from "./modals/OriginModal";
@@ -279,6 +280,10 @@ export default function CharacterScreen() {
 
   const [showResetWarning, setShowResetWarning] = useState(false);
   const [resetType, setResetType] = useState(null);
+
+  // Состояние для имени персонажа
+  const [characterName, setCharacterName] = useState("");
+  const [nameSaved, setNameSaved] = useState(false);
 
   // Состояние для временного распределения очков атрибутов от перков
   const [tempAttributes, setTempAttributes] = useState(null);
@@ -935,16 +940,58 @@ export default function CharacterScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.header}>
+            {/* Строка для ввода имени персонажа */}
+            <View style={styles.nameInputRow}>
+              <Text style={styles.nameInputLabel}>Имя:</Text>
+              <TextInput
+                style={[styles.nameInput, !nameSaved && styles.nameInputActive]}
+                placeholder="Введите имя персонажа"
+                placeholderTextColor="#999"
+                value={characterName}
+                onChangeText={setCharacterName}
+                editable={!nameSaved}
+              />
+              <TouchableOpacity
+                style={[
+                  styles.saveNameButton,
+                  characterName.length > 0 && !nameSaved
+                    ? styles.saveNameButtonActive
+                    : styles.saveNameButtonDisabled,
+                ]}
+                onPress={() => {
+                  if (characterName.length > 0) {
+                    setNameSaved(true);
+                  }
+                }}
+                disabled={characterName.length === 0 || nameSaved}
+              >
+                <Text
+                  style={[
+                    styles.saveNameButtonText,
+                    characterName.length === 0 || nameSaved
+                      ? styles.saveNameButtonTextDisabled
+                      : {},
+                  ]}
+                >
+                  Сохранить
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Если имя не сохранено, показываем затемняющий слой */}
+            {!nameSaved && <View style={styles.disabledOverlay} />}
+
             <PressableRow
               title="Происхождение"
               value={origin ? origin.name : "Не выбрано"}
               onPress={() => setIsOriginModalVisible(true)}
+              disabled={!nameSaved}
             />
             <PressableRow
               title="Черта"
               value={trait ? trait.name : "Не выбрано"}
               onPress={handleTraitPress}
-              disabled={trait && !isMultiTraitOrigin(origin?.name)}
+              disabled={!nameSaved || (trait && !isMultiTraitOrigin(origin?.name))}
             />
             <PressableRow
               title="Снаряжение"
@@ -1011,12 +1058,12 @@ export default function CharacterScreen() {
                 }
               }}
             />
-            <View style={styles.levelContainer}>
+            <View style={[styles.levelContainer, !nameSaved && styles.disabledLevelContainer]}>
               <Text style={styles.levelLabel}>Уровень:</Text>
               <CompactCounter
                 value={level}
-                onIncrease={() => handleLevelChange(1)}
-                onDecrease={() => handleLevelChange(-1)}
+                onIncrease={() => nameSaved && handleLevelChange(1)}
+                onDecrease={() => nameSaved && handleLevelChange(-1)}
               />
             </View>
           </View>

@@ -38,13 +38,14 @@ This is a React Native Expo application that serves as a character sheet compani
 └── package.json         # Dependencies
 ```
 
-## Recent Changes (September 12, 2025)
-- Successfully imported from GitHub
-- Installed all required dependencies including expo-asset, react-dom, react-native-web, expo-font
-- Configured for Replit environment with working dependency matrix
-- Set up Expo web server on port 5000
-- Application is fully functional with Fallout-themed UI
-- Minor dependency warnings resolved (using React 19 + RN 0.79.6 with --legacy-peer-deps)
+## Recent Changes (March 11, 2026)
+- **Fixed Critical Bug**: Corrected skills counting system - extra skills from origins/traits no longer incorrectly increase main selectable skills limit (stays at 3)
+- **Implemented Intensive Training Perk System**: Complete temporary attribute allocation system with validation
+- **Fixed PerkSelectModal**: Resolved duplicate selections and missing confirmation button
+- **Major Refactor**: Separated main skills (max 3) from extra skills using new extraTaggedSkills state
+- **Added Character Name Input**: New field at top of Character Screen for naming personage with save button
+- **Auto-Save Logic**: Once name is saved, all other fields become active; until name is saved, all other options remain disabled/greyed out
+- BASE_TAGGED_SKILLS constant properly exported and used throughout application
 
 ## Development Setup
 - **Port**: 5000 (web development server)
@@ -64,6 +65,19 @@ This is a React Native Expo application that serves as a character sheet compani
 - **Build Scripts**: Added `npm run build` (expo export --platform web) and `npm run serve`
 - **Static Serving**: Uses serve package for production-ready static file serving
 - **Deployment**: Can be configured for static web hosting
+
+## Completed Features (March 11, 2026 Session)
+- ✅ Character naming system with validation (requires at least 1 character)
+- ✅ Skills counting bug fixed - proper separation of main (3) vs extra skills
+- ✅ Intensive Training perk temporary attribute allocation
+- ✅ Form state gating - name must be saved before other fields accessible
+- ✅ PerkSelectModal improvements
+
+## Planned Features (Future)
+- Character save/load system (saving to components/chars directory)
+- Character manager startup screen with grid layout
+- Character thumbnails display on startup screen
+- Real-time character file updates
 
 ## Known Issues & Future Improvements
 - Minor React text node warning (doesn't affect functionality)

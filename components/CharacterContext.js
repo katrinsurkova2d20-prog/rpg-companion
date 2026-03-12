@@ -11,7 +11,7 @@ import {
   calculateCarryWeight
 } from './screens/CharacterScreen/logic/characterLogic';
 import { meetsPerkRequirements, getPerkUnmetReasons, annotatePerks } from './screens/CharacterScreen/logic/perksLogic';
-import { createModifiedWeaponFromId, createWeaponId, getAllWeapons, getWeaponModifications, clearWeaponCache } from './screens/WeaponsAndArmorScreen/weaponModificationUtils';
+import { createModifiedWeaponFromId, createWeaponId, getAllWeapons, getWeaponModifications } from './screens/WeaponsAndArmorScreen/weaponModificationUtils';
 
 const CharacterContext = createContext();
 
@@ -351,7 +351,6 @@ export const CharacterProvider = ({ children }) => {
     const currentMaxHealth = calculateMaxHealth(initialAttributes, level);
     setCurrentHealth(currentMaxHealth);
     setModifiedItems(new Map());
-    clearWeaponCache();
     // Сбрасываем статус сохранения
     setCharacterName('');
     setCharacterId(null);

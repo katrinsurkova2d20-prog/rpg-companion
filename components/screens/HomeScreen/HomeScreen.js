@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  ImageBackground,
-  SafeAreaView,
-  StatusBar,
   StyleSheet,
   Image,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useCharacter } from '../../CharacterContext';
 import { ORIGINS } from '../CharacterScreen/logic/originsData';
 
@@ -56,9 +54,9 @@ const CharacterCell = ({ character, onPress, onLongPress }) => {
   );
 };
 
-const EmptyCell = () => <View style={styles.emptyCell} />;
+const EmptyCell = ({ id }) => <View key={id} style={styles.emptyCell} />;
 
-export default function HomeScreen({ onCreateCharacter, onOpenCharacter }) {
+export default function HomeScreen({ navigation }) {
   const { getCharactersList, loadCharacter, resetCharacter, deleteCharacter } = useCharacter();
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,19 +74,21 @@ export default function HomeScreen({ onCreateCharacter, onOpenCharacter }) {
     }
   }, [getCharactersList]);
 
-  useEffect(() => {
-    loadList();
-  }, [loadList]);
+  useFocusEffect(
+    useCallback(() => {
+      loadList();
+    }, [loadList])
+  );
 
   const handleCreate = () => {
     resetCharacter();
-    onCreateCharacter();
+    navigation.navigate('Персонаж');
   };
 
   const handleOpen = async (id) => {
     const ok = await loadCharacter(id);
     if (ok) {
-      onOpenCharacter();
+      navigation.navigate('Персонаж');
     }
   };
 
@@ -111,18 +111,15 @@ export default function HomeScreen({ onCreateCharacter, onOpenCharacter }) {
     );
   };
 
-  // Строим список ячеек: [create, ...chars]
   const allItems = [
     { type: 'create' },
     ...characters.map(c => ({ type: 'character', ...c })),
   ];
 
-  // Разбиваем на строки по NUM_COLS
   const rows = [];
   for (let i = 0; i < allItems.length; i += NUM_COLS) {
     rows.push(allItems.slice(i, i + NUM_COLS));
   }
-  // Дополняем последнюю строку пустыми ячейками
   if (rows.length > 0) {
     const lastRow = rows[rows.length - 1];
     while (lastRow.length < NUM_COLS) {
@@ -131,61 +128,51 @@ export default function HomeScreen({ onCreateCharacter, onOpenCharacter }) {
   }
 
   return (
-    <ImageBackground
-      source={require('../../../assets/bg.png')}
-      style={styles.background}
-      imageStyle={{ opacity: 0.3 }}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Менеджер персонажей</Text>
-          <Text style={styles.subtitle}>Ролевая игра Fallout (2d20)</Text>
-        </View>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {loading ? (
-            <ActivityIndicator size="large" color="#d4af37" style={styles.loader} />
-          ) : (
-            rows.map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.row}>
-                {row.map((item, colIndex) => {
-                  if (item.type === 'create') {
-                    return <CreateCell key="create" onPress={handleCreate} />;
-                  }
-                  if (item.type === 'empty') {
-                    return <EmptyCell key={item.id} />;
-                  }
-                  return (
-                    <CharacterCell
-                      key={item.id}
-                      character={item}
-                      onPress={() => handleOpen(item.id)}
-                      onLongPress={() => handleLongPress(item)}
-                    />
-                  );
-                })}
-              </View>
-            ))
-          )}
-        </ScrollView>
-      </SafeAreaView>
-    </ImageBackground>
+    <View style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Менеджер персонажей</Text>
+        <Text style={styles.subtitle}>Ролевая игра Fallout (2d20)</Text>
+      </View>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {loading ? (
+          <ActivityIndicator size="large" color="#d4af37" style={styles.loader} />
+        ) : (
+          rows.map((row, rowIndex) => (
+            <View key={rowIndex} style={styles.row}>
+              {row.map((item) => {
+                if (item.type === 'create') {
+                  return <CreateCell key="create" onPress={handleCreate} />;
+                }
+                if (item.type === 'empty') {
+                  return <EmptyCell key={item.id} id={item.id} />;
+                }
+                return (
+                  <CharacterCell
+                    key={item.id}
+                    character={item}
+                    onPress={() => handleOpen(item.id)}
+                    onLongPress={() => handleLongPress(item)}
+                  />
+                );
+              })}
+            </View>
+          ))
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: 'transparent',
   },
   titleContainer: {
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     backgroundColor: 'rgba(0,0,0,0.75)',
     borderBottomWidth: 1,

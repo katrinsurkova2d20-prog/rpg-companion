@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Alert 
 } from 'react-native';
-import { getSlotsForWeapon, getModsForWeaponSlot, getWeaponModById, getWeaponMods } from '../../../db/Database';
+import { getSlotsForWeapon, getModsForWeaponSlot, getWeaponById, getWeaponModById, getWeaponMods } from '../../../db/Database';
 import { declinePrefix } from './weaponModificationUtils';
 
 function toNumber(v) {
@@ -158,6 +158,7 @@ const CollapsibleSection = ({ title, children, isExpanded, onToggle }) => {
 const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification }) => {
   const [selectedModifications, setSelectedModifications] = useState({}); // slot -> modRow
   const [modifiedWeapon, setModifiedWeapon] = useState(weapon);
+  const [baseWeaponForMods, setBaseWeaponForMods] = useState(weapon);
   const [expandedCategories, setExpandedCategories] = useState({}); // slot -> boolean
   const [modsBySlot, setModsBySlot] = useState({}); // slot -> modRow[]
 
@@ -168,32 +169,42 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
 
     (async () => {
       try {
-        // фиксируем базовое имя один раз (чтобы не ловить дубли префиксов)
+        const weaponId = weapon.id ?? weapon.weaponId;
+        const dbWeapon = weaponId ? await getWeaponById(weaponId) : null;
+
+        // фиксируем базовое имя и базовые характеристики из БД,
+        // чтобы повторное открытие/перевыбор модов не накапливал префиксы и статы
         const weaponWithBase = {
           ...weapon,
-          _baseName: weapon._baseName ?? weapon.base_name ?? weapon.name ?? weapon.Название ?? '',
+          ...(dbWeapon || {}),
+          id: weaponId ?? dbWeapon?.id,
+          weaponId: weaponId ?? dbWeapon?.id,
+          _baseName: dbWeapon?.name ?? weapon._baseName ?? weapon.base_name ?? weapon.name ?? weapon.Название ?? '',
+          appliedMods: weapon.appliedMods || {},
         };
+
+        setBaseWeaponForMods(weaponWithBase);
         setModifiedWeapon(weaponWithBase);
 
-        const weaponId = weaponWithBase.id ?? weaponWithBase.weaponId;
-        if (!weaponId) {
+        const resolvedWeaponId = weaponWithBase.id ?? weaponWithBase.weaponId;
+        if (!resolvedWeaponId) {
           setModsBySlot({});
           setSelectedModifications({});
           return;
         }
 
-        const slots = await getSlotsForWeapon(weaponId);
+        const slots = await getSlotsForWeapon(resolvedWeaponId);
         const bySlot = {};
 
         if (slots && slots.length) {
           for (const slot of slots) {
-            const mods = await getModsForWeaponSlot(weaponId, slot);
+            const mods = await getModsForWeaponSlot(resolvedWeaponId, slot);
             bySlot[slot] = (mods || []).map(normalizeModRow).filter(Boolean);
           }
         } else {
           // Fallback: если weapon_mod_slots для оружия не заполнен,
           // используем weapon_mods.applies_to_ids и группируем по slot.
-          const mods = await getWeaponMods(weaponId);
+          const mods = await getWeaponMods(resolvedWeaponId);
           for (const m of (mods || [])) {
             const nm = normalizeModRow(m);
             if (!nm) continue;
@@ -222,6 +233,7 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
         if (!cancelled) {
           setModsBySlot({});
           setSelectedModifications({});
+          setBaseWeaponForMods(weapon);
           setModifiedWeapon(weapon);
         }
       }
@@ -246,7 +258,7 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
     const newSelected = { ...selectedModifications, [slot]: mod };
     setSelectedModifications(newSelected);
 
-    setModifiedWeapon(applyDbModEffectsToWeapon(modifiedWeapon || weapon, newSelected));
+    setModifiedWeapon(applyDbModEffectsToWeapon(baseWeaponForMods || weapon, newSelected));
   };
 
   const handleApplyModification = () => {
@@ -266,6 +278,7 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
     setSelectedModifications({});
     setExpandedCategories({});
     setModsBySlot({});
+    setBaseWeaponForMods(null);
     onClose();
   };
 

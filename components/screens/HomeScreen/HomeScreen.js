@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCharacter } from '../../CharacterContext';
@@ -45,7 +46,14 @@ const CharacterCell = ({ character, onPress, onDelete }) => {
           </View>
         )}
       </View>
-      <TouchableOpacity style={styles.deleteButton} onPress={onDelete} hitSlop={{ top: 6, right: 6, bottom: 6, left: 6 }}>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={(event) => {
+          event?.stopPropagation?.();
+          onDelete();
+        }}
+        hitSlop={{ top: 6, right: 6, bottom: 6, left: 6 }}
+      >
         <Text style={styles.deleteIcon}>🗑</Text>
       </TouchableOpacity>
       <Text style={styles.characterName} numberOfLines={2}>{character.name}</Text>
@@ -95,6 +103,19 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleDelete = (character) => {
+    const confirmDelete = async () => {
+      await deleteCharacter(character.id);
+      loadList();
+    };
+
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const confirmed = window.confirm('Вы действительно хотите удалить этого персонажа?');
+      if (confirmed) {
+        confirmDelete();
+      }
+      return;
+    }
+
     Alert.alert(
       'Удаление персонажа',
       'Вы действительно хотите удалить этого персонажа?',
@@ -102,10 +123,7 @@ export default function HomeScreen({ navigation }) {
         {
           text: 'Да',
           style: 'destructive',
-          onPress: async () => {
-            await deleteCharacter(character.id);
-            loadList();
-          },
+          onPress: confirmDelete,
         },
         { text: 'Нет', style: 'cancel' },
       ],

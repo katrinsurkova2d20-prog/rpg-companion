@@ -5,10 +5,6 @@ import AddWeaponModal from './modals/AddWeaponModal';
 import CapsModal from './modals/CapsModal';
 import SellItemModal from './modals/SellItemModal';
 import AddItemModal from './modals/AddItemModal';
-
-import allArmor from '../../../assets/Equipment/armor.json';
-import allClothes from '../../../assets/Equipment/Clothes.json';
-import allChems from '../../../assets/Equipment/chems.json';
 import { calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
 
 const CapsSection = ({ caps, onAdd, onSubtract }) => (

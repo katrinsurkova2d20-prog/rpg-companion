@@ -4,11 +4,8 @@ import food from '../../../../assets/RandomLoot/food.json';
 import brewery from '../../../../assets/RandomLoot/brewery.json';
 import chems from '../../../../assets/RandomLoot/chems.json';
 import outcast from '../../../../assets/RandomLoot/outcast.json';
-import fullChemsData from '../../../../assets/Equipment/chems.json';
-import armorData from '../../../../assets/Equipment/armor.json';
-import clothesData from '../../../../assets/Equipment/Clothes.json';
-import miscData from '../../../../assets/Equipment/miscellaneous.json';
 import { getWeaponByName } from '../../../../db/Database';
+import { getEquipmentCatalog } from '../../../../i18n/equipmentCatalog';
 
 const lootTables = {
   trinklet: trinkets,
@@ -38,6 +35,12 @@ function parseLootFormula(lootFormula) {
  * Разрешает один предмет из таблицы лута по результату броска.
  */
 async function resolveItemFromTable(rollResult, tag, lootTable) {
+    const equipmentCatalog = getEquipmentCatalog();
+    const fullChemsData = equipmentCatalog.chems;
+    const armorData = equipmentCatalog.armor;
+    const clothesData = equipmentCatalog.clothes;
+    const miscData = equipmentCatalog.miscellaneous;
+
     const foundItem = lootTable.find(loot => loot.roll === rollResult);
     if (!foundItem) {
         console.warn(`No item found for roll ${rollResult} in table ${tag}`);

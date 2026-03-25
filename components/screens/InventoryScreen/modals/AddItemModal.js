@@ -1,26 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, TextInput } from 'react-native';
-
-import allArmor from '../../../../assets/Equipment/armor.json';
-import allClothes from '../../../../assets/Equipment/Clothes.json';
-import ammoData from '../../../../assets/Equipment/ammoData.json';
-import chemsData from '../../../../assets/Equipment/chems.json';
 import { getWeapons } from '../../../../db/Database';
-
-const STATIC_DATA = {
-  'Броня': allArmor.armor.reduce((acc, category) => {
-    acc[category.type] = category.items;
-    return acc;
-  }, {}),
-  'Одежда': allClothes.clothes.reduce((acc, category) => {
-    acc[category.type] = category.items;
-    return acc;
-  }, {}),
-  'Боеприпасы': { 'Все': ammoData },
-  'Еда': {},
-  'Препараты': { 'Все': chemsData },
-  'Материалы': {},
-};
+import { getEquipmentCatalog } from '../../../../i18n/equipmentCatalog';
 
 const WEAPON_TYPE_LABELS = {
   'Light': 'Стрелковое',
@@ -37,6 +18,24 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [weaponsByType, setWeaponsByType] = useState({});
 
+  const staticData = useMemo(() => {
+    const equipmentCatalog = getEquipmentCatalog();
+    return {
+      'Броня': (equipmentCatalog.armor?.armor || []).reduce((acc, category) => {
+        acc[category.type] = category.items;
+        return acc;
+      }, {}),
+      'Одежда': (equipmentCatalog.clothes?.clothes || []).reduce((acc, category) => {
+        acc[category.type] = category.items;
+        return acc;
+      }, {}),
+      'Боеприпасы': { 'Все': equipmentCatalog.ammoData || [] },
+      'Еда': {},
+      'Препараты': { 'Все': equipmentCatalog.chems || [] },
+      'Материалы': {},
+    };
+  }, []);
+
   useEffect(() => {
     if (!visible) return;
     getWeapons().then(weapons => {
@@ -52,8 +51,8 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
 
   const allData = useMemo(() => ({
     'Оружие': weaponsByType,
-    ...STATIC_DATA,
-  }), [weaponsByType]);
+    ...staticData,
+  }), [weaponsByType, staticData]);
 
   const handleSelect = (item) => {
     const itemName = item.Название || item.name;

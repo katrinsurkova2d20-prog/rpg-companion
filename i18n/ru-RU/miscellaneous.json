@@ -1,0 +1,23 @@
+{
+  "miscellaneous": [
+    {
+      "type": "Разное",
+      "items": [
+        {
+          "name": "Голографические жетоны",
+          "weight": 0,
+          "price": 10,
+          "rarity": 1,
+          "itemType": "misc"
+        },
+        {
+          "name": "Крышки",
+          "weight": 0,
+          "price": 1,
+          "rarity": 0,
+          "itemType": "currency"
+        }
+      ]
+    }
+  ]
+} 

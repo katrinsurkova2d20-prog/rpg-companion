@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Alert 
 } from 'react-native';
-import { getSlotsForWeapon, getModsForWeaponSlot, getWeaponModById, getWeaponMods } from '../../../db/Database';
+import { getSlotsForWeapon, getModsForWeaponSlot, getWeaponById, getWeaponModById, getWeaponMods } from '../../../db/Database';
 import { declinePrefix } from './weaponModificationUtils';
 
 function toNumber(v) {
@@ -23,13 +23,43 @@ function normalizeModRow(row) {
     id: row.id,
     name: row.name,
     prefix: row.prefix,
-    slot: row.slot,
+    slot: normalizeSlotKey(row.slot),
+    rawSlot: row.slot,
     // БД: weight/cost/effects/effect_description
     weight: row.weight,
     cost: row.cost,
     effects: row.effects,
     effect_description: row.effect_description,
   };
+}
+
+// CRITICAL INVARIANT:
+// Only ONE installed mod per category(slot) is allowed at any time.
+// If a new mod is selected in the same category, it MUST replace the previous one.
+function normalizeSlotKey(slot) {
+  const raw = String(slot || '').trim();
+  const key = raw.toLowerCase();
+  const map = {
+    barrel: 'Barrels',
+    barrels: 'Barrels',
+    receiver: 'Receivers',
+    receivers: 'Receivers',
+    sight: 'Sights',
+    sights: 'Sights',
+    muzzle: 'Muzzles',
+    muzzles: 'Muzzles',
+    stock: 'Stocks',
+    stocks: 'Stocks',
+    grip: 'Grips',
+    grips: 'Grips',
+    magazine: 'Magazines',
+    magazines: 'Magazines',
+    capacitor: 'Capacitors',
+    capacitors: 'Capacitors',
+    unique: 'Uniques',
+    uniques: 'Uniques',
+  };
+  return map[key] || raw || 'Other';
 }
 
 function translateModTokenToRu(token) {
@@ -96,6 +126,14 @@ function applyDbModEffectsToWeapon(baseWeapon, selectedBySlot) {
   let fire_rate = fireRateBase;
   let weight = weightBase;
   let cost = costBase;
+  let rangeShift = 0;
+  const qualities = new Set(
+    String(baseWeapon.qualities ?? baseWeapon.Качества ?? '')
+      .split(',')
+      .map(q => q.trim())
+      .filter(Boolean)
+      .filter(q => q !== '–')
+  );
 
   // Минимальный парсер Effects из seed-данных, напр:
   // "plus 1 CD Damage, plus 2 Fire Rate"
@@ -116,17 +154,40 @@ function applyDbModEffectsToWeapon(baseWeapon, selectedBySlot) {
     if (frPlus) fire_rate += Number(frPlus[1]);
     if (frMinus) fire_rate -= Number(frMinus[1]);
 
+    const rangePlus = eff.match(/plus\s+(\d+)\s+Range/i);
+    const rangeMinus = eff.match(/minus\s+(\d+)\s+Range/i);
+    if (rangePlus) rangeShift += Number(rangePlus[1]);
+    if (rangeMinus) rangeShift -= Number(rangeMinus[1]);
+
+    const gainMatches = [...eff.matchAll(/gain\s+([^,]+)/gi)];
+    gainMatches.forEach(([, q]) => qualities.add(String(q).trim()));
+    const loseMatches = [...eff.matchAll(/lose\s+([^,]+)/gi)];
+    loseMatches.forEach(([, q]) => qualities.delete(String(q).trim()));
+
     // Вес/цена модов (если есть)
     weight += toNumber(mod.weight);
     cost += toNumber(mod.cost);
   }
 
+  const rangeOrder = ['Близкая', 'Средняя', 'Дальняя', 'Экстремальная'];
+  const currentRangeName = String(baseWeapon.range_name ?? baseWeapon.Дистанция ?? 'Близкая').trim();
+  const currentRangeIndex = Math.max(0, rangeOrder.indexOf(currentRangeName));
+  const nextRangeIndex = Math.max(0, Math.min(rangeOrder.length - 1, currentRangeIndex + rangeShift));
+  const range_name = rangeOrder[nextRangeIndex];
+  const qualitiesValue = qualities.size ? Array.from(qualities).join(', ') : '–';
+
   return {
     ...baseWeapon,
+    Name: name,
     name,
+    Название: name,
     _baseName: baseName,
     damage,
     fire_rate,
+    range_name,
+    Дистанция: range_name,
+    qualities: qualitiesValue,
+    Качества: qualitiesValue,
     weight: String(weight),
     cost,
     // сохраняем выбранные моды
@@ -158,6 +219,7 @@ const CollapsibleSection = ({ title, children, isExpanded, onToggle }) => {
 const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification }) => {
   const [selectedModifications, setSelectedModifications] = useState({}); // slot -> modRow
   const [modifiedWeapon, setModifiedWeapon] = useState(weapon);
+  const [baseWeaponForMods, setBaseWeaponForMods] = useState(weapon);
   const [expandedCategories, setExpandedCategories] = useState({}); // slot -> boolean
   const [modsBySlot, setModsBySlot] = useState({}); // slot -> modRow[]
 
@@ -168,36 +230,49 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
 
     (async () => {
       try {
-        // фиксируем базовое имя один раз (чтобы не ловить дубли префиксов)
+        const weaponId = weapon.id ?? weapon.weaponId;
+        const dbWeapon = weaponId ? await getWeaponById(weaponId) : null;
+
+        // фиксируем базовое имя и базовые характеристики из БД,
+        // чтобы повторное открытие/перевыбор модов не накапливал префиксы и статы
         const weaponWithBase = {
           ...weapon,
-          _baseName: weapon._baseName ?? weapon.base_name ?? weapon.name ?? weapon.Название ?? '',
+          ...(dbWeapon || {}),
+          id: weaponId ?? dbWeapon?.id,
+          weaponId: weaponId ?? dbWeapon?.id,
+          _baseName: dbWeapon?.name ?? weapon._baseName ?? weapon.base_name ?? weapon.name ?? weapon.Название ?? '',
+          appliedMods: weapon.appliedMods || {},
         };
+
+        setBaseWeaponForMods(weaponWithBase);
         setModifiedWeapon(weaponWithBase);
 
-        const weaponId = weaponWithBase.id ?? weaponWithBase.weaponId;
-        if (!weaponId) {
+        const resolvedWeaponId = weaponWithBase.id ?? weaponWithBase.weaponId;
+        if (!resolvedWeaponId) {
           setModsBySlot({});
           setSelectedModifications({});
           return;
         }
 
-        const slots = await getSlotsForWeapon(weaponId);
+        const slots = await getSlotsForWeapon(resolvedWeaponId);
         const bySlot = {};
 
         if (slots && slots.length) {
           for (const slot of slots) {
-            const mods = await getModsForWeaponSlot(weaponId, slot);
-            bySlot[slot] = (mods || []).map(normalizeModRow).filter(Boolean);
+            const normalizedSlot = normalizeSlotKey(slot);
+            const mods = await getModsForWeaponSlot(resolvedWeaponId, slot);
+            const normalizedMods = (mods || []).map(normalizeModRow).filter(Boolean);
+            if (!bySlot[normalizedSlot]) bySlot[normalizedSlot] = [];
+            bySlot[normalizedSlot].push(...normalizedMods);
           }
         } else {
           // Fallback: если weapon_mod_slots для оружия не заполнен,
           // используем weapon_mods.applies_to_ids и группируем по slot.
-          const mods = await getWeaponMods(weaponId);
+          const mods = await getWeaponMods(resolvedWeaponId);
           for (const m of (mods || [])) {
             const nm = normalizeModRow(m);
             if (!nm) continue;
-            const slot = nm.slot || 'Other';
+            const slot = normalizeSlotKey(nm.slot || nm.rawSlot || 'Other');
             if (!bySlot[slot]) bySlot[slot] = [];
             bySlot[slot].push(nm);
           }
@@ -208,7 +283,8 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
         const applied = weaponWithBase.appliedMods || {};
         for (const [slot, modId] of Object.entries(applied)) {
           const modRow = await getWeaponModById(modId);
-          if (modRow) selected[slot] = normalizeModRow(modRow);
+          const normalizedSlot = normalizeSlotKey(slot);
+          if (modRow) selected[normalizedSlot] = normalizeModRow(modRow);
         }
 
         if (cancelled) return;
@@ -222,6 +298,7 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
         if (!cancelled) {
           setModsBySlot({});
           setSelectedModifications({});
+          setBaseWeaponForMods(weapon);
           setModifiedWeapon(weapon);
         }
       }
@@ -246,7 +323,7 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
     const newSelected = { ...selectedModifications, [slot]: mod };
     setSelectedModifications(newSelected);
 
-    setModifiedWeapon(applyDbModEffectsToWeapon(modifiedWeapon || weapon, newSelected));
+    setModifiedWeapon(applyDbModEffectsToWeapon(baseWeaponForMods || weapon, newSelected));
   };
 
   const handleApplyModification = () => {
@@ -266,6 +343,7 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
     setSelectedModifications({});
     setExpandedCategories({});
     setModsBySlot({});
+    setBaseWeaponForMods(null);
     onClose();
   };
 

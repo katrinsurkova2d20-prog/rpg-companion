@@ -1,0 +1,220 @@
+{
+  "clothes": [
+    {
+      "type": "Костюмы",
+      "items": [
+        {
+          "name": "Лабораторный халат",
+          "protected_area": "Тело",
+          "weight": 0.5, "price": 20, "rarity": 1,
+          "itemType": "clothing", "clothingType": "suit"
+        },
+        {
+          "name": "Униформа Братства Стали",
+          "Физ.СУ": 1, "Энрг.СУ": 1, "Рад.СУ": 1,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 2, "price": 20, "rarity": 2,
+          "itemType": "clothing", "clothingType": "suit"
+        },
+        {
+          "name": "Повседневная одежда",
+          "Физ.СУ": 0, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 1, "price": 5, "rarity": 0,
+          "itemType": "clothing", "clothingType": "suit"
+        },
+        {
+          "name": "Портупея",
+          "Физ.СУ": 0, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 3, "price": 12, "rarity": 1,
+          "itemType": "clothing", "clothingType": "suit"
+        },
+        {
+          "name": "Военная форма",
+          "Физ.СУ": 0, "Энрг.СУ": 1, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 1, "price": 5, "rarity": 1,
+          "itemType": "clothing", "clothingType": "suit"
+        },
+        {
+          "name": "Дорожная кожа",
+          "Физ.СУ": 1, "Энрг.СУ": 1, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 3, "price": 20, "rarity": 1,
+          "itemType": "clothing", "clothingType": "suit"
+        },
+        {
+          "name": "Прочная одежда",
+          "Физ.СУ": 1, "Энрг.СУ": 1, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 1, "price": 20, "rarity": 2,
+          "itemType": "clothing", "clothingType": "suit"
+        },
+        {
+          "name": "Комбинезон Убежища",
+          "Физ.СУ": 0, "Энрг.СУ": 1, "Рад.СУ": 2,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 1, "price": 20, "rarity": 2,
+          "itemType": "clothing", "clothingType": "suit"
+        }
+      ]
+    },
+    {
+      "type": "Обмундирование",
+      "items": [
+        {
+          "name": "Защитный костюм",
+          "protected_area": "Голова, Руки, Ноги, Тело",
+          "weight": 5, "price": 85, "rarity": 3,
+          "itemType": "clothing", "clothingType": "outfit",
+          "effects": [
+            {
+              "type": "immunity",
+              "target": "radiation",
+              "slots": ["body", "leftArm", "rightArm", "leftLeg", "rightLeg"],
+              "permanent": false
+            }
+          ]
+        },
+        {
+          "name": "Облачение Братства Стали",
+          "Физ.СУ": 2, "Энрг.СУ": 2, "Рад.СУ": 2,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 4, "price": 20, "rarity": 3,
+          "itemType": "clothing", "clothingType": "outfit"
+        },
+        {
+          "name": "Доспехи писца Братства",
+          "Физ.СУ": 1, "Энрг.СУ": 2, "Рад.СУ": 2,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 33, "price": 110, "rarity": 3,
+          "itemType": "clothing", "clothingType": "outfit"
+        },
+        {
+          "name": "Бойцовская броня",
+          "Физ.СУ": 3, "Энрг.СУ": 4, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 2, "price": 15, "rarity": 1,
+          "itemType": "clothing", "clothingType": "outfit"
+        },
+        {
+          "name": "Костюм бродяги",
+          "Физ.СУ": 1, "Энрг.СУ": 2, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 2, "price": 30, "rarity": 2,
+          "itemType": "clothing", "clothingType": "outfit"
+        },
+        {
+          "name": "Броня инженера",
+          "Физ.СУ": 1, "Энрг.СУ": 1, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 2, "price": 12, "rarity": 1,
+          "itemType": "clothing", "clothingType": "outfit"
+        },
+        {
+          "name": "Формальная одежда",
+          "Физ.СУ": 0, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 2, "price": 20, "rarity": 1,
+          "itemType": "clothing", "clothingType": "outfit"
+        },
+        {
+          "name": "Плотное пальто",
+          "Физ.СУ": 1, "Энрг.СУ": 1, "Рад.СУ": 1,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 4, "price": 13, "rarity": 0,
+          "itemType": "clothing", "clothingType": "outfit"
+        },
+        {
+          "name": "Шкура",
+          "Физ.СУ": 1, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 2, "price": 10, "rarity": 1,
+          "itemType": "clothing", "clothingType": "outfit"
+        },
+        {
+          "name": "Рабочий Комбинезон",
+          "Физ.СУ": 2, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Руки, Ноги, Тело",
+          "weight": 2, "price": 12, "rarity": 1,
+          "itemType": "clothing", "clothingType": "outfit"
+        }
+      ]
+    },
+    {
+      "type": "Головные уборы",
+      "items": [
+        {
+          "name": "Противогаз",
+          "protected_area": "Голова",
+          "weight": 1.2, "price": 45, "rarity": 2,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+        {
+          "name": "Армейский шлем",
+          "Физ.СУ": 2, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Голова",
+          "weight": 2, "price": 0, "rarity": 0,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+        {
+          "name": "Капюшон",
+          "Физ.СУ": 0, "Энрг.СУ": 1, "Рад.СУ": 0,
+          "protected_area": "Голова",
+          "weight": 0, "price": 1, "rarity": 0,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+         {
+          "name": "Капюшон Братства Стали",
+          "Физ.СУ": 0, "Энрг.СУ": 2, "Рад.СУ": 0,
+          "protected_area": "Голова",
+          "weight": 0, "price": 8, "rarity": 2,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+        {
+          "name": "Шляпа писца",
+          "Физ.СУ": 0, "Энрг.СУ": 2, "Рад.СУ": 0,
+          "protected_area": "Голова",
+          "weight": 0.08, "price": 9, "rarity": 2,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+        {
+          "name": "Обычная шляпа",
+          "Физ.СУ": 0, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Голова",
+          "weight": 0, "price": 0, "rarity": 0,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+        {
+          "name": "Формальная шляпа",
+          "Физ.СУ": 0, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Голова",
+          "weight": 0, "price": 0, "rarity": 0,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+        {
+          "name": "Каска",
+          "Физ.СУ": 2, "Энрг.СУ": 0, "Рад.СУ": 0,
+          "protected_area": "Голова",
+          "weight": 2, "price": 0, "rarity": 0,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+        {
+          "name": "Щиток сварщика",
+          "Физ.СУ": 2, "Энрг.СУ": 2, "Рад.СУ": 0,
+          "protected_area": "Голова",
+          "weight": 2, "price": 2, "rarity": 0,
+          "itemType": "armor", "clothingType": "headwear"
+        },
+        {
+          "name": "Капюшон из мешковины",
+          "Физ.СУ": 0, "Энрг.СУ": 0, "Рад.СУ": 2,
+          "protected_area": "Голова",
+          "weight": 0, "price": 0, "rarity": 2,
+          "itemType": "armor", "clothingType": "headwear"
+        }
+      ]
+    }
+  ]
+}

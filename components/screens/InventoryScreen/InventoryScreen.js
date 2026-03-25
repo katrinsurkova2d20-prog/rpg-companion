@@ -5,10 +5,6 @@ import AddWeaponModal from './modals/AddWeaponModal';
 import CapsModal from './modals/CapsModal';
 import SellItemModal from './modals/SellItemModal';
 import AddItemModal from './modals/AddItemModal';
-
-import allArmor from '../../../assets/Equipment/armor.json';
-import allClothes from '../../../assets/Equipment/Clothes.json';
-import allChems from '../../../assets/Equipment/chems.json';
 import { calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
 
 const CapsSection = ({ caps, onAdd, onSubtract }) => (
@@ -42,6 +38,23 @@ const InventoryScreen = () => {
   const [isSellModalVisible, setIsSellModalVisible] = useState(false);
   const [selectedItemForSale, setSelectedItemForSale] = useState(null);
   const [isAddItemModalVisible, setAddItemModalVisible] = useState(false);
+
+  const getItemName = (item) => item?.Название || item?.name || '';
+  const isWeaponItem = (item) => (item?.itemType || 'weapon') === 'weapon';
+  const getModsSignature = (item) => {
+    const applied = item?.appliedMods || {};
+    const modIds = Object.values(applied).filter(Boolean).sort();
+    return modIds.length ? modIds.join('|') : 'none';
+  };
+  const getStackKey = (item) => {
+    const itemType = item?.itemType || 'weapon';
+    if (itemType === 'weapon') {
+      const baseWeaponId = item?.weaponId || item?.id || getItemName(item);
+      return `weapon:${baseWeaponId}:mods:${getModsSignature(item)}`;
+    }
+    return `${itemType}:${getItemName(item)}`;
+  };
+  const createWeaponInstanceId = () => `weapon-instance-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 
   const handleOpenCapsModal = (type) => {
@@ -171,7 +184,8 @@ const InventoryScreen = () => {
 
   const handleAddItem = (item) => {
     const newItems = equipment?.items ? [...equipment.items] : [];
-    const existingItemIndex = newItems.findIndex(existingItem => (existingItem.Название || existingItem.name) === (item.Название || item.name));
+    const stackKey = getStackKey(item);
+    const existingItemIndex = newItems.findIndex(existingItem => (existingItem.stackKey || getStackKey(existingItem)) === stackKey);
 
     if (existingItemIndex > -1) {
         newItems[existingItemIndex].quantity += 1;
@@ -180,6 +194,7 @@ const InventoryScreen = () => {
         const itemWithType = {
           ...item,
           itemType: item.itemType || 'weapon',
+          stackKey,
           quantity: 1
         };
         newItems.push(itemWithType);
@@ -204,22 +219,13 @@ const InventoryScreen = () => {
   };
 
   const handleEquipWeapon = (weaponToEquip) => {
-    // Убеждаемся, что у оружия есть itemType
-    const weaponWithType = {
-      ...weaponToEquip,
-      itemType: weaponToEquip.itemType || 'weapon'
-    };
-    
-    // Проверяем, является ли это модифицированным оружием
-    const isModified = (weaponToEquip.uniqueId && weaponToEquip.uniqueId.startsWith('modified-')) ||
-      (weaponToEquip.appliedMods && Object.keys(weaponToEquip.appliedMods).length > 0);
     const displayWeapon = weaponToEquip;
     
-    const itemName = displayWeapon.Название || displayWeapon.name;
+    const sourceStackKey = weaponToEquip.stackKey || getStackKey(displayWeapon);
     
     // Проверяем количество этого конкретного предмета в инвентаре
-    const totalOwned = equipment.items.find(i => (i.Название || i.name) === itemName)?.quantity || 0;
-    const alreadyEquippedCount = equippedWeapons.filter(w => w && ((w.Название || w.name) === itemName)).length;
+    const totalOwned = equipment.items.find(i => (i.stackKey || getStackKey(i)) === sourceStackKey)?.quantity || 0;
+    const alreadyEquippedCount = equippedWeapons.filter(w => w && (w.stackKey || getStackKey(w)) === sourceStackKey).length;
 
     if (totalOwned <= alreadyEquippedCount) {
         Alert.alert("Ошибка", "Нет доступных предметов для экипировки.");
@@ -234,7 +240,9 @@ const InventoryScreen = () => {
             // Сохраняем модифицированное оружие с правильным itemType
             const weaponToEquip = {
               ...displayWeapon,
-              itemType: 'weapon'
+              itemType: 'weapon',
+              stackKey: sourceStackKey,
+              uniqueId: displayWeapon.uniqueId || createWeaponInstanceId(),
             };
             newEquipped[index] = weaponToEquip;
             return newEquipped;
@@ -242,7 +250,7 @@ const InventoryScreen = () => {
         
         // Уменьшаем количество предмета в инвентаре
         const newItems = equipment?.items ? [...equipment.items] : [];
-        const itemIndex = newItems.findIndex(i => (i.Название || i.name) === itemName);
+        const itemIndex = newItems.findIndex(i => (i.stackKey || getStackKey(i)) === sourceStackKey);
         
         if (itemIndex !== -1) {
             newItems[itemIndex].quantity -= 1;
@@ -290,47 +298,22 @@ const InventoryScreen = () => {
         )) {
             // Проверяем, является ли это модифицированным оружием
             // Считаем оружие модифицированным если у него есть uniqueId с 'modified-' ИЛИ есть _installedMods (новая система слотов)
-            const isModified = (newEquipped[slot].uniqueId && newEquipped[slot].uniqueId.startsWith('modified-')) ||
-                               (newEquipped[slot]._installedMods && Object.keys(newEquipped[slot]._installedMods).length > 0) ||
-                               (newEquipped[slot].appliedMods && Object.keys(newEquipped[slot].appliedMods).length > 0);
-            
             // Добавляем снятое оружие обратно в инвентарь
             const newItems = equipment?.items ? [...equipment.items] : [];
-            
-            if (isModified) {
-              // Это модифицированное оружие - добавляем его как отдельный предмет
+            const stackKey = newEquipped[slot].stackKey || getStackKey(newEquipped[slot]);
+            const originalWeaponIndex = newItems.findIndex(item => (item.stackKey || getStackKey(item)) === stackKey);
+
+            if (originalWeaponIndex !== -1) {
+              newItems[originalWeaponIndex].quantity += 1;
+            } else {
               const weaponToAdd = {
                 ...newEquipped[slot],
                 quantity: 1,
                 itemType: 'weapon',
-                uniqueId: `modified-${Date.now()}-${Math.random()}`
+                stackKey,
+                uniqueId: undefined,
               };
               newItems.push(weaponToAdd);
-
-            } else {
-              // Это обычное оружие - ищем его в инвентаре и увеличиваем количество
-              const originalWeaponIndex = newItems.findIndex(item => 
-                (item.Название === newEquipped[slot].Название || item.name === newEquipped[slot].name) && 
-                item.itemType === 'weapon' &&
-                (!item.uniqueId || !item.uniqueId.startsWith('modified-')) // Ищем только обычное оружие
-              );
-              
-
-              
-              if (originalWeaponIndex !== -1) {
-                // Увеличиваем количество исходного оружия
-                newItems[originalWeaponIndex].quantity += 1;
-
-              } else {
-                // Если исходного оружия нет в инвентаре, добавляем его
-                const weaponToAdd = {
-                  ...newEquipped[slot],
-                  quantity: 1,
-                  itemType: 'weapon'
-                };
-                newItems.push(weaponToAdd);
-
-              }
             }
             
             updateInventoryItems(newItems);
@@ -490,7 +473,8 @@ const InventoryScreen = () => {
               isEquipped: true, 
               quantity: 1, 
               slot: i, 
-              uniqueId: `weapon-${w.Название || w.name}-${i}`
+              stackKey: w.stackKey || getStackKey(w),
+              uniqueId: w.uniqueId || `weapon-${w.Название || w.name}-${i}`
             };
             equippedItemsList.push(equippedWeapon);
         }
@@ -553,7 +537,7 @@ const InventoryScreen = () => {
             
             // Проверяем, является ли это модифицированным оружием
             // Если у предмета есть uniqueId, начинающийся с 'modified-', то это модифицированное оружие
-            const isModified = item.uniqueId && item.uniqueId.startsWith('modified-');
+            const itemStackKey = item.stackKey || getStackKey(item);
             
             // Используем сам предмет как displayItem
             const displayItem = item;
@@ -562,15 +546,10 @@ const InventoryScreen = () => {
             const equippedCount = equippedItemsList.filter(equippedItem => {
                 const equippedName = equippedItem.Название || equippedItem.name;
                 const itemName = displayItem.Название || displayItem.name;
-                
-                // Для модифицированного оружия сравниваем по названию
-                // Для обычного оружия сравниваем по названию и проверяем, что это не модифицированное
-                if (isModified) {
-                  return equippedName === itemName;
-                } else {
-                  return equippedName === itemName && 
-                         (!equippedItem.uniqueId || !equippedItem.uniqueId.startsWith('modified-'));
+                if (isWeaponItem(displayItem) && isWeaponItem(equippedItem)) {
+                  return (equippedItem.stackKey || getStackKey(equippedItem)) === itemStackKey;
                 }
+                return equippedName === itemName;
             }).length;
             
 
@@ -581,9 +560,10 @@ const InventoryScreen = () => {
                 return {
                     ...displayItem,
                     itemType: item.itemType || 'weapon',
+                    stackKey: itemStackKey,
                     quantity: remainingQuantity,
                     isEquipped: false,
-                    uniqueId: isModified ? item.uniqueId || `inv-modified-${itemName}` : `inv-stack-${itemName}`
+                    uniqueId: item.uniqueId || `inv-stack-${itemStackKey}`
                 };
             }
             return null;

@@ -1,41 +1,46 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, TextInput } from 'react-native';
-
-import allArmor from '../../../../assets/Equipment/armor.json';
-import allClothes from '../../../../assets/Equipment/Clothes.json';
-import ammoData from '../../../../assets/Equipment/ammoData.json';
-import chemsData from '../../../../assets/Equipment/chems.json';
 import { getWeapons } from '../../../../db/Database';
-
-const STATIC_DATA = {
-  'Броня': allArmor.armor.reduce((acc, category) => {
-    acc[category.type] = category.items;
-    return acc;
-  }, {}),
-  'Одежда': allClothes.clothes.reduce((acc, category) => {
-    acc[category.type] = category.items;
-    return acc;
-  }, {}),
-  'Боеприпасы': { 'Все': ammoData },
-  'Еда': {},
-  'Препараты': { 'Все': chemsData },
-  'Материалы': {},
-};
+import { getEquipmentCatalog } from '../../../../i18n/equipmentCatalog';
 
 const WEAPON_TYPE_LABELS = {
   'Light': 'Стрелковое',
+  'Small Guns': 'Стрелковое',
   'Heavy': 'Тяжелое',
+  'Big Guns': 'Тяжелое',
   'Energy': 'Энергетическое',
+  'Energy Weapons': 'Энергетическое',
   'Melee': 'Ближний бой',
+  'Melee Weapons': 'Ближний бой',
   'Unarmed': 'Рукопашная',
   'Thrown': 'Метательное',
+  'Throwing': 'Метательное',
   'Explosive': 'Взрывчатка',
+  'Explosives': 'Взрывчатка',
 };
 
 const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   const [currentPath, setCurrentPath] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [weaponsByType, setWeaponsByType] = useState({});
+
+  const staticData = useMemo(() => {
+    const equipmentCatalog = getEquipmentCatalog();
+    return {
+      'Броня': (equipmentCatalog.armor?.armor || []).reduce((acc, category) => {
+        acc[category.type] = category.items;
+        return acc;
+      }, {}),
+      'Одежда': (equipmentCatalog.clothes?.clothes || []).reduce((acc, category) => {
+        acc[category.type] = category.items;
+        return acc;
+      }, {}),
+      'Боеприпасы': { 'Все': equipmentCatalog.ammoData || [] },
+      'Еда': {},
+      'Препараты': { 'Все': equipmentCatalog.chems || [] },
+      'Материалы': {},
+    };
+  }, []);
 
   useEffect(() => {
     if (!visible) return;
@@ -52,11 +57,11 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
 
   const allData = useMemo(() => ({
     'Оружие': weaponsByType,
-    ...STATIC_DATA,
-  }), [weaponsByType]);
+    ...staticData,
+  }), [weaponsByType, staticData]);
 
   const handleSelect = (item) => {
-    const itemName = item.Название || item.name;
+    const itemName = item.Name || item.name;
     if (typeof item === 'object' && itemName) {
       onSelectItem(item);
       onClose();
@@ -108,7 +113,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
       // Фильтруем по поисковому запросу
       const filteredItems = allItems.filter(item => {
         if (!item) return false;
-        const itemName = item.Название || item.name;
+        const itemName = item.Name || item.name;
         return itemName && itemName.toLowerCase().includes(searchTerm.toLowerCase());
       });
       
@@ -138,7 +143,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   }, [currentPath, searchTerm, allData]);
 
   const renderItem = ({ item }) => {
-    const itemName = item.Название || item.name;
+    const itemName = item.Name || item.name;
     const isItem = typeof item === 'object' && itemName;
     
     // Определяем тип предмета для отображения
@@ -199,7 +204,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
             data={currentData.items || currentData.categories}
             renderItem={renderItem}
             keyExtractor={(item, index) => {
-                const key = typeof item === 'object' ? (item.Название || item.name) : item;
+                const key = typeof item === 'object' ? (item.Name || item.name) : item;
                 return `${key}-${index}`;
             }}
             ListEmptyComponent={<Text style={styles.emptyText}>Категория пуста</Text>}

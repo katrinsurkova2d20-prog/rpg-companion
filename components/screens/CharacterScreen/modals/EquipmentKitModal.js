@@ -4,6 +4,11 @@ import { resolveKitItems } from '../../WeaponsAndArmorScreen/kitResolver.js';
 
 // Безопасный match для возможных не-строковых значений
 const safeMatch = (value, regex) => (typeof value === 'string' ? value.match(regex) : null);
+const toGroupKey = (group) =>
+  `group-${(Array.isArray(group) ? group : [])
+    .map(i => i?.name)
+    .filter(Boolean)
+    .join('+')}`;
 
 const kitCategories = [
   { key: 'armor', title: 'Броня' },
@@ -36,9 +41,9 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
             if (kit[key]) {
               kit[key].forEach((item, index) => {
                 if (item?.type === 'choice') {
-                  const firstOption = item.options[0];
+                  const firstOption = Array.isArray(item.options) ? item.options[0] : null;
                   if (firstOption?.group) {
-                    initialChoices[`${kit.name}-${key}-${index}`] = `group-${firstOption.group.map(i => i.name).join('+')}`;
+                    initialChoices[`${kit.name}-${key}-${index}`] = toGroupKey(firstOption.group);
                   } else {
                     initialChoices[`${kit.name}-${key}-${index}`] = firstOption?.name;
                   }
@@ -62,7 +67,7 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
 
   const handleSelectChoice = (kitName, categoryKey, itemIndex, option) => {
     const isGroup = !!option.group;
-    const groupKey = isGroup ? `group-${option.group.map(i => i.name).join('+')}` : option.name;
+    const groupKey = isGroup ? toGroupKey(option.group) : option.name;
     setSelectedChoices(prev => ({ ...prev, [`${kitName}-${categoryKey}-${itemIndex}`]: groupKey }));
   };
 
@@ -77,11 +82,12 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
           let chosenItem = item.type === 'fixed' ? item : null;
           if (item.type === 'choice') {
             const selectedKey = selectedChoices[`${kit.name}-${key}-${index}`];
-            chosenItem = item.options.find(opt => {
+            const options = Array.isArray(item.options) ? item.options : [];
+            chosenItem = options.find(opt => {
               const isGroup = !!opt.group;
-              const groupKey = isGroup ? `group-${opt.group.map(i => i.name).join('+')}` : opt.name;
+              const groupKey = isGroup ? toGroupKey(opt.group) : opt.name;
               return groupKey === selectedKey;
-            });
+            }) || options[0] || null;
           }
 
           if (chosenItem) {
@@ -239,9 +245,9 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
                               if (item?.type === 'choice') {
                                 return (
                                   <View key={index} style={styles.choiceContainer}>
-                                    {item.options.map(opt => {
+                                    {(Array.isArray(item.options) ? item.options : []).map((opt, optionIndex) => {
                                       const isGroup = !!opt.group;
-                                      const groupKey = isGroup ? `group-${opt.group.map(i => i.name).join('+')}` : opt.name;
+                                      const groupKey = isGroup ? toGroupKey(opt.group) : (opt.name || `${kit.name}-${key}-${index}-${optionIndex}`);
                                       return (
                                         <TouchableOpacity
                                           key={groupKey}
@@ -253,7 +259,7 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
                                             selectedChoices[`${kit.name}-${key}-${index}`] === groupKey && styles.radioSelected
                                           ]} />
                                           {isGroup
-                                            ? <Text>{opt.group.map(i => i.name).join(' + ')}</Text>
+                                            ? <Text>{(Array.isArray(opt.group) ? opt.group : []).map(i => i?.name).filter(Boolean).join(' + ')}</Text>
                                             : renderItemDetails(opt)
                                           }
                                         </TouchableOpacity>

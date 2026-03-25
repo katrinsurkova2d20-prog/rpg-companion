@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export const CREATE_TABLES = [
   `CREATE TABLE IF NOT EXISTS schema_meta (
@@ -21,6 +21,8 @@ export const CREATE_TABLES = [
     ammo_id TEXT,
     range TEXT,
     range_name TEXT,
+    main_attr TEXT,
+    main_skill TEXT,
     rules TEXT,
     flavour TEXT,
     mods_config TEXT

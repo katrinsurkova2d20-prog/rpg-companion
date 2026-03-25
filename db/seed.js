@@ -1,17 +1,8 @@
 import { runBatch, getFirst, runQuery } from './Database';
 import { SCHEMA_VERSION } from './schema';
-
-import weaponsData from '../assets/Equipment/weapons.json';
-import weaponModsData from '../assets/Equipment/weapon_mods.json';
-import ammoTypesData from '../assets/Equipment/ammo_types.json';
-import qualitiesData from '../assets/Equipment/qualities.json';
-import modsOverridesData from '../assets/Equipment/mods_overrides.json';
-
-import armorData from '../assets/Equipment/armor.json';
-import clothesData from '../assets/Equipment/Clothes.json';
-import chemsData from '../assets/Equipment/chems.json';
-import miscData from '../assets/Equipment/miscellaneous.json';
 import perksData from '../assets/Perks/perks.json';
+import { getEquipmentCatalog } from '../i18n/equipmentCatalog';
+import { getCurrentLocale } from '../i18n/locale';
 
 function safeStr(v) {
   if (v === null || v === undefined) return null;
@@ -33,13 +24,14 @@ async function clearTable(tableName) {
   await runQuery(`DELETE FROM ${tableName}`, []);
 }
 
-async function seedWeapons() {
+async function seedWeapons(equipmentCatalog) {
+  const { weapons: weaponsData } = equipmentCatalog;
   await clearTable('weapons');
   const statements = weaponsData.map(w => ({
     sql: `INSERT OR REPLACE INTO weapons
       (id, name, weapon_type, damage, damage_effects, damage_type, fire_rate, qualities,
-       weight, cost, rarity, ammo_id, range, range_name, rules, flavour)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       weight, cost, rarity, ammo_id, range, range_name, main_attr, main_skill, rules, flavour)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     params: [
       w.id,
       w.Name || '',
@@ -55,6 +47,8 @@ async function seedWeapons() {
       safeStr(w['Ammo']),
       safeStr(w['Range']),
       safeStr(w['range name']),
+      safeStr(w['main_attr']),
+      safeStr(w['main_skill']),
       safeStr(w['Rules']),
       safeStr(w['Flavour']),
     ],
@@ -62,7 +56,8 @@ async function seedWeapons() {
   if (statements.length > 0) await runBatch(statements);
 }
 
-async function seedWeaponMods() {
+async function seedWeaponMods(equipmentCatalog) {
+  const { weaponMods: weaponModsData } = equipmentCatalog;
   await clearTable('weapon_mods');
   const statements = weaponModsData.map(m => ({
     sql: `INSERT OR REPLACE INTO weapon_mods
@@ -90,7 +85,8 @@ async function seedWeaponMods() {
   if (statements.length > 0) await runBatch(statements);
 }
 
-async function seedWeaponModSlots() {
+async function seedWeaponModSlots(equipmentCatalog) {
+  const { modsOverrides: modsOverridesData } = equipmentCatalog;
   await clearTable('weapon_mod_slots');
   const statements = [];
   for (const [weaponId, slots] of Object.entries(modsOverridesData)) {
@@ -106,7 +102,8 @@ async function seedWeaponModSlots() {
   if (statements.length > 0) await runBatch(statements);
 }
 
-async function seedAmmoTypes() {
+async function seedAmmoTypes(equipmentCatalog) {
+  const { ammoTypes: ammoTypesData } = equipmentCatalog;
   await clearTable('ammo_types');
   const statements = ammoTypesData.map(a => ({
     sql: `INSERT OR REPLACE INTO ammo_types (id, name, rarity, cost) VALUES (?, ?, ?, ?)`,
@@ -115,7 +112,8 @@ async function seedAmmoTypes() {
   if (statements.length > 0) await runBatch(statements);
 }
 
-async function seedQualities() {
+async function seedQualities(equipmentCatalog) {
+  const { qualities: qualitiesData } = equipmentCatalog;
   await clearTable('weapon_qualities');
   const statements = qualitiesData.map(q => ({
     sql: `INSERT OR REPLACE INTO weapon_qualities (id, name, effect, opposite) VALUES (?, ?, ?, ?)`,
@@ -141,7 +139,13 @@ async function seedPerks() {
   if (statements.length > 0) await runBatch(statements);
 }
 
-async function seedItems() {
+async function seedItems(equipmentCatalog) {
+  const {
+    armor: armorData,
+    clothes: clothesData,
+    chems: chemsData,
+    miscellaneous: miscData,
+  } = equipmentCatalog;
   await clearTable('items');
   const statements = [];
 
@@ -181,22 +185,33 @@ async function seedItems() {
 }
 
 export async function seedDatabase(isFirstRun) {
+  const currentLocale = getCurrentLocale();
+  const equipmentCatalog = getEquipmentCatalog(currentLocale);
+
   const seededRow = await getFirst(
     "SELECT value FROM schema_meta WHERE key = 'seeded_version'",
     []
   );
+  const localeRow = await getFirst(
+    "SELECT value FROM schema_meta WHERE key = 'seeded_locale'",
+    []
+  );
   const seededVersion = seededRow ? Number(seededRow.value) : 0;
+  const seededLocale = localeRow?.value || null;
 
-  if (!isFirstRun && seededVersion >= SCHEMA_VERSION) return;
+  const shouldReseedForVersion = seededVersion < SCHEMA_VERSION;
+  const shouldReseedForLocale = seededLocale !== currentLocale;
+
+  if (!isFirstRun && !shouldReseedForVersion && !shouldReseedForLocale) return;
 
   await Promise.all([
-    seedWeapons(),
-    seedWeaponMods(),
-    seedWeaponModSlots(),
-    seedAmmoTypes(),
-    seedQualities(),
+    seedWeapons(equipmentCatalog),
+    seedWeaponMods(equipmentCatalog),
+    seedWeaponModSlots(equipmentCatalog),
+    seedAmmoTypes(equipmentCatalog),
+    seedQualities(equipmentCatalog),
     seedPerks(),
-    seedItems(),
+    seedItems(equipmentCatalog),
   ]);
 
   const existing = await getFirst("SELECT key FROM schema_meta WHERE key = 'seeded_version'", []);
@@ -204,5 +219,12 @@ export async function seedDatabase(isFirstRun) {
     await runQuery("UPDATE schema_meta SET value = ? WHERE key = 'seeded_version'", [String(SCHEMA_VERSION)]);
   } else {
     await runQuery("INSERT INTO schema_meta (key, value) VALUES ('seeded_version', ?)", [String(SCHEMA_VERSION)]);
+  }
+
+  const localeExisting = await getFirst("SELECT key FROM schema_meta WHERE key = 'seeded_locale'", []);
+  if (localeExisting) {
+    await runQuery("UPDATE schema_meta SET value = ? WHERE key = 'seeded_locale'", [currentLocale]);
+  } else {
+    await runQuery("INSERT INTO schema_meta (key, value) VALUES ('seeded_locale', ?)", [currentLocale]);
   }
 }

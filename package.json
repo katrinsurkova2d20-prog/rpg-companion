@@ -30,7 +30,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
-    "serve": "^14.2.5"
+    "serve": "^14.2.5",
+    "typescript": "~5.8.3",
+    "@types/react": "~19.0.10"
   },
   "private": true
 }

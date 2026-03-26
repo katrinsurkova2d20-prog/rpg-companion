@@ -32,6 +32,7 @@ import {
   canChangeSkillValue,
   getAttributeLimits,
   validateSkills,
+  calculateMaxHealth,
   ALL_SKILLS,
   isMultiTraitOrigin,
   MAX_ATTRIBUTE,
@@ -261,6 +262,7 @@ export default function CharacterScreen() {
     setEffects,
     caps,
     setCaps,
+    setCurrentHealth,
     luckPoints,
     setLuckPoints,
     maxLuckPoints,
@@ -287,6 +289,14 @@ export default function CharacterScreen() {
   // Состояние для временного распределения очков атрибутов от перков
   const [tempAttributes, setTempAttributes] = useState(null);
   const [perkPointsToDistribute, setPerkPointsToDistribute] = useState(0);
+
+  const showError = (message) => {
+    if (Platform.OS === "web" && typeof window !== "undefined" && typeof window.alert === "function") {
+      window.alert(message);
+      return;
+    }
+    Alert.alert("Ошибка", message);
+  };
 
   // Активация режима распределения очков от перков
   useEffect(() => {
@@ -810,21 +820,24 @@ export default function CharacterScreen() {
 
   const handleSaveAttributes = () => {
     if (!origin) {
-      Alert.alert("Ошибка", "Необходимо выбрать происхождение.");
+      showError("Необходимо выбрать происхождение.");
       return;
     }
     if (!trait) {
-      Alert.alert("Ошибка", "Необходимо выбрать черту.");
+      showError("Необходимо выбрать черту.");
       return;
     }
     if (!equipment) {
-      Alert.alert("Ошибка", "Необходимо выбрать комплект снаряжения.");
+      showError("Необходимо выбрать комплект снаряжения.");
       return;
     }
     if (remainingAttributePoints !== 0) {
-      Alert.alert("Ошибка", "Потратьте все очки атрибутов перед сохранением.");
+      showError("Потратьте все очки атрибутов перед сохранением.");
       return;
     }
+
+    const initialMaxHealth = calculateMaxHealth(attributes, level);
+    setCurrentHealth(initialMaxHealth);
     setAttributesSaved(true);
     setSkillsSaved(false);
   };

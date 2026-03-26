@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, ScrollView, StyleSheet, ImageBackground, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useCharacter } from '../../CharacterContext';
 import { calculateInitiative, calculateDefense, calculateMeleeBonus, calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
@@ -185,8 +185,6 @@ const WeaponsAndArmorScreen = () => {
     equippedWeapons,
     setEquippedWeapons,
     equippedArmor,
-    currentHealth,
-    setCurrentHealth,
     saveModifiedItem,
     equipment,
     setEquipment,
@@ -210,13 +208,6 @@ const WeaponsAndArmorScreen = () => {
   
 
   
-  // Инициализируем здоровье только после сохранения атрибутов
-  useEffect(() => {
-    if (attributesSaved && currentHealth === 0) {
-      setCurrentHealth(maxHealth);
-    }
-  }, [attributesSaved, currentHealth, maxHealth, setCurrentHealth]);
-
   // Функции для работы с модальным окном модификаций
   const handleOpenModificationModal = (weapon) => {
     if (!weapon) {

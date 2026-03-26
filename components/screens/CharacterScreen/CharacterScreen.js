@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   ScrollView,
   ImageBackground,
@@ -41,8 +40,10 @@ import {
   getCanonicalAttributeKey,
   normalizeAttributeMap,
 } from "./logic/attributeKeyUtils";
-import { tCharacterScreen } from "./logic/characterScreenI18n";
-import { getCurrentLocale, setCurrentLocale } from "../../../i18n/locale";
+import {
+  getSkillDisplayName,
+  tCharacterScreen,
+} from "./logic/characterScreenI18n";
 import { AttributesSection } from "./AttributesSection";
 import styles from "../../../styles";
 
@@ -1197,7 +1198,7 @@ export default function CharacterScreen() {
             <View style={styles.rightColumn}>
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>НАВЫКИ</Text>
+                  <Text style={styles.sectionTitle}>{tCharacterScreen("labels.skills", "Навыки").toUpperCase()}</Text>
                   {attributesSaved && !skillsSaved && (
                     <Text style={styles.skillsCount}>
                       Доступно: {skillPointsLeft} очков
@@ -1223,7 +1224,7 @@ export default function CharacterScreen() {
                   return (
                     <SkillRow
                       key={index}
-                      name={skill.name}
+                      name={getSkillDisplayName(skill.name)}
                       value={skill.value}
                       isSelected={isTagged}
                       isMaxReached={isMaxReached}

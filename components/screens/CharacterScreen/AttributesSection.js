@@ -66,7 +66,9 @@ export const AttributesSection = ({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>АТРИБУТЫ</Text>
+        <Text style={styles.sectionTitle}>
+          {tCharacterScreen('labels.attributes', 'Атрибуты').toUpperCase()}
+        </Text>
         {(!attributesSaved || isPerkMode) && (
           <Text style={styles.pointsText}>{tCharacterScreen('labels.points', 'Очки')}: {remainingAttributePoints}</Text>
         )}

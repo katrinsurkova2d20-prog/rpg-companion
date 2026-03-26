@@ -13,6 +13,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useCharacter } from '../../CharacterContext';
 import { ORIGINS } from '../CharacterScreen/logic/originsData';
+import { getCurrentLocale, setCurrentLocale } from '../../../i18n/locale';
 
 const getOriginImage = (originName) => {
   if (!originName) return null;
@@ -67,9 +68,17 @@ const CharacterCell = ({ character, onPress, onDelete }) => {
 const EmptyCell = ({ id }) => <View key={id} style={styles.emptyCell} />;
 
 export default function HomeScreen({ navigation }) {
+  const [locale, setLocale] = useState(getCurrentLocale());
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const { getCharactersList, loadCharacter, resetCharacter, deleteCharacter } = useCharacter();
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const languageOptions = [
+    { code: 'ru-RU', label: 'Русский', flag: '🇷🇺' },
+    { code: 'en-EN', label: 'English', flag: '🇬🇧' },
+  ];
+  const currentLanguage =
+    languageOptions.find((lang) => lang.code === locale) || languageOptions[0];
 
   const loadList = useCallback(async () => {
     setLoading(true);
@@ -150,6 +159,35 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
+        <View style={styles.languageContainer}>
+          <TouchableOpacity
+            style={styles.languageButton}
+            onPress={() => setShowLanguageMenu(prev => !prev)}
+          >
+            <Text style={styles.languageButtonText}>
+              {currentLanguage.flag}
+            </Text>
+          </TouchableOpacity>
+          {showLanguageMenu && (
+            <View style={styles.languageMenu}>
+              {languageOptions.map((lang) => (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={styles.languageMenuItem}
+                  onPress={() => {
+                    setCurrentLocale(lang.code);
+                    setLocale(lang.code);
+                    setShowLanguageMenu(false);
+                  }}
+                >
+                  <Text style={styles.languageMenuItemText}>
+                    {lang.flag} {lang.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
         <Text style={styles.title}>Менеджер персонажей</Text>
         <Text style={styles.subtitle}>Ролевая игра Fallout (2d20)</Text>
       </View>
@@ -192,6 +230,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   titleContainer: {
+    position: 'relative',
     paddingVertical: 14,
     paddingHorizontal: 16,
     backgroundColor: 'rgba(0,0,0,0.75)',
@@ -210,6 +249,40 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'center',
     marginTop: 2,
+  },
+  languageContainer: {
+    position: 'absolute',
+    right: 8,
+    top: 8,
+    zIndex: 10,
+  },
+  languageButton: {
+    backgroundColor: '#222',
+    borderWidth: 1,
+    borderColor: '#555',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  languageButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  languageMenu: {
+    marginTop: 4,
+    backgroundColor: '#111',
+    borderWidth: 1,
+    borderColor: '#444',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  languageMenuItem: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  languageMenuItemText: {
+    color: '#fff',
+    fontSize: 12,
   },
   scrollView: {
     flex: 1,

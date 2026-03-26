@@ -3,6 +3,7 @@
     "characterName": "Имя",
     "origin": "Происхождение",
     "trait": "Черта",
+    "attributes": "Атрибуты",
     "equipmentKit": "Комплект снаряжения",
     "level": "Уровень",
     "skills": "Навыки",

@@ -3,6 +3,7 @@
     "characterName": "Name",
     "origin": "Origin",
     "trait": "Trait",
+    "attributes": "Attributes",
     "equipmentKit": "Equipment Kit",
     "level": "Level",
     "skills": "Skills",

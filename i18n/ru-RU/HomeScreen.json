@@ -1,0 +1,20 @@
+{
+  "title": "Менеджер персонажей",
+  "subtitle": "Ролевая игра Fallout (2d20)",
+  "createButton": {
+    "text": "Создать\nперсонажа",
+    "plus": "+"
+  },
+  "deleteConfirm": "Вы действительно хотите удалить этого персонажа?",
+  "language": {
+    "russian": "Русский",
+    "english": "English"
+  },
+  "labels": {
+    "level": "Ур."
+  },
+  "buttons": {
+    "yes": "Да",
+    "no": "Нет"
+  }
+}

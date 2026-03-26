@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCharacter } from '../../CharacterContext';
 import { ORIGINS } from '../CharacterScreen/logic/originsData';
 import { getCurrentLocale, setCurrentLocale } from '../../../i18n/locale';
+import { tHomeScreen } from './logic/homeScreenI18n';
 
 const getOriginImage = (originName) => {
   if (!originName) return null;
@@ -23,10 +24,10 @@ const getOriginImage = (originName) => {
 
 const NUM_COLS = 3;
 
-const CreateCell = ({ onPress }) => (
+const CreateCell = ({ onPress, locale }) => (
   <TouchableOpacity style={styles.createCell} onPress={onPress} activeOpacity={0.7}>
-    <Text style={styles.createPlus}>+</Text>
-    <Text style={styles.createLabel}>Создать{'\n'}персонажа</Text>
+    <Text style={styles.createPlus}>{tHomeScreen("createButton.plus", "+")}</Text>
+    <Text style={styles.createLabel}>{tHomeScreen("createButton.text", "Создать\nперсонажа")}</Text>
   </TouchableOpacity>
 );
 
@@ -59,7 +60,7 @@ const CharacterCell = ({ character, onPress, onDelete }) => {
       </TouchableOpacity>
       <Text style={styles.characterName} numberOfLines={2}>{character.name}</Text>
       {character.level ? (
-        <Text style={styles.characterLevel}>Ур. {character.level}</Text>
+        <Text style={styles.characterLevel}>{tHomeScreen("labels.level", "Ур.")} {character.level}</Text>
       ) : null}
     </TouchableOpacity>
   );
@@ -117,8 +118,10 @@ export default function HomeScreen({ navigation }) {
       loadList();
     };
 
+    const confirmMessage = tHomeScreen('deleteConfirm', 'Вы действительно хотите удалить этого персонажа?');
+
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      const confirmed = window.confirm('Вы действительно хотите удалить этого персонажа?');
+      const confirmed = window.confirm(confirmMessage);
       if (confirmed) {
         confirmDelete();
       }
@@ -126,15 +129,15 @@ export default function HomeScreen({ navigation }) {
     }
 
     Alert.alert(
-      'Удаление персонажа',
-      'Вы действительно хотите удалить этого персонажа?',
+      tHomeScreen('title', 'Менеджер персонажей'),
+      confirmMessage,
       [
         {
-          text: 'Да',
+          text: tHomeScreen('buttons.yes', 'Да') || 'Да',
           style: 'destructive',
           onPress: confirmDelete,
         },
-        { text: 'Нет', style: 'cancel' },
+        { text: tHomeScreen('buttons.no', 'Нет') || 'Нет', style: 'cancel' },
       ],
       { cancelable: false }
     );
@@ -188,8 +191,8 @@ export default function HomeScreen({ navigation }) {
             </View>
           )}
         </View>
-        <Text style={styles.title}>Менеджер персонажей</Text>
-        <Text style={styles.subtitle}>Ролевая игра Fallout (2d20)</Text>
+        <Text style={styles.title}>{tHomeScreen("title", "Менеджер персонажей")}</Text>
+        <Text style={styles.subtitle}>{tHomeScreen("subtitle", "Ролевая игра Fallout (2d20)")}</Text>
       </View>
       <ScrollView
         style={styles.scrollView}
@@ -202,7 +205,7 @@ export default function HomeScreen({ navigation }) {
             <View key={rowIndex} style={styles.row}>
               {row.map((item) => {
                 if (item.type === 'create') {
-                  return <CreateCell key="create" onPress={handleCreate} />;
+                  return <CreateCell key="create" onPress={handleCreate} locale={locale} />;
                 }
                 if (item.type === 'empty') {
                   return <EmptyCell key={item.id} id={item.id} />;

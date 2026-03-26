@@ -1,0 +1,20 @@
+{
+  "title": "Character Manager",
+  "subtitle": "Fallout Tabletop Roleplaying (2d20)",
+  "createButton": {
+    "text": "Create\nCharacter",
+    "plus": "+"
+  },
+  "deleteConfirm": "Do you really want to delete this character?",
+  "language": {
+    "russian": "Русский",
+    "english": "English"
+  },
+  "labels": {
+    "level": "Lvl."
+  },
+  "buttons": {
+    "yes": "Yes",
+    "no": "No"
+  }
+}

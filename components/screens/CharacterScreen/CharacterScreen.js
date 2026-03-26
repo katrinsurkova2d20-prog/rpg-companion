@@ -44,6 +44,7 @@ import {
   getSkillDisplayName,
   tCharacterScreen,
 } from "./logic/characterScreenI18n";
+import { getCurrentLocale, setCurrentLocale } from "../../../i18n/locale";
 import { AttributesSection } from "./AttributesSection";
 import styles from "../../../styles";
 
@@ -738,7 +739,7 @@ export default function CharacterScreen() {
           };
         }
       });
-      // Применяем +2 к новым обязательным навыкам (если их значение < 2)
+      // Применяем +2 к новым об��зательным навыкам (если их значение < 2)
       newForcedSkills.forEach((skillName) => {
         const index = tempSkills.findIndex((s) => s.name === skillName);
         if (index > -1 && tempSkills[index].value < 2) {

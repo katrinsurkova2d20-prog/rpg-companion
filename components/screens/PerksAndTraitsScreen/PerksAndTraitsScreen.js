@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useCharacter } from '../../CharacterContext';
-import { TRAITS } from '../CharacterScreen/logic/traitsData';
+import { getTraitDisplayDescription } from '../CharacterScreen/logic/traitsData';
 import perksData from '../../../assets/Perks/perks.json';
 import PerkSelectModal from './PerkSelectModal';
 
@@ -96,7 +96,9 @@ const PerksAndTraitsScreen = () => {
             <View style={styles.row}>
               <Text style={[styles.cell, styles.nameColumn]}>{trait.name}</Text>
               <Text style={[styles.cell, styles.rankColumn]}></Text>
-              <Text style={[styles.cell, styles.descriptionColumn]}>{TRAITS[trait.name]?.description || trait.description}</Text>
+              <Text style={[styles.cell, styles.descriptionColumn]}>
+                {getTraitDisplayDescription(trait)}
+              </Text>
             </View>
           )}
 

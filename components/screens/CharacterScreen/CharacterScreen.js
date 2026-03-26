@@ -37,6 +37,11 @@ import {
   isMultiTraitOrigin,
   MAX_ATTRIBUTE,
 } from "./logic/characterLogic";
+import {
+  getCanonicalAttributeKey,
+  normalizeAttributeMap,
+} from "./logic/attributeKeyUtils";
+import { tCharacterScreen } from "./logic/characterScreenI18n";
 import { AttributesSection } from "./AttributesSection";
 import styles from "../../../styles";
 
@@ -65,22 +70,22 @@ const ResetConfirmationModal = ({ visible, onCancel, onConfirm }) => (
   >
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>Внимание!</Text>
+        <Text style={styles.modalTitle}>{tCharacterScreen("warnings.attentionTitle", "Внимание!")}</Text>
         <Text style={styles.modalText}>
-          Все значения будут сброшены к изначальным параметрам.
+          {tCharacterScreen("warnings.resetAllValues", "Все значения будут сброшены к изначальным параметрам.")}
         </Text>
         <View style={styles.modalButtons}>
           <TouchableOpacity
             style={[styles.modalButton, styles.cancelButton]}
             onPress={onCancel}
           >
-            <Text style={styles.buttonText}>Отмена</Text>
+            <Text style={styles.buttonText}>{tCharacterScreen("buttons.cancel", "Отмена")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.modalButton, styles.confirmButton]}
             onPress={onConfirm}
           >
-            <Text style={styles.buttonText}>Согласен</Text>
+            <Text style={styles.buttonText}>{tCharacterScreen("buttons.agree", "Согласен")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -99,7 +104,8 @@ const PressableRow = ({ title, value, onPress, disabled }) => (
     <Text
       style={[
         styles.pressableValue,
-        value === "Не выбрано" && styles.placeholderText,
+        value === tCharacterScreen("placeholders.selectNone", "Не выбрано") &&
+          styles.placeholderText,
       ]}
     >
       {value}
@@ -211,7 +217,7 @@ const LuckPointsRow = ({ luckPoints, maxLuckPoints, onSpend, onRestore }) => {
 
   return (
     <View style={styles.luckRow}>
-      <Text style={styles.luckTitle}>Очки{"\n"}Удачи</Text>
+      <Text style={styles.luckTitle}>{tCharacterScreen("labels.luckPoints", "Очки удачи")}</Text>
       <View style={styles.luckValueContainer}>
         <TouchableOpacity
           onPress={onSpend}
@@ -661,17 +667,23 @@ export default function CharacterScreen() {
 
     // Атомарно обновляем все состояния, отменяя старые и применяя новые модификаторы
     setAttributes((currentAttributes) => {
-      const oldAttrMods = oldTrait?.modifiers?.attributes || {};
-      const newAttrMods = newTrait?.modifiers?.attributes || {};
+      const oldAttrMods = normalizeAttributeMap(
+        oldTrait?.modifiers?.attributes || {},
+      );
+      const newAttrMods = normalizeAttributeMap(
+        newTrait?.modifiers?.attributes || {},
+      );
       // Сначала отменяем старые модификаторы
       let tempAttrs = currentAttributes.map((attr) => ({
         ...attr,
-        value: attr.value - (oldAttrMods[attr.name] || 0),
+        value:
+          attr.value - (oldAttrMods[getCanonicalAttributeKey(attr.name)] || 0),
       }));
       // Затем применяем новые
       return tempAttrs.map((attr) => ({
         ...attr,
-        value: attr.value + (newAttrMods[attr.name] || 0),
+        value:
+          attr.value + (newAttrMods[getCanonicalAttributeKey(attr.name)] || 0),
       }));
     });
 
@@ -739,7 +751,7 @@ export default function CharacterScreen() {
     if (newTrait.name === "Одаренный") {
       // Prompt user to choose two attributes
       // For simplicity, assume a modal or something, but since it's not specified, placeholder
-      const chosenAttrs = ["СИЛ", "ИНТ"]; // Example
+      const chosenAttrs = ["STR", "INT"]; // Example
       chosenAttrs.forEach((attr) => {
         setAttributes((prev) =>
           prev.map((a) => (a.name === attr ? { ...a, value: a.value + 1 } : a)),
@@ -750,7 +762,7 @@ export default function CharacterScreen() {
 
     // For Small Frame
     if (newTrait.name === "Миниатюрный") {
-      const str = attributes.find((a) => a.name === "СИЛ").value;
+      const str = attributes.find((a) => a.name === "STR")?.value;
       // setCarryWeight(150 + (5 * str)); // This line was not in the original file, so it's commented out.
     }
   };
@@ -758,19 +770,19 @@ export default function CharacterScreen() {
   // Обработчик нажатия на строку черты
   const handleTraitPress = () => {
     if (!origin) {
-      showError("Сначала выберите происхождение");
+      showError(tCharacterScreen("warnings.selectOriginFirst", "Сначала выберите происхождение"));
       return;
     }
 
     // Блокируем, если черта уже выбрана и происхождение не предполагает нескольких черт
     if (trait && !isMultiTraitOrigin(origin.name)) {
-      showAlert("Информация", "Черта для этого происхождения уже выбрана.");
+      showAlert("Информация", tCharacterScreen("warnings.traitAlreadySelected", "Черта для этого происхождения уже выбрана."));
       return;
     }
 
     const availableTraits = getTraitsForOrigin(origin);
     if (availableTraits.length === 0) {
-      showAlert("Информация", "Для данного происхождения нет доступных черт");
+      showAlert("Информация", tCharacterScreen("warnings.noTraitsForOrigin", "Для данного происхождения нет доступных черт"));
       return;
     }
 
@@ -950,10 +962,10 @@ export default function CharacterScreen() {
           <View style={styles.header}>
             {/* Строка для ввода имени персонажа */}
             <View style={styles.nameInputRow}>
-              <Text style={styles.nameInputLabel}>Имя:</Text>
+              <Text style={styles.nameInputLabel}>{tCharacterScreen("labels.characterName", "Имя")}:</Text>
               <TextInput
                 style={[styles.nameInput, !isSaved && styles.nameInputActive]}
-                placeholder="Введите имя"
+                placeholder={tCharacterScreen("placeholders.enterName", "Введите имя")}
                 placeholderTextColor="#999"
                 value={characterName}
                 onChangeText={setCharacterName}
@@ -981,7 +993,7 @@ export default function CharacterScreen() {
                       : {},
                   ]}
                 >
-                  Сохранить
+                  {tCharacterScreen("buttons.save", "Сохранить")}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -990,20 +1002,20 @@ export default function CharacterScreen() {
             {!isSaved && <View style={styles.disabledOverlay} />}
 
             <PressableRow
-              title="Происхождение"
-              value={origin ? origin.name : "Не выбрано"}
+              title={tCharacterScreen("labels.origin", "Происхождение")}
+              value={origin ? origin.name : tCharacterScreen("placeholders.selectNone", "Не выбрано")}
               onPress={() => setIsOriginModalVisible(true)}
               disabled={!isSaved}
             />
             <PressableRow
-              title="Черта"
-              value={trait ? trait.name : "Не выбрано"}
+              title={tCharacterScreen("labels.trait", "Черта")}
+              value={trait ? trait.name : tCharacterScreen("placeholders.selectNone", "Не выбрано")}
               onPress={handleTraitPress}
               disabled={!isSaved || (trait && !isMultiTraitOrigin(origin?.name))}
             />
             <PressableRow
-              title="Снаряжение"
-              value={equipment ? equipment.name : "Не выбрано"}
+              title={tCharacterScreen("labels.equipmentKit", "Комплект снаряжения")}
+              value={equipment ? equipment.name : tCharacterScreen("placeholders.selectNone", "Не выбрано")}
               disabled={!isSaved}
               onPress={() => {
                 if (origin && origin.equipmentKits) {
@@ -1031,12 +1043,12 @@ export default function CharacterScreen() {
                       }
                     } else {
                       Alert.alert(
-                        "Внимание!",
-                        "Инвентарь и всё снаряжение будет сброшено. Продолжить?",
+                          tCharacterScreen("warnings.attentionTitle", "Внимание!"),
+                          tCharacterScreen("warnings.equipmentResetConfirm", "Инвентарь и всё снаряжение будет сброшено. Продолжить?"),
                         [
-                          { text: "Отмена", style: "cancel" },
+                          { text: tCharacterScreen("buttons.cancel", "Отмена"), style: "cancel" },
                           {
-                            text: "Продолжить",
+                            text: tCharacterScreen("buttons.continue", "Продолжить"),
                             onPress: () => {
                               // Сбрасываем инвентарь и надетые предметы
                               setEquippedWeapons([null, null]);
@@ -1062,13 +1074,13 @@ export default function CharacterScreen() {
                 } else {
                   showAlert(
                     "Информация",
-                    "Для данного происхождения нет комплектов снаряжения.",
+                    tCharacterScreen("warnings.noEquipmentForOrigin", "Для данного происхождения нет комплектов снаряжения."),
                   );
                 }
               }}
             />
             <View style={[styles.levelContainer, !isSaved && styles.disabledLevelContainer]}>
-              <Text style={styles.levelLabel}>Уровень:</Text>
+              <Text style={styles.levelLabel}>{tCharacterScreen("labels.level", "Уровень")}:</Text>
               <CompactCounter
                 value={level}
                 onIncrease={() => isSaved && handleLevelChange(1)}
@@ -1100,11 +1112,11 @@ export default function CharacterScreen() {
                   <Text style={styles.sectionTitle}>ХАРАКТЕРИСТИКИ</Text>
                 </View>
                 <DerivedRow
-                  title="Очки Атрибутов"
+                  title={tCharacterScreen("labels.attributePoints", "Очки атрибутов")}
                   value={remainingAttributePoints}
                 />
                 <DerivedRow
-                  title="Отмечено навыков"
+                  title={tCharacterScreen("labels.taggedSkills", "Отмечено навыков")}
                   value={(() => {
                     const extraSkillsFromTrait =
                       trait?.extraSkills || trait?.modifiers?.extraSkills || 0;
@@ -1124,7 +1136,7 @@ export default function CharacterScreen() {
                   })()}
                 />
                 <DerivedRow
-                  title="Очки Навыков"
+                  title={tCharacterScreen("labels.skillPoints", "Очки навыков")}
                   value={
                     attributesSaved
                       ? `${skillPointsLeft} / ${skillPointsAvailable}`
@@ -1153,8 +1165,8 @@ export default function CharacterScreen() {
                   )}
                 </View>
                 <View style={styles.skillsHeader}>
-                  <Text style={styles.skillsHeaderText}>Навык</Text>
-                  <Text style={styles.skillsHeaderText}>Значение</Text>
+                  <Text style={styles.skillsHeaderText}>{tCharacterScreen("labels.skill", "Навык")}</Text>
+                  <Text style={styles.skillsHeaderText}>{tCharacterScreen("labels.value", "Значение")}</Text>
                 </View>
 
                 {skills.map((skill, index) => {
@@ -1193,13 +1205,13 @@ export default function CharacterScreen() {
                       style={[styles.button, styles.saveButton]}
                       onPress={handleSaveSkills}
                     >
-                      <Text style={styles.buttonText}>Сохранить</Text>
+                      <Text style={styles.buttonText}>{tCharacterScreen("buttons.save", "Сохранить")}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.button, styles.resetButton]}
                       onPress={handleResetSkills}
                     >
-                      <Text style={styles.buttonText}>Сбросить</Text>
+                      <Text style={styles.buttonText}>{tCharacterScreen("buttons.reset", "Сбросить")}</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -1221,7 +1233,7 @@ export default function CharacterScreen() {
             if (selectedOrigin) {
               confirmOriginSelection(selectedOrigin);
             } else {
-              showError("Выберите происхождение");
+              showError(tCharacterScreen("warnings.selectOriginError", "Выберите происхождение"));
             }
           }}
         />

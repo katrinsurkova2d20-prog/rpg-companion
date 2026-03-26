@@ -1,13 +1,19 @@
+import {
+  getAttributeValue,
+  getCanonicalAttributeKey,
+  normalizeAttributeMap,
+} from "./attributeKeyUtils";
+
 // Создаёт начальный массив атрибутов с базовыми значениями (4 для каждого)
 export function createInitialAttributes() {
   return [
-    { name: "СИЛ", value: 4 },
-    { name: "ВЫН", value: 4 },
-    { name: "ВСП", value: 4 },
-    { name: "ЛОВ", value: 4 },
-    { name: "ИНТ", value: 4 },
-    { name: "ХАР", value: 4 },
-    { name: "УДЧ", value: 4 },
+    { name: "STR", value: 4 },
+    { name: "END", value: 4 },
+    { name: "PER", value: 4 },
+    { name: "AGI", value: 4 },
+    { name: "INT", value: 4 },
+    { name: "CHA", value: 4 },
+    { name: "LCK", value: 4 },
   ];
 }
 
@@ -44,7 +50,7 @@ export function getRemainingAttributePoints(attributes, trait) {
 // Максимальные очки навыков зависят от уровня и атрибутов
 export function getSkillPoints(attributes, level = 1) {
   // Формула: очки навыков = (значение Интеллекта + 9) + (уровень - 1)
-  const intAttr = attributes.find((attr) => attr.name === "ИНТ")?.value || 0;
+  const intAttr = getAttributeValue(attributes, "INT");
   return intAttr + 9 + (level > 1 ? level - 1 : 0);
 }
 
@@ -76,7 +82,7 @@ export function calculateSkillPointsUsed(
 // Расчёт очков удачи по атрибутам
 export function getLuckPoints(attributes, trait) {
   // Максимум очков удачи = значение атрибута УДЧ + модификатор черты (может быть отрицательным)
-  const luckAttr = attributes.find((attr) => attr.name === "УДЧ")?.value ?? 0;
+  const luckAttr = getAttributeValue(attributes, "LCK");
   const luckDelta = trait?.modifiers?.luckMaxDelta ?? 0;
   const maxLuck = Math.max(0, luckAttr + luckDelta);
   return maxLuck;
@@ -130,10 +136,14 @@ export const MAX_ATTRIBUTE = BASE_MAX_ATTRIBUTE;
 
 // Универсальная функция для получения лимитов атрибутов
 export const getAttributeLimits = (trait, attrName) => {
+  const normalizedName = getCanonicalAttributeKey(attrName);
+  const minLimits = normalizeAttributeMap(trait?.modifiers?.minLimits);
+  const maxLimits = normalizeAttributeMap(trait?.modifiers?.maxLimits);
+
   return {
     // Модификаторы теперь находятся во вложенном объекте
-    min: trait?.modifiers?.minLimits?.[attrName] ?? BASE_MIN_ATTRIBUTE,
-    max: trait?.modifiers?.maxLimits?.[attrName] ?? BASE_MAX_ATTRIBUTE,
+    min: minLimits?.[normalizedName] ?? BASE_MIN_ATTRIBUTE,
+    max: maxLimits?.[normalizedName] ?? BASE_MAX_ATTRIBUTE,
   };
 };
 
@@ -174,18 +184,18 @@ export const ALL_SKILLS = [
 ];
 
 export const calculateInitiative = (attributes) => {
-  const perception = attributes.find((attr) => attr.name === "ВСП").value;
-  const agility = attributes.find((attr) => attr.name === "ЛОВ").value;
+  const perception = getAttributeValue(attributes, "PER");
+  const agility = getAttributeValue(attributes, "AGI");
   return perception + agility;
 };
 
 export const calculateDefense = (attributes) => {
-  const agility = attributes.find((attr) => attr.name === "ЛОВ").value;
+  const agility = getAttributeValue(attributes, "AGI");
   return agility >= 9 ? 2 : 1;
 };
 
 export const calculateMeleeBonus = (attributes) => {
-  const strength = attributes.find((attr) => attr.name === "СИЛ").value;
+  const strength = getAttributeValue(attributes, "STR");
   if (strength >= 11) return "+3 {CD}";
   if (strength >= 9) return "+2 {CD}";
   if (strength >= 7) return "+1 {CD}";
@@ -193,13 +203,13 @@ export const calculateMeleeBonus = (attributes) => {
 };
 
 export const calculateMaxHealth = (attributes, level = 1) => {
-  const endurance = attributes.find((attr) => attr.name === "ВЫН").value;
-  const luck = attributes.find((attr) => attr.name === "УДЧ").value;
+  const endurance = getAttributeValue(attributes, "END");
+  const luck = getAttributeValue(attributes, "LCK");
   return endurance + luck + (level > 1 ? level - 1 : 0);
 };
 
 export const calculateCarryWeight = (attributes, trait) => {
-  const strength = attributes.find((attr) => attr.name === "СИЛ").value;
+  const strength = getAttributeValue(attributes, "STR");
   const baseCarryWeight = 150;
   const strengthBonus = 10 * strength;
 

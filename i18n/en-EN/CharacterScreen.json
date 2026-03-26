@@ -1,0 +1,51 @@
+{
+  "labels": {
+    "characterName": "Name",
+    "origin": "Origin",
+    "trait": "Trait",
+    "equipmentKit": "Equipment Kit",
+    "level": "Level",
+    "skills": "Skills",
+    "skill": "Skill",
+    "value": "Value",
+    "rank": "Rank",
+    "points": "Points",
+    "luckPoints": "Luck Points",
+    "taggedSkills": "Tagged Skills",
+    "skillPoints": "Skill Points",
+    "attributePoints": "Attribute Points",
+    "isTaggedSkill": "Tagged"
+  },
+  "buttons": {
+    "save": "Save",
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "agree": "OK",
+    "continue": "Continue",
+    "confirm": "Confirm"
+  },
+  "placeholders": {
+    "selectNone": "Not selected",
+    "enterName": "Enter name"
+  },
+  "warnings": {
+    "attentionTitle": "Attention!",
+    "resetAllValues": "All values will be reset to initial parameters.",
+    "changeOriginConfirm": "Change origin? All attributes, skills and traits will be reset. Are you sure?",
+    "equipmentResetConfirm": "Inventory and all equipment will be reset. Continue?",
+    "traitAlreadySelected": "Trait for this origin is already selected.",
+    "noTraitsForOrigin": "No traits available for this origin",
+    "selectOriginFirst": "Select origin first",
+    "selectOriginError": "Select origin",
+    "noEquipmentForOrigin": "No equipment kits for this origin."
+  },
+  "attributes": {
+    "STR": "STR",
+    "END": "END",
+    "PER": "PER",
+    "AGI": "AGI",
+    "INT": "INT",
+    "CHA": "CHA",
+    "LCK": "LCK"
+  }
+}

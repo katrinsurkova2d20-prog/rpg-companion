@@ -10,6 +10,7 @@ import {
   calculateMeleeBonus,
   calculateCarryWeight
 } from './screens/CharacterScreen/logic/characterLogic';
+import { getAttributeValue } from './screens/CharacterScreen/logic/attributeKeyUtils';
 import { meetsPerkRequirements, getPerkUnmetReasons, annotatePerks } from './screens/CharacterScreen/logic/perksLogic';
 
 const CharacterContext = createContext();
@@ -61,7 +62,9 @@ export const CharacterProvider = ({ children }) => {
   const [attributesSaved, setAttributesSaved] = useState(false);
   const [skillsSaved, setSkillsSaved] = useState(false);
   const [selectedPerks, setSelectedPerks] = useState([]);
-  const [carryWeight, setCarryWeight] = useState(150 + (10 * attributes.find(a => a.name === 'СИЛ')?.value || 0));
+  const [carryWeight, setCarryWeight] = useState(
+    150 + 10 * getAttributeValue(attributes, 'STR'),
+  );
   const [meleeBonus, setMeleeBonus] = useState(0);
   const [initiative, setInitiative] = useState(0);
   const [defense, setDefense] = useState(1);

@@ -15,13 +15,13 @@ export const TRAITS = {
     origin: 'Супермутант',
     description: 'Ваши начальные атрибуты Сила и Выносливость увеличены на +2 каждый, а максимальные значения Силы и Выносливости увеличены до 12, при этом максимальные значения Интеллекта и Харизмы снижены до 6. Все ваши навыки не могут быть выше 4-го ранга. Вы обладаете полным иммунитетом к повреждениям от радиации и яда. Кажется, что вы не стареете, но вы бесплодны. Вы можете носить только ту броню, что сделана для супермутанта.',
     minLimits: {
-      'СИЛ': 6,  // Минимальная сила +2 (от стандартных 4)
-      'ВЫН': 6,  // Минимальная сила +2 (от стандартных 4)
+      'STR': 6,  // Минимальная сила +2 (от стандартных 4)
+      'END': 6,  // Минимальная сила +2 (от стандартных 4)
     },
     maxLimits: {
-      'СИЛ': 12,  // Максимальная сила повышена до 12
-      'ХАР': 6,   // Максимальная харизма ограничена 6
-      'ИНТ': 6,   // Максимальный интеллект ограничен 6
+      'STR': 12,  // Максимальная сила повышена до 12
+      'CHA': 6,   // Максимальная харизма ограничена 6
+      'INT': 6,   // Максимальный интеллект ограничен 6
     },
     skillMaxValue: 4,  // Максимальный ранг навыков
     },
@@ -80,11 +80,11 @@ export const TRAITS = {
     origin: 'Житель НКР',
     description: 'Вы можете выбрать две черты жителя НКР, две черты из происхождения Выжившего или одну черту из этого списка и один дополнительный перк.',
     traits: [
-        { name: 'Добрая Душа', description: 'Вы получаете +1 к Харизме, но -1 к Восприятию.', modifiers: { attributes: { 'ХАР': 1, 'ВОС': -1 } } },
-        { name: 'Пехотинец', description: 'Вы получаете +1 к Силе, но -1 к Ловкости.', modifiers: { attributes: { 'СИЛ': 1, 'ЛОВ': -1 } } },
-        { name: 'Дом на пастбище', description: 'Вы получаете +1 к Выносливости, но -1 к Интеллекту.', modifiers: { attributes: { 'ВЫН': 1, 'ИНТ': -1 } } },
-        { name: 'Техника спуска', description: 'Вы получаете +1 к Ловкости, но -1 к Силе.', modifiers: { attributes: { 'ЛОВ': 1, 'СИЛ': -1 } } },
-        { name: 'Браминий барон', description: 'Вы получаете +1 к Интеллекту, но -1 к Выносливости.', modifiers: { attributes: { 'ИНТ': 1, 'ВЫН': -1 } } }
+        { name: 'Добрая Душа', description: 'Вы получаете +1 к Харизме, но -1 к Восприятию.', modifiers: { attributes: { 'CHA': 1, 'PER': -1 } } },
+        { name: 'Пехотинец', description: 'Вы получаете +1 к Силе, но -1 к Ловкости.', modifiers: { attributes: { 'STR': 1, 'AGI': -1 } } },
+        { name: 'Дом на пастбище', description: 'Вы получаете +1 к Выносливости, но -1 к Интеллекту.', modifiers: { attributes: { 'END': 1, 'INT': -1 } } },
+        { name: 'Техника спуска', description: 'Вы получаете +1 к Ловкости, но -1 к Силе.', modifiers: { attributes: { 'AGI': 1, 'STR': -1 } } },
+        { name: 'Браминий барон', description: 'Вы получаете +1 к Интеллекту, но -1 к Выносливости.', modifiers: { attributes: { 'INT': 1, 'END': -1 } } }
     ]
   },
   // Черты Жителя НКР (отдельные записи для отображения и логики)
@@ -115,11 +115,11 @@ export const TRAITS = {
     origin: 'Выживший',
     description: 'Вы можете выбрать две черты из происхождения Выжившего , две черты жителя НКР или одну черту из этого списка и один дополнительный перк.',
     traits: [
-      { name: 'Образованный', description: 'Вы получаете +2 к Интеллекту, но -1 к Удаче.', modifiers: { attributes: { 'ИНТ': 2, 'УДЧ': -1 } } },
-      { name: 'Быстрый выстрел', description: 'Вы получаете +1 к Ловкости, но -1 к Восприятию.', modifiers: { attributes: { 'ЛОВ': 1, 'ВОС': -1 } } },
-      { name: 'Одаренный', description: 'Вы получаете +1 ко всем атрибутам, но теряете 5 очков навыков на каждом уровне.', effects: ['-5 очков навыков на уровень'], modifiers: { attributes: { 'СИЛ': 1, 'ЛОВ': 1, 'ВЫН': 1, 'ИНТ': 1, 'ВОС': 1, 'ХАР': 1, 'УДЧ': 1 } } },
-      { name: 'Тяжёлая рука', description: 'Вы получаете +2 к Силе, но -2 к Ловкости.', modifiers: { attributes: { 'СИЛ': 2, 'ЛОВ': -2 } } },
-      { name: 'Миниатюрный', description: 'Вы получаете +1 к Ловкости, но ваш переносимый вес уменьшается.', effects: ['Уменьшенный переносимый вес'], modifiers: { attributes: { 'ЛОВ': 1 } } }
+      { name: 'Образованный', description: 'Вы получаете +2 к Интеллекту, но -1 к Удаче.', modifiers: { attributes: { 'INT': 2, 'LCK': -1 } } },
+      { name: 'Быстрый выстрел', description: 'Вы получаете +1 к Ловкости, но -1 к Восприятию.', modifiers: { attributes: { 'AGI': 1, 'PER': -1 } } },
+      { name: 'Одаренный', description: 'Вы получаете +1 ко всем атрибутам, но теряете 5 очков навыков на каждом уровне.', effects: ['-5 очков навыков на уровень'], modifiers: { attributes: { 'STR': 1, 'AGI': 1, 'END': 1, 'INT': 1, 'PER': 1, 'CHA': 1, 'LCK': 1 } } },
+      { name: 'Тяжёлая рука', description: 'Вы получаете +2 к Силе, но -2 к Ловкости.', modifiers: { attributes: { 'STR': 2, 'AGI': -2 } } },
+      { name: 'Миниатюрный', description: 'Вы получаете +1 к Ловкости, но ваш переносимый вес уменьшается.', effects: ['Уменьшенный переносимый вес'], modifiers: { attributes: { 'AGI': 1 } } }
     ]
   },
   'Робот с мозгами': {
@@ -133,12 +133,28 @@ export const TRAITS = {
       'Зрительные сенсоры (визуальный спектр и ИК)'
     ],
     maxLimits: {
-      'СИЛ': 12,
-      'ВЫН': 12,
-      'ХАР': 6,
-      'ИНТ': 6
+      'STR': 12,
+      'END': 12,
+      'CHA': 6,
+      'INT': 6
     },
     skillMaxValue: 4,
     carryWeight: 150
   }
+};
+
+export const getTraitDisplayDescription = (trait) => {
+  if (!trait?.name) return "";
+
+  const baseTrait = TRAITS[trait.name] || {};
+  const description = baseTrait.description || trait.description || "";
+  const baseEffects = Array.isArray(baseTrait.effects) ? baseTrait.effects : [];
+  const runtimeEffects = Array.isArray(trait?.modifiers?.effects)
+    ? trait.modifiers.effects
+    : [];
+  const uniqueEffects = [...new Set([...baseEffects, ...runtimeEffects])];
+
+  if (uniqueEffects.length === 0) return description;
+  const effectsText = uniqueEffects.map((effect) => `• ${effect}`).join("\n");
+  return `${description}\n\nЭффекты:\n${effectsText}`;
 };

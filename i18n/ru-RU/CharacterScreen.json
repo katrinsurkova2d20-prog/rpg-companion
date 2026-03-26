@@ -1,0 +1,70 @@
+{
+  "labels": {
+    "characterName": "Имя",
+    "origin": "Происхождение",
+    "trait": "Черта",
+    "equipmentKit": "Комплект снаряжения",
+    "level": "Уровень",
+    "skills": "Навыки",
+    "skill": "Навык",
+    "value": "Значение",
+    "rank": "Ранг",
+    "points": "Очки",
+    "luckPoints": "Очки удачи",
+    "taggedSkills": "Отмечено навыков",
+    "skillPoints": "Очки навыков",
+    "attributePoints": "Очки атрибутов",
+    "isTaggedSkill": "Отмечен"
+  },
+  "buttons": {
+    "save": "Сохранить",
+    "reset": "Сбросить",
+    "cancel": "Отмена",
+    "agree": "Согласен",
+    "continue": "Продолжить",
+    "confirm": "Подтвердить"
+  },
+  "placeholders": {
+    "selectNone": "Не выбрано",
+    "enterName": "Введите имя"
+  },
+  "warnings": {
+    "attentionTitle": "Внимание!",
+    "resetAllValues": "Все значения будут сброшены к изначальным параметрам.",
+    "changeOriginConfirm": "Сменить происхождение? Все ваши атрибуты, навыки и черты будут сброшены. Вы уверены?",
+    "equipmentResetConfirm": "Инвентарь и всё снаряжение будет сброшено. Продолжить?",
+    "traitAlreadySelected": "Черта для этого происхождения уже выбрана.",
+    "noTraitsForOrigin": "Для данного происхождения нет доступных черт",
+    "selectOriginFirst": "Сначала выберите происхождение",
+    "selectOriginError": "Выберите происхождение",
+    "noEquipmentForOrigin": "Для данного происхождения нет комплектов снаряжения."
+  },
+  "attributes": {
+    "STR": "СИЛ",
+    "END": "ВЫН",
+    "PER": "ВОС",
+    "AGI": "ЛОВ",
+    "INT": "ИНТ",
+    "CHA": "ХАР",
+    "LCK": "УДЧ"
+  },
+  "skillsCatalog": {
+    "ATHLETICS": { "canonical": "Athletics", "ru": "Атлетика" },
+    "BARTER": { "canonical": "Barter", "ru": "Бартер" },
+    "BIG_GUNS": { "canonical": "Big Guns", "ru": "Тяжелое оружие" },
+    "ENERGY_WEAPONS": { "canonical": "Energy Weapons", "ru": "Энергооружие" },
+    "EXPLOSIVES": { "canonical": "Explosives", "ru": "Взрывчатка" },
+    "LOCKPICK": { "canonical": "Lockpick", "ru": "Отмычки" },
+    "MEDICINE": { "canonical": "Medicine", "ru": "Медицина" },
+    "MELEE_WEAPONS": { "canonical": "Melee Weapons", "ru": "Ближний бой" },
+    "PILOT": { "canonical": "Pilot", "ru": "Управление ТС" },
+    "REPAIR": { "canonical": "Repair", "ru": "Ремонт" },
+    "SCIENCE": { "canonical": "Science", "ru": "Наука" },
+    "SMALL_GUNS": { "canonical": "Small Guns", "ru": "Стрелковое оружие" },
+    "SNEAK": { "canonical": "Sneak", "ru": "Скрытность" },
+    "SPEECH": { "canonical": "Speech", "ru": "Красноречие" },
+    "SURVIVAL": { "canonical": "Survival", "ru": "Выживание" },
+    "THROWING": { "canonical": "Throwing", "ru": "Метание" },
+    "UNARMED": { "canonical": "Unarmed", "ru": "Рукопашная" }
+  }
+}

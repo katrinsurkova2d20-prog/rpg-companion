@@ -1,0 +1,70 @@
+{
+  "labels": {
+    "characterName": "Name",
+    "origin": "Origin",
+    "trait": "Trait",
+    "equipmentKit": "Equipment Kit",
+    "level": "Level",
+    "skills": "Skills",
+    "skill": "Skill",
+    "value": "Value",
+    "rank": "Rank",
+    "points": "Points",
+    "luckPoints": "Luck Points",
+    "taggedSkills": "Tagged Skills",
+    "skillPoints": "Skill Points",
+    "attributePoints": "Attribute Points",
+    "isTaggedSkill": "Tagged"
+  },
+  "buttons": {
+    "save": "Save",
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "agree": "OK",
+    "continue": "Continue",
+    "confirm": "Confirm"
+  },
+  "placeholders": {
+    "selectNone": "Not selected",
+    "enterName": "Enter name"
+  },
+  "warnings": {
+    "attentionTitle": "Attention!",
+    "resetAllValues": "All values will be reset to initial parameters.",
+    "changeOriginConfirm": "Change origin? All attributes, skills and traits will be reset. Are you sure?",
+    "equipmentResetConfirm": "Inventory and all equipment will be reset. Continue?",
+    "traitAlreadySelected": "Trait for this origin is already selected.",
+    "noTraitsForOrigin": "No traits available for this origin",
+    "selectOriginFirst": "Select origin first",
+    "selectOriginError": "Select origin",
+    "noEquipmentForOrigin": "No equipment kits for this origin."
+  },
+  "attributes": {
+    "STR": "STR",
+    "END": "END",
+    "PER": "PER",
+    "AGI": "AGI",
+    "INT": "INT",
+    "CHA": "CHA",
+    "LCK": "LCK"
+  },
+  "skillsCatalog": {
+    "ATHLETICS": { "canonical": "Athletics", "ru": "Атлетика" },
+    "BARTER": { "canonical": "Barter", "ru": "Бартер" },
+    "BIG_GUNS": { "canonical": "Big Guns", "ru": "Тяжелое оружие" },
+    "ENERGY_WEAPONS": { "canonical": "Energy Weapons", "ru": "Энергооружие" },
+    "EXPLOSIVES": { "canonical": "Explosives", "ru": "Взрывчатка" },
+    "LOCKPICK": { "canonical": "Lockpick", "ru": "Отмычки" },
+    "MEDICINE": { "canonical": "Medicine", "ru": "Медицина" },
+    "MELEE_WEAPONS": { "canonical": "Melee Weapons", "ru": "Ближний бой" },
+    "PILOT": { "canonical": "Pilot", "ru": "Управление ТС" },
+    "REPAIR": { "canonical": "Repair", "ru": "Ремонт" },
+    "SCIENCE": { "canonical": "Science", "ru": "Наука" },
+    "SMALL_GUNS": { "canonical": "Small Guns", "ru": "Стрелковое оружие" },
+    "SNEAK": { "canonical": "Sneak", "ru": "Скрытность" },
+    "SPEECH": { "canonical": "Speech", "ru": "Красноречие" },
+    "SURVIVAL": { "canonical": "Survival", "ru": "Выживание" },
+    "THROWING": { "canonical": "Throwing", "ru": "Метание" },
+    "UNARMED": { "canonical": "Unarmed", "ru": "Рукопашная" }
+  }
+}

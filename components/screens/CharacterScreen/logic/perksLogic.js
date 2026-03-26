@@ -1,15 +1,17 @@
 // perksLogic.js
 // Utilities to evaluate perk requirements against current character state
 
+import { getCanonicalAttributeKey } from "./attributeKeyUtils";
+
 // Mapping from perks.json S.P.E.C.I.A.L abbreviations to internal attribute names
 const ATTRIBUTE_CODE_TO_NAME = {
-  STR: 'СИЛ',
-  END: 'ВЫН',
-  PER: 'ВСП',
-  AGI: 'ЛОВ',
-  INT: 'ИНТ',
-  CHA: 'ХАР',
-  LCK: 'УДЧ',
+  STR: 'STR',
+  END: 'END',
+  PER: 'PER',
+  AGI: 'AGI',
+  INT: 'INT',
+  CHA: 'CHA',
+  LCK: 'LCK',
 };
 
 /**
@@ -18,7 +20,8 @@ const ATTRIBUTE_CODE_TO_NAME = {
 export function buildAttributeValueMap(attributes) {
   const map = {};
   for (const attr of attributes || []) {
-    map[attr.name] = attr.value;
+    const key = getCanonicalAttributeKey(attr.name);
+    if (key) map[key] = attr.value;
   }
   return map;
 }
@@ -92,5 +95,3 @@ export function annotatePerks(perks, attributes, level) {
     return { perk, available, unmet };
   });
 }
-
-

@@ -290,12 +290,21 @@ export default function CharacterScreen() {
   const [tempAttributes, setTempAttributes] = useState(null);
   const [perkPointsToDistribute, setPerkPointsToDistribute] = useState(0);
 
-  const showError = (message) => {
+  const showAlert = (title, message = "") => {
+    const text = message ? `${title}\n\n${message}` : title;
     if (Platform.OS === "web" && typeof window !== "undefined" && typeof window.alert === "function") {
-      window.alert(message);
+      window.alert(text);
       return;
     }
-    Alert.alert("Ошибка", message);
+    if (message) {
+      Alert.alert(title, message);
+      return;
+    }
+    Alert.alert(title);
+  };
+
+  const showError = (message) => {
+    showAlert("Ошибка", message);
   };
 
   // Активация режима распределения очков от перков
@@ -352,10 +361,7 @@ export default function CharacterScreen() {
 
   const handleSavePerkAttributes = () => {
     if (remainingPerkPoints > 0) {
-      Alert.alert(
-        "Ошибка",
-        "Вы должны распределить все доступные очки атрибутов.",
-      );
+      showError("Вы должны распределить все доступные очки атрибутов.");
       return;
     }
     commitAttributeChanges(tempAttributes, perkPointsToDistribute);
@@ -400,10 +406,7 @@ export default function CharacterScreen() {
 
   const handleToggleSkill = (skillName) => {
     if (!canDistributeSkills && !showTraitSkillModal) {
-      Alert.alert(
-        "Предупреждение",
-        "Сначала распределите и сохраните атрибуты",
-      );
+      showAlert("Предупреждение", "Сначала распределите и сохраните атрибуты");
       return;
     }
 
@@ -418,7 +421,7 @@ export default function CharacterScreen() {
 
     // Cannot deselect forced skills
     if (isForcedSkill && isCurrentlySelected) {
-      Alert.alert("Ошибка", "Нельзя снять выбор с обязательного навыка");
+      showError("Нельзя снять выбор с обязательного навыка");
       return;
     }
 
@@ -456,8 +459,7 @@ export default function CharacterScreen() {
 
       // Check skill max limit
       if (currentSkill.value + 2 > skillMax) {
-        Alert.alert(
-          "Ошибка",
+        showError(
           `Отметка этого навыка превысит максимальный ранг (${skillMax}). Сначала понизьте его значение.`,
         );
         return;
@@ -489,8 +491,7 @@ export default function CharacterScreen() {
         const extraText = canSelectAsExtra
           ? `\n\nДоступно дополнительных слотов: ${extraSkillsFromTrait - extraTaggedSkills.length}`
           : "";
-        Alert.alert(
-          "Ошибка",
+        showError(
           `Можно выбрать максимум ${BASE_TAGGED_SKILLS} основных навыка.${extraText}`,
         );
         return;
@@ -535,15 +536,12 @@ export default function CharacterScreen() {
 
   const handleChangeSkillValue = (index, delta) => {
     if (!attributesSaved) {
-      Alert.alert("Сначала сохраните атрибуты");
+      showAlert("Сначала сохраните атрибуты");
       return;
     }
 
     if (delta > 0 && skillPointsLeft <= 0) {
-      Alert.alert(
-        "Ошибка",
-        "У вас не осталось очков навыков для распределения.",
-      );
+      showError("У вас не осталось очков навыков для распределения.");
       return;
     }
 
@@ -760,19 +758,19 @@ export default function CharacterScreen() {
   // Обработчик нажатия на строку черты
   const handleTraitPress = () => {
     if (!origin) {
-      Alert.alert("Ошибка", "Сначала выберите происхождение");
+      showError("Сначала выберите происхождение");
       return;
     }
 
     // Блокируем, если черта уже выбрана и происхождение не предполагает нескольких черт
     if (trait && !isMultiTraitOrigin(origin.name)) {
-      Alert.alert("Информация", "Черта для этого происхождения уже выбрана.");
+      showAlert("Информация", "Черта для этого происхождения уже выбрана.");
       return;
     }
 
     const availableTraits = getTraitsForOrigin(origin);
     if (availableTraits.length === 0) {
-      Alert.alert("Информация", "Для данного происхождения нет доступных черт");
+      showAlert("Информация", "Для данного происхождения нет доступных черт");
       return;
     }
 
@@ -844,19 +842,19 @@ export default function CharacterScreen() {
 
   const handleSaveSkills = () => {
     if (!origin) {
-      Alert.alert("Ошибка", "Необходимо выбрать происхождение.");
+      showError("Необходимо выбрать происхождение.");
       return;
     }
     if (!trait) {
-      Alert.alert("Ошибка", "Необходимо выбрать черту.");
+      showError("Необходимо выбрать черту.");
       return;
     }
     if (!equipment) {
-      Alert.alert("Ошибка", "Необходимо выбрать комплект снаряжения.");
+      showError("Необходимо выбрать комплект снаряжения.");
       return;
     }
     if (skillPointsLeft > 0) {
-      Alert.alert("Ошибка", "Необходимо распределить все очки навыков.");
+      showError("Необходимо распределить все очки навыков.");
       return;
     }
     // Проверяем, что выбрано правильное количество навыков
@@ -866,8 +864,7 @@ export default function CharacterScreen() {
 
     // Проверяем основные навыки (всегда должно быть ровно 3)
     if (selectedSkills.length !== BASE_TAGGED_SKILLS) {
-      Alert.alert(
-        "Ошибка",
+      showError(
         `Необходимо выбрать ровно ${BASE_TAGGED_SKILLS} основных навыка. Выбрано: ${selectedSkills.length}`,
       );
       return;
@@ -878,8 +875,7 @@ export default function CharacterScreen() {
       extraSkillsFromTrait > 0 &&
       extraTaggedSkills.length !== extraSkillsFromTrait
     ) {
-      Alert.alert(
-        "Ошибка",
+      showError(
         `Необходимо выбрать ${extraSkillsFromTrait} дополнительных навыка от черты. Выбрано: ${extraTaggedSkills.length}`,
       );
       return;
@@ -887,7 +883,7 @@ export default function CharacterScreen() {
     const { isValid, maxRank } = validateSkills(skills, trait);
 
     if (!isValid) {
-      Alert.alert(`Ошибка: Максимальный ранг навыков - ${maxRank}`);
+      showAlert(`Ошибка: Максимальный ранг навыков - ${maxRank}`);
       return;
     }
 
@@ -1064,7 +1060,7 @@ export default function CharacterScreen() {
                     setIsEquipmentKitModalVisible(true);
                   }
                 } else {
-                  Alert.alert(
+                  showAlert(
                     "Информация",
                     "Для данного происхождения нет комплектов снаряжения.",
                   );
@@ -1225,7 +1221,7 @@ export default function CharacterScreen() {
             if (selectedOrigin) {
               confirmOriginSelection(selectedOrigin);
             } else {
-              Alert.alert("Ошибка", "Выберите происхождение");
+              showError("Выберите происхождение");
             }
           }}
         />

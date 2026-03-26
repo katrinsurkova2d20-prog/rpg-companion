@@ -47,5 +47,24 @@
     "INT": "ИНТ",
     "CHA": "ХАР",
     "LCK": "УДЧ"
+  },
+  "skillsCatalog": {
+    "ATHLETICS": "Атлетика",
+    "BARTER": "Бартер",
+    "BIG_GUNS": "Тяжелое оружие",
+    "ENERGY_WEAPONS": "Энергооружие",
+    "EXPLOSIVES": "Взрывчатка",
+    "LOCKPICK": "Отмычки",
+    "MEDICINE": "Медицина",
+    "MELEE_WEAPONS": "Ближний бой",
+    "PILOT": "Управление ТС",
+    "REPAIR": "Ремонт",
+    "SCIENCE": "Наука",
+    "SMALL_GUNS": "Стрелковое оружие",
+    "SNEAK": "Скрытность",
+    "SPEECH": "Красноречие",
+    "SURVIVAL": "Выживание",
+    "THROWING": "Метание",
+    "UNARMED": "Рукопашная"
   }
 }

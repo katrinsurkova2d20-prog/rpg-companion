@@ -47,5 +47,24 @@
     "INT": "INT",
     "CHA": "CHA",
     "LCK": "LCK"
+  },
+  "skillsCatalog": {
+    "ATHLETICS": "Athletics",
+    "BARTER": "Barter",
+    "BIG_GUNS": "Big Guns",
+    "ENERGY_WEAPONS": "Energy Weapons",
+    "EXPLOSIVES": "Explosives",
+    "LOCKPICK": "Lockpick",
+    "MEDICINE": "Medicine",
+    "MELEE_WEAPONS": "Melee Weapons",
+    "PILOT": "Pilot",
+    "REPAIR": "Repair",
+    "SCIENCE": "Science",
+    "SMALL_GUNS": "Small Guns",
+    "SNEAK": "Sneak",
+    "SPEECH": "Speech",
+    "SURVIVAL": "Survival",
+    "THROWING": "Throwing",
+    "UNARMED": "Unarmed"
   }
 }

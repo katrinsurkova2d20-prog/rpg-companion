@@ -42,6 +42,7 @@ import {
   normalizeAttributeMap,
 } from "./logic/attributeKeyUtils";
 import { tCharacterScreen } from "./logic/characterScreenI18n";
+import { getCurrentLocale, setCurrentLocale } from "../../../i18n/locale";
 import { AttributesSection } from "./AttributesSection";
 import styles from "../../../styles";
 
@@ -242,6 +243,16 @@ const LuckPointsRow = ({ luckPoints, maxLuckPoints, onSpend, onRestore }) => {
 };
 
 export default function CharacterScreen() {
+  const [locale, setLocale] = useState(getCurrentLocale());
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  const languageOptions = [
+    { code: "ru-RU", label: "Русский", flag: "🇷🇺" },
+    { code: "en-EN", label: "English", flag: "🇬🇧" },
+  ];
+  const currentLanguage =
+    languageOptions.find((lang) => lang.code === locale) || languageOptions[0];
+
   const {
     characterName, setCharacterName,
     isSaved,
@@ -954,6 +965,35 @@ export default function CharacterScreen() {
       imageStyle={{ opacity: 0.3 }}
     >
       <SafeAreaView style={styles.safeArea}>
+        <View style={localStyles.languageContainer}>
+          <TouchableOpacity
+            style={localStyles.languageButton}
+            onPress={() => setShowLanguageMenu((prev) => !prev)}
+          >
+            <Text style={localStyles.languageButtonText}>
+              {currentLanguage.flag} {currentLanguage.label}
+            </Text>
+          </TouchableOpacity>
+          {showLanguageMenu && (
+            <View style={localStyles.languageMenu}>
+              {languageOptions.map((lang) => (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={localStyles.languageMenuItem}
+                  onPress={() => {
+                    setCurrentLocale(lang.code);
+                    setLocale(lang.code);
+                    setShowLanguageMenu(false);
+                  }}
+                >
+                  <Text style={localStyles.languageMenuItemText}>
+                    {lang.flag} {lang.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
         <StatusBar barStyle="light-content" />
         <ScrollView
           style={styles.container}
@@ -1273,3 +1313,41 @@ export default function CharacterScreen() {
     </ImageBackground>
   );
 }
+
+const localStyles = StyleSheet.create({
+  languageContainer: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    zIndex: 20,
+  },
+  languageButton: {
+    backgroundColor: "#222",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#555",
+  },
+  languageButtonText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  languageMenu: {
+    marginTop: 4,
+    backgroundColor: "#111",
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#444",
+    overflow: "hidden",
+  },
+  languageMenuItem: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  languageMenuItemText: {
+    color: "#fff",
+    fontSize: 12,
+  },
+});

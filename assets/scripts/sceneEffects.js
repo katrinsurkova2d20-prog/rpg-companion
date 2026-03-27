@@ -1,4 +1,5 @@
 const SCENE_DURATION_MINUTES = 5;
+const CANONICAL_ATTRIBUTES = new Set(['STR', 'END', 'PER', 'AGI', 'INT', 'CHA', 'LCK']);
 
 const EFFECT_DURATION = {
   NONE: 'нет',
@@ -64,6 +65,38 @@ const applyOrStackEffect = (activeEffects, newEffect) => {
   };
   return next;
 };
+
+const normalizeAttributeToken = (token) => {
+  const trimmed = toStringSafe(token).toUpperCase();
+  return CANONICAL_ATTRIBUTES.has(trimmed) ? trimmed : null;
+};
+
+const parseAttributeDelta = (text) => {
+  const raw = toStringSafe(text);
+  if (!raw) return null;
+
+  const match = raw.match(/([+-]?\d+)\s*<([^>]+)>/i);
+  if (!match) return null;
+
+  const amount = Number(match[1]);
+  const attribute = normalizeAttributeToken(match[2]);
+  if (!attribute || !Number.isFinite(amount)) return null;
+
+  return { attribute, amount };
+};
+
+export const getTimedAttributeModifiers = (activeEffects = []) => (
+  activeEffects.reduce((acc, effect) => {
+    if (!effect || effect.effectKind !== 'positive') return acc;
+
+    // Сначала берем label (контрактно-каноничное поле), затем fallback на name.
+    const parsed = parseAttributeDelta(effect.effectLabel) || parseAttributeDelta(effect.effectName);
+    if (!parsed) return acc;
+
+    acc[parsed.attribute] = (acc[parsed.attribute] || 0) + parsed.amount;
+    return acc;
+  }, {})
+);
 
 export const applyConsumableToEffects = (item, currentEffects = []) => {
   const name = toStringSafe(item?.Name || item?.name || item?.Название);
@@ -168,5 +201,6 @@ export default {
   SCENE_RULES,
   applyConsumableToEffects,
   advanceEffectsByScene,
+  getTimedAttributeModifiers,
   getEffectTimeText,
 };

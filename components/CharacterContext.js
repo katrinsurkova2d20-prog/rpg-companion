@@ -12,6 +12,7 @@ import {
 } from './screens/CharacterScreen/logic/characterLogic';
 import { getAttributeValue } from './screens/CharacterScreen/logic/attributeKeyUtils';
 import { meetsPerkRequirements, getPerkUnmetReasons, annotatePerks } from './screens/CharacterScreen/logic/perksLogic';
+import { applyConsumableToEffects, advanceEffectsByScene, SCENE_RULES } from '../assets/scripts/sceneEffects';
 
 const CharacterContext = createContext();
 
@@ -44,6 +45,8 @@ export const CharacterProvider = ({ children }) => {
   const [trait, setTrait] = useState(null);
   const [equipment, setEquipment] = useState(null);
   const [effects, setEffects] = useState([]);
+  const [activeTimedEffects, setActiveTimedEffects] = useState([]);
+  const [sceneCounter, setSceneCounter] = useState(0);
   const [equippedWeapons, setEquippedWeapons] = useState([null, null]);
   const [equippedArmor, setEquippedArmor] = useState({
     head: { armor: null, clothing: null },
@@ -87,6 +90,8 @@ export const CharacterProvider = ({ children }) => {
     trait,
     equipment,
     effects,
+    activeTimedEffects,
+    sceneCounter,
     equippedWeapons,
     equippedArmor,
     caps,
@@ -104,7 +109,8 @@ export const CharacterProvider = ({ children }) => {
     defense,
   }), [
     characterName, level, attributes, skills, selectedSkills, extraTaggedSkills,
-    forcedSelectedSkills, origin, trait, equipment, effects, equippedWeapons,
+    forcedSelectedSkills, origin, trait, equipment, effects, activeTimedEffects,
+    sceneCounter, equippedWeapons,
     equippedArmor, caps, currentHealth, modifiedItems, availablePerkAttributePoints,
     luckPoints, maxLuckPoints, attributesSaved, skillsSaved, selectedPerks,
     carryWeight, meleeBonus, initiative, defense,
@@ -132,7 +138,8 @@ export const CharacterProvider = ({ children }) => {
     return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
   }, [
     characterName, level, attributes, skills, selectedSkills, extraTaggedSkills,
-    forcedSelectedSkills, origin, trait, equipment, effects, equippedWeapons,
+    forcedSelectedSkills, origin, trait, equipment, effects, activeTimedEffects,
+    sceneCounter, equippedWeapons,
     equippedArmor, caps, currentHealth, modifiedItems, availablePerkAttributePoints,
     luckPoints, maxLuckPoints, attributesSaved, skillsSaved, selectedPerks,
     carryWeight, meleeBonus, initiative, defense, buildSnapshot,
@@ -184,6 +191,8 @@ export const CharacterProvider = ({ children }) => {
       setTrait(data.trait || null);
       setEquipment(data.equipment || null);
       setEffects(data.effects || []);
+      setActiveTimedEffects(data.activeTimedEffects || []);
+      setSceneCounter(data.sceneCounter ?? 0);
       setEquippedWeapons(data.equippedWeapons || [null, null]);
       setEquippedArmor(data.equippedArmor || {
         head: { armor: null, clothing: null },
@@ -265,6 +274,19 @@ export const CharacterProvider = ({ children }) => {
     setAvailablePerkAttributePoints(prev => prev + points);
   };
 
+  const applyConsumableTimedEffects = (item) => {
+    const result = applyConsumableToEffects(item, activeTimedEffects);
+    setActiveTimedEffects(result.effects);
+    return result;
+  };
+
+  const advanceScene = () => {
+    const { effects: nextEffects, expired } = advanceEffectsByScene(activeTimedEffects);
+    setActiveTimedEffects(nextEffects);
+    setSceneCounter(prev => prev + 1);
+    return { active: nextEffects, expired };
+  };
+
   const commitAttributeChanges = (newAttributes, pointsSpent) => {
     setAttributes(newAttributes);
     setAvailablePerkAttributePoints(prev => prev - pointsSpent);
@@ -295,6 +317,8 @@ export const CharacterProvider = ({ children }) => {
     setTrait(null);
     setEquipment(null);
     setEffects([]);
+    setActiveTimedEffects([]);
+    setSceneCounter(0);
     setEquippedWeapons([null, null]);
     setEquippedArmor({
       head: { armor: null, clothing: null },
@@ -338,6 +362,11 @@ export const CharacterProvider = ({ children }) => {
     trait, setTrait,
     equipment, setEquipment,
     effects, setEffects,
+    activeTimedEffects, setActiveTimedEffects,
+    sceneCounter,
+    sceneDurationMinutes: SCENE_RULES.SCENE_DURATION_MINUTES,
+    applyConsumableTimedEffects,
+    advanceScene,
     equippedWeapons, setEquippedWeapons,
     equippedArmor, setEquippedArmor,
     caps, setCaps,

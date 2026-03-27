@@ -6,6 +6,7 @@ import CapsModal from './modals/CapsModal';
 import SellItemModal from './modals/SellItemModal';
 import AddItemModal from './modals/AddItemModal';
 import { calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
+import { getEffectTimeText } from '../../../assets/scripts/sceneEffects';
 
 const CapsSection = ({ caps, onAdd, onSubtract }) => (
   <View style={styles.capsContainer}>
@@ -28,6 +29,11 @@ const InventoryScreen = () => {
     caps, setCaps,
     attributes, level,
     currentHealth, setCurrentHealth,
+    activeTimedEffects,
+    sceneCounter,
+    sceneDurationMinutes,
+    applyConsumableTimedEffects,
+    advanceScene,
     saveModifiedItem,
     getModifiedItem
   } = useCharacter();
@@ -92,6 +98,7 @@ const InventoryScreen = () => {
         { 
           text: "На себя", 
           onPress: () => {
+            const timedResult = applyConsumableTimedEffects(item);
             if (item.healAmount) {
               // Обновляем здоровье персонажа
               const maxHealth = calculateMaxHealth(attributes, level);
@@ -106,6 +113,10 @@ const InventoryScreen = () => {
               Alert.alert("Успешно", `Восстановлено ${healAmount} единиц здоровья.`);
             } else {
               Alert.alert("Применено", `${getItemName(item)} применен на вас.`);
+            }
+
+            if (timedResult.events.length > 0) {
+              Alert.alert('Эффекты', timedResult.events.join('\n'));
             }
             
             // Удаляем один экземпляр предмета из инвентаря
@@ -692,6 +703,16 @@ const InventoryScreen = () => {
     </TouchableOpacity>
   );
 
+  const handleNextScene = () => {
+    const { expired } = advanceScene();
+    if (expired.length > 0) {
+      const expiredText = expired.map((effect) => `${effect.effectName} (${effect.effectKind === 'positive' ? 'плюс' : 'минус'})`).join(', ');
+      Alert.alert('Сцена завершена', `Истекли эффекты: ${expiredText}`);
+      return;
+    }
+    Alert.alert('Сцена завершена', 'Активные эффекты обновлены.');
+  };
+
   const totalWeight = useMemo(() => {
     let total = 0;
     
@@ -823,6 +844,24 @@ const InventoryScreen = () => {
           <View style={styles.summaryContainer}>
             <Text style={styles.summaryText}>Общий вес: {totalWeight}</Text>
             <Text style={styles.summaryText}>Общая цена: {totalPrice}</Text>
+          </View>
+          <View style={styles.effectsContainer}>
+            <Text style={styles.effectsTitle}>Эффекты сцен</Text>
+            <Text style={styles.effectsMeta}>
+              Сцена: {sceneCounter} • {sceneDurationMinutes} минут за сцену
+            </Text>
+            {activeTimedEffects.length === 0 ? (
+              <Text style={styles.effectItemText}>Нет активных временных эффектов.</Text>
+            ) : (
+              activeTimedEffects.map((effect) => (
+                <Text key={effect.id} style={styles.effectItemText}>
+                  {effect.effectKind === 'positive' ? '🟢' : '🔴'} {effect.effectName} — {getEffectTimeText(effect.scenesLeft)}
+                </Text>
+              ))
+            )}
+            <TouchableOpacity style={styles.nextSceneButton} onPress={handleNextScene}>
+              <Text style={styles.nextSceneButtonText}>Следующая сцена (+{sceneDurationMinutes} мин)</Text>
+            </TouchableOpacity>
           </View>
         </View>
         <AddWeaponModal
@@ -996,6 +1035,40 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  effectsContainer: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+  },
+  effectsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  effectsMeta: {
+    marginTop: 4,
+    marginBottom: 6,
+    color: '#555',
+    fontSize: 12,
+  },
+  effectItemText: {
+    color: '#111',
+    fontSize: 13,
+    marginBottom: 3,
+  },
+  nextSceneButton: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+    backgroundColor: '#222',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
+  nextSceneButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   emptyListText: {
     textAlign: 'center',

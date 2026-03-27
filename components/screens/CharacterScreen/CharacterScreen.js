@@ -47,6 +47,7 @@ import {
 import { getCurrentLocale } from "../../../i18n/locale";
 import { AttributesSection } from "./AttributesSection";
 import styles from "../../../styles";
+import { getTimedAttributeModifiers } from "../../../assets/scripts/sceneEffects";
 
 // Определяем константу BASE_TAGGED_SKILLS для исправления ReferenceError
 const BASE_TAGGED_SKILLS = 3; // Максимальное количество основных навыков
@@ -265,6 +266,7 @@ export default function CharacterScreen() {
     setEquipment,
     effects,
     setEffects,
+    activeTimedEffects,
     caps,
     setCaps,
     setCurrentHealth,
@@ -341,6 +343,13 @@ export default function CharacterScreen() {
 
   const isPerkAttributeMode = tempAttributes !== null;
   const currentAttributes = isPerkAttributeMode ? tempAttributes : attributes;
+  const timedAttributeModifiers = getTimedAttributeModifiers(activeTimedEffects);
+  const displayAttributes = (!isPerkAttributeMode && attributesSaved)
+    ? currentAttributes.map((attr) => ({
+      ...attr,
+      value: attr.value + (timedAttributeModifiers[getCanonicalAttributeKey(attr.name)] || 0),
+    }))
+    : currentAttributes;
 
   const remainingInitialPoints = getRemainingAttributePoints(attributes, trait);
   const remainingPerkPoints = isPerkAttributeMode
@@ -1093,7 +1102,7 @@ export default function CharacterScreen() {
           <View style={styles.columnsContainer}>
             <View style={styles.leftColumn}>
               <AttributesSection
-                attributes={currentAttributes}
+                attributes={displayAttributes}
                 onAttributeChange={
                   isPerkAttributeMode
                     ? handleTempAttributeChange

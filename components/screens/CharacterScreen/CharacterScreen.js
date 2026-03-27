@@ -970,31 +970,33 @@ export default function CharacterScreen() {
                 onChangeText={setCharacterName}
                 editable={!isSaved}
               />
-              <TouchableOpacity
-                style={[
-                  styles.saveNameButton,
-                  characterName.length > 0 && !isSaved
-                    ? styles.saveNameButtonActive
-                    : styles.saveNameButtonDisabled,
-                ]}
-                onPress={() => {
-                  if (characterName.length > 0) {
-                    saveCharacter(characterName);
-                  }
-                }}
-                disabled={characterName.length === 0 || isSaved}
-              >
-                <Text
+              {!isSaved && (
+                <TouchableOpacity
                   style={[
-                    styles.saveNameButtonText,
-                    characterName.length === 0 || isSaved
-                      ? styles.saveNameButtonTextDisabled
-                      : {},
+                    styles.saveNameButton,
+                    characterName.length > 0
+                      ? styles.saveNameButtonActive
+                      : styles.saveNameButtonDisabled,
                   ]}
+                  onPress={() => {
+                    if (characterName.length > 0) {
+                      saveCharacter(characterName);
+                    }
+                  }}
+                  disabled={characterName.length === 0}
                 >
-                  {tCharacterScreen("buttons.save", "Сохранить")}
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={[
+                      styles.saveNameButtonText,
+                      characterName.length === 0
+                        ? styles.saveNameButtonTextDisabled
+                        : {},
+                    ]}
+                  >
+                    {tCharacterScreen("buttons.save", "Сохранить")}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Если имя не сохранено, показываем затемняющий слой */}

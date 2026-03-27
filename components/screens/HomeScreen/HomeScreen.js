@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useCharacter } from '../../CharacterContext';
 import { ORIGINS } from '../CharacterScreen/logic/originsData';
-import { getCurrentLocale, setCurrentLocale } from '../../../i18n/locale';
+import { setCurrentLocale, useLocale } from '../../../i18n/locale';
 import { tHomeScreen } from './logic/homeScreenI18n';
 
 const getOriginImage = (originName) => {
@@ -24,7 +24,7 @@ const getOriginImage = (originName) => {
 
 const NUM_COLS = 3;
 
-const CreateCell = ({ onPress, locale }) => (
+const CreateCell = ({ onPress }) => (
   <TouchableOpacity style={styles.createCell} onPress={onPress} activeOpacity={0.7}>
     <Text style={styles.createPlus}>{tHomeScreen("createButton.plus", "+")}</Text>
     <Text style={styles.createLabel}>{tHomeScreen("createButton.text", "Создать\nперсонажа")}</Text>
@@ -69,14 +69,14 @@ const CharacterCell = ({ character, onPress, onDelete }) => {
 const EmptyCell = ({ id }) => <View key={id} style={styles.emptyCell} />;
 
 export default function HomeScreen({ navigation }) {
-  const [locale, setLocale] = useState(getCurrentLocale());
+  const locale = useLocale();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const { getCharactersList, loadCharacter, resetCharacter, deleteCharacter } = useCharacter();
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(true);
   const languageOptions = [
-    { code: 'ru-RU', label: 'Русский', flag: '🇷🇺' },
-    { code: 'en-EN', label: 'English', flag: '🇬🇧' },
+    { code: 'ru-RU', label: tHomeScreen('language.russian', 'Русский'), flag: '🇷🇺' },
+    { code: 'en-EN', label: tHomeScreen('language.english', 'English'), flag: '🇬🇧' },
   ];
   const currentLanguage =
     languageOptions.find((lang) => lang.code === locale) || languageOptions[0];
@@ -100,19 +100,15 @@ export default function HomeScreen({ navigation }) {
     }, [loadList])
   );
 
-  useEffect(() => {
-    setLocale(getCurrentLocale());
-  }, []);
-
   const handleCreate = () => {
     resetCharacter();
-    navigation.navigate('Персонаж');
+    navigation.navigate('CharacterTab');
   };
 
   const handleOpen = async (id) => {
     const ok = await loadCharacter(id);
     if (ok) {
-      navigation.navigate('Персонаж');
+      navigation.navigate('CharacterTab');
     }
   };
 
@@ -183,7 +179,6 @@ export default function HomeScreen({ navigation }) {
                   style={styles.languageMenuItem}
                   onPress={() => {
                     setCurrentLocale(lang.code);
-                    setLocale(lang.code);
                     setShowLanguageMenu(false);
                   }}
                 >
@@ -209,7 +204,7 @@ export default function HomeScreen({ navigation }) {
             <View key={rowIndex} style={styles.row}>
               {row.map((item) => {
                 if (item.type === 'create') {
-                  return <CreateCell key="create" onPress={handleCreate} locale={locale} />;
+                  return <CreateCell key="create" onPress={handleCreate} />;
                 }
                 if (item.type === 'empty') {
                   return <EmptyCell key={item.id} id={item.id} />;

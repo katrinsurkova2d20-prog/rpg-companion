@@ -14,6 +14,8 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { CharacterProvider } from './components/CharacterContext';
 import { initDatabase } from './db/Database';
 import { seedDatabase } from './db/seed';
+import { useLocale } from './i18n/locale';
+import { tApp } from './i18n/appI18n';
 
 import HomeScreen from './components/screens/HomeScreen/HomeScreen';
 import CharacterScreen from './components/screens/CharacterScreen/CharacterScreen';
@@ -22,9 +24,17 @@ import InventoryScreen from './components/screens/InventoryScreen/InventoryScree
 import PerksAndTraitsScreen from './components/screens/PerksAndTraitsScreen/PerksAndTraitsScreen';
 
 const Tab = createMaterialTopTabNavigator();
+const TAB_ROUTES = {
+  HOME: 'HomeTab',
+  CHARACTER: 'CharacterTab',
+  EQUIPMENT: 'EquipmentTab',
+  INVENTORY: 'InventoryTab',
+  PERKS: 'PerksTab',
+};
 
 function App() {
   const [dbReady, setDbReady] = useState(false);
+  const locale = useLocale();
 
   useEffect(() => {
     async function initDb() {
@@ -45,7 +55,7 @@ function App() {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1a1a1a' }}>
         <ActivityIndicator size="large" color="#f0e68c" />
         <Text style={{ color: '#f0e68c', marginTop: 16, fontSize: 14, letterSpacing: 1 }}>
-          Загрузка данных...
+          {tApp('loading', 'Загрузка данных...')}
         </Text>
       </View>
     );
@@ -55,7 +65,7 @@ function App() {
     <PaperProvider>
       <SafeAreaProvider>
         <CharacterProvider>
-          <NavigationContainer>
+          <NavigationContainer key={locale}>
             <View style={{ flex: 1, backgroundColor: 'white' }}>
               <ImageBackground
                 source={require('./assets/bg.png')}
@@ -65,19 +75,19 @@ function App() {
                 <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
                   <Tab.Navigator
                     tabBarPosition="bottom"
-                    initialRouteName="Менеджер"
+                    initialRouteName={TAB_ROUTES.HOME}
                     screenOptions={({ route }) => ({
                       tabBarIcon: ({ focused, color }) => {
                         let iconName;
-                        if (route.name === 'Менеджер') {
+                        if (route.name === TAB_ROUTES.HOME) {
                           iconName = focused ? 'people' : 'people-outline';
-                        } else if (route.name === 'Персонаж') {
+                        } else if (route.name === TAB_ROUTES.CHARACTER) {
                           iconName = focused ? 'person' : 'person-outline';
-                        } else if (route.name === 'Снаряжение') {
+                        } else if (route.name === TAB_ROUTES.EQUIPMENT) {
                           iconName = focused ? 'shield' : 'shield-outline';
-                        } else if (route.name === 'Инвентарь') {
+                        } else if (route.name === TAB_ROUTES.INVENTORY) {
                           iconName = focused ? 'briefcase' : 'briefcase-outline';
-                        } else if (route.name === 'Перки') {
+                        } else if (route.name === TAB_ROUTES.PERKS) {
                           iconName = focused ? 'star' : 'star-outline';
                         }
                         return <Ionicons name={iconName} size={16} color={color} />;
@@ -96,47 +106,47 @@ function App() {
                     })}
                   >
                     <Tab.Screen
-                      name="Менеджер"
+                      name={TAB_ROUTES.HOME}
                       component={HomeScreen}
                       options={{
                         tabBarLabel: ({ focused, color }) => (
-                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>Менеджер</Text>
+                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>{tApp('tabs.home', 'Менеджер')}</Text>
                         ),
                       }}
                     />
                     <Tab.Screen
-                      name="Персонаж"
+                      name={TAB_ROUTES.CHARACTER}
                       component={CharacterScreen}
                       options={{
                         tabBarLabel: ({ focused, color }) => (
-                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>Персонаж</Text>
+                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>{tApp('tabs.character', 'Персонаж')}</Text>
                         ),
                       }}
                     />
                     <Tab.Screen
-                      name="Снаряжение"
+                      name={TAB_ROUTES.EQUIPMENT}
                       component={EquipmentScreen}
                       options={{
                         tabBarLabel: ({ focused, color }) => (
-                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>Броня и оружие</Text>
+                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>{tApp('tabs.equipment', 'Броня и оружие')}</Text>
                         ),
                       }}
                     />
                     <Tab.Screen
-                      name="Инвентарь"
+                      name={TAB_ROUTES.INVENTORY}
                       component={InventoryScreen}
                       options={{
                         tabBarLabel: ({ focused, color }) => (
-                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>Инвентарь</Text>
+                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>{tApp('tabs.inventory', 'Инвентарь')}</Text>
                         ),
                       }}
                     />
                     <Tab.Screen
-                      name="Перки"
+                      name={TAB_ROUTES.PERKS}
                       component={PerksAndTraitsScreen}
                       options={{
                         tabBarLabel: ({ focused, color }) => (
-                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>Перки</Text>
+                          <Text style={{ color, fontSize: 11, textAlign: 'center' }}>{tApp('tabs.perks', 'Перки')}</Text>
                         ),
                       }}
                     />

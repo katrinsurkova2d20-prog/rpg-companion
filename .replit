@@ -10,8 +10,8 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 5001
-externalPort = 3000
+localPort = 8081
+externalPort = 8081
 
 [workflows]
 runButton = "Project"
@@ -29,13 +29,13 @@ args = "Expo Web Server"
 name = "Expo Web Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx expo start --web --port 5000"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx expo export --platform web && npx serve -s dist -l 5000"
+waitForPort = 5000
 
 [deployment]
 deploymentTarget = "autoscale"

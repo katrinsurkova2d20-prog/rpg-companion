@@ -23,9 +23,11 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   const [currentPath, setCurrentPath] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [weaponsByType, setWeaponsByType] = useState({});
+  const getItemName = (item) => item?.Name;
 
   const staticData = useMemo(() => {
     const equipmentCatalog = getEquipmentCatalog();
+
     return {
       'Броня': (equipmentCatalog.armor?.armor || []).reduce((acc, category) => {
         acc[category.type] = category.items;
@@ -35,9 +37,9 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
         acc[category.type] = category.items;
         return acc;
       }, {}),
-      'Боеприпасы': { 'Все': equipmentCatalog.ammoData || [] },
+      'Боеприпасы': { 'Все': Array.isArray(equipmentCatalog.ammoData) ? equipmentCatalog.ammoData : [] },
       'Еда': {},
-      'Препараты': { 'Все': equipmentCatalog.chems || [] },
+      'Препараты': { 'Все': equipmentCatalog.chems },
       'Материалы': {},
     };
   }, []);
@@ -55,13 +57,20 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
     });
   }, [visible]);
 
+  useEffect(() => {
+    if (visible) {
+      setCurrentPath([]);
+      setSearchTerm('');
+    }
+  }, [visible]);
+
   const allData = useMemo(() => ({
     'Оружие': weaponsByType,
     ...staticData,
   }), [weaponsByType, staticData]);
 
   const handleSelect = (item) => {
-    const itemName = item.Name || item.name || item.Название;
+    const itemName = getItemName(item);
     if (typeof item === 'object' && itemName) {
       onSelectItem(item);
       onClose();
@@ -113,7 +122,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
       // Фильтруем по поисковому запросу
       const filteredItems = allItems.filter(item => {
         if (!item) return false;
-        const itemName = item.Name || item.name || item.Название;
+        const itemName = getItemName(item);
         return itemName && itemName.toLowerCase().includes(searchTerm.toLowerCase());
       });
       
@@ -122,6 +131,9 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
 
     let data = allData;
     for (const key of currentPath) {
+      if (!data || typeof data !== 'object') {
+        return { categories: [] };
+      }
       data = data[key];
     }
     
@@ -143,7 +155,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   }, [currentPath, searchTerm, allData]);
 
   const renderItem = ({ item }) => {
-    const itemName = item.Name || item.name || item.Название;
+    const itemName = getItemName(item);
     const isItem = typeof item === 'object' && itemName;
     
     // Определяем тип предмета для отображения
@@ -204,7 +216,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
             data={currentData.items || currentData.categories}
             renderItem={renderItem}
             keyExtractor={(item, index) => {
-                const key = typeof item === 'object' ? (item.Name || item.name || item.Название) : item;
+                const key = typeof item === 'object' ? item.Name : item;
                 return `${key}-${index}`;
             }}
             ListEmptyComponent={<Text style={styles.emptyText}>Категория пуста</Text>}

@@ -49,7 +49,25 @@ const EQUIPMENT_BY_LOCALE = {
   },
 };
 
+const validateChemsContract = (chems) => {
+  if (!Array.isArray(chems)) {
+    return [];
+  }
+
+  return chems.filter((item) => (
+    item &&
+    typeof item === 'object' &&
+    typeof item.Name === 'string' &&
+    item.itemType === 'chem'
+  ));
+};
+
 export const getEquipmentCatalog = (locale = getCurrentLocale()) => {
   const normalized = normalizeLocale(locale);
-  return EQUIPMENT_BY_LOCALE[normalized] || EQUIPMENT_BY_LOCALE['ru-RU'];
+  const baseCatalog = EQUIPMENT_BY_LOCALE[normalized] || EQUIPMENT_BY_LOCALE['ru-RU'];
+
+  return {
+    ...baseCatalog,
+    chems: validateChemsContract(baseCatalog.chems),
+  };
 };

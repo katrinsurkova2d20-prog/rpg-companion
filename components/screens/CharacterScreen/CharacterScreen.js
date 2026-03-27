@@ -219,27 +219,22 @@ const LuckPointsRow = ({ luckPoints, maxLuckPoints, onSpend, onRestore }) => {
   const canRestore = luckPoints < maxLuckPoints;
 
   return (
-    <View style={styles.luckRow}>
-      <Text style={styles.luckTitle}>{tCharacterScreen("labels.luckPoints", "Очки удачи")}</Text>
-      <View style={styles.luckValueContainer}>
-        <TouchableOpacity
-          onPress={onSpend}
-          style={[styles.luckButton, !canSpend && styles.disabledLuckButton]}
-          disabled={!canSpend}
-        >
-          <Text style={styles.luckButtonText}>-</Text>
-        </TouchableOpacity>
-        <Text
-          style={styles.derivedValue}
-        >{`${luckPoints}`}</Text>
-        <TouchableOpacity
-          onPress={onRestore}
-          style={[styles.luckButton, !canRestore && styles.disabledLuckButton]}
-          disabled={!canRestore}
-        >
-          <Text style={styles.luckButtonText}>+</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={[styles.luckRow, { justifyContent: 'center' }]}>
+      <TouchableOpacity
+        onPress={onSpend}
+        style={[styles.luckButton, !canSpend && styles.disabledLuckButton]}
+        disabled={!canSpend}
+      >
+        <Text style={styles.luckButtonText}>-</Text>
+      </TouchableOpacity>
+      <Text style={styles.derivedValue}>{`${luckPoints}`}</Text>
+      <TouchableOpacity
+        onPress={onRestore}
+        style={[styles.luckButton, !canRestore && styles.disabledLuckButton]}
+        disabled={!canRestore}
+      >
+        <Text style={styles.luckButtonText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -1113,7 +1108,7 @@ export default function CharacterScreen() {
               />
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>ХАРАКТЕРИСТИКИ</Text>
+                  <Text style={styles.sectionTitle}>ОЧКИ УДАЧИ</Text>
                 </View>
                 <LuckPointsRow
                   luckPoints={luckPoints}

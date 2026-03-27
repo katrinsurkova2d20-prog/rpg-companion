@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 
 const SUPPORTED_LOCALES = ['ru-RU', 'en-EN'];
 const DEFAULT_LOCALE = 'ru-RU';
@@ -49,6 +49,17 @@ export const setCurrentLocale = (nextLocale) => {
   return currentLocale;
 };
 
-export const useLocale = () => useSyncExternalStore(subscribeToLocale, getCurrentLocale, getCurrentLocale);
+export const useLocale = () => {
+  const [locale, setLocale] = useState(getCurrentLocale());
+
+  useEffect(() => {
+    const unsubscribe = subscribeToLocale(() => {
+      setLocale(getCurrentLocale());
+    });
+    return unsubscribe;
+  }, []);
+
+  return locale;
+};
 
 export { SUPPORTED_LOCALES, DEFAULT_LOCALE, normalizeLocale };

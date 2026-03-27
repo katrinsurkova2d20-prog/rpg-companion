@@ -1277,5 +1277,3 @@ export default function CharacterScreen() {
     </ImageBackground>
   );
 }
-
-const localStyles = StyleSheet.create({});

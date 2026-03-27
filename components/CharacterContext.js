@@ -127,7 +127,6 @@ export const CharacterProvider = ({ children }) => {
           serialized
         );
       } catch (e) {
-        console.error('Realtime save error:', e);
       }
     }, 500);
     return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
@@ -162,7 +161,6 @@ export const CharacterProvider = ({ children }) => {
       isSavedRef.current = true;
       return id;
     } catch (e) {
-      console.error('Save character error:', e);
       return null;
     }
   }, [buildSnapshot]);
@@ -213,7 +211,6 @@ export const CharacterProvider = ({ children }) => {
       characterIdRef.current = id;
       return true;
     } catch (e) {
-      console.error('Load character error:', e);
       return false;
     }
   }, []);
@@ -223,7 +220,6 @@ export const CharacterProvider = ({ children }) => {
     try {
       return await db.getCharactersList();
     } catch (e) {
-      console.error('Get characters list error:', e);
       return [];
     }
   }, []);
@@ -234,7 +230,6 @@ export const CharacterProvider = ({ children }) => {
       await db.deleteCharacter(id);
       return true;
     } catch (e) {
-      console.error('Delete character error:', e);
       return false;
     }
   }, []);

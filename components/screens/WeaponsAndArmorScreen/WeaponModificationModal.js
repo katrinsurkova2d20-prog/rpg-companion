@@ -294,7 +294,6 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
         const computed = applyDbModEffectsToWeapon(weaponWithBase, selected);
         setModifiedWeapon(computed);
       } catch (e) {
-        console.warn('[WeaponModificationModal] load mods failed:', e);
         if (!cancelled) {
           setModsBySlot({});
           setSelectedModifications({});

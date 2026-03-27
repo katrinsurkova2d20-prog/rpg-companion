@@ -43,7 +43,6 @@ async function resolveItemFromTable(rollResult, tag, lootTable) {
 
     const foundItem = lootTable.find(loot => loot.roll === rollResult);
     if (!foundItem) {
-        console.warn(`No item found for roll ${rollResult} in table ${tag}`);
         return { Название: `[Не найдено] ${tag}`, quantity: 1 };
     }
 
@@ -74,7 +73,6 @@ async function resolveItemFromTable(rollResult, tag, lootTable) {
                 if (mi) return { ...mi, name: mi.name || mi.Название, Название: mi.Название || mi.name, quantity: 1, itemType: mi.itemType || 'misc' };
             }
         } catch (e) {
-            console.warn('resolveRandomLoot ref lookup error:', e);
         }
     }
 

@@ -35,7 +35,6 @@ function parseLootFormula(lootFormula) {
 export function resolveLoot(lootFormula, context) {
     const parsed = parseLootFormula(lootFormula);
     if (!parsed) {
-        console.error(`Неверный формат формулы лута: "${lootFormula}"`);
         return null;
     }
 
@@ -48,7 +47,6 @@ export function resolveLoot(lootFormula, context) {
         case 'ammo':
             // @deprecated: разрешение патронов по weaponName удалено.
             // Используйте resolveAmmoQuantity из kitResolver.js с weaponId.
-            console.warn('[ammoLogic] resolveLoot с тегом <ammo> устарел. Используйте resolveAmmoQuantity из kitResolver.js.');
             return null;
 
         case 'caps':
@@ -58,7 +56,6 @@ export function resolveLoot(lootFormula, context) {
             return { name: 'Базовые материалы', quantity, type: 'material' };
 
         default:
-            console.warn(`Неизвестный тег в формуле лута: <${tag}>`);
             return null;
     }
 }

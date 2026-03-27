@@ -30,7 +30,6 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
     const resolveKits = async () => {
       setIsLoading(true);
       try {
-        console.log('[EquipmentKitModal] open with kits:', equipmentKits?.map(k => k.name));
         const resolved = await Promise.all(equipmentKits.map(kit => resolveKitItems(kit)));
         setCalculatedKits(resolved);
 
@@ -54,7 +53,6 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
         });
         setSelectedChoices(initialChoices);
       } catch (e) {
-        console.error('[EquipmentKitModal] resolveKits error:', e);
       } finally {
         setIsLoading(false);
       }
@@ -72,7 +70,6 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
   };
 
   const handleSelectKit = async (kit) => {
-    console.log('[EquipmentKitModal] Selecting kit:', kit?.name);
     const rawItems = [];
 
     for (const { key } of kitCategories) {
@@ -113,7 +110,6 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
                 quantity: chosenItem.quantity || 1,
                 itemType: 'weapon',
               };
-              console.log('[EquipmentKitModal] Built weapon object from DB:', weaponObj);
               rawItems.push(weaponObj);
             } else {
               rawItems.push({
@@ -137,7 +133,6 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
       rawItems.push(...kit.resolvedLoot.filter(Boolean));
     }
 
-    console.log('[EquipmentKitModal] rawItems:', rawItems);
 
     const allItems = rawItems.flatMap(item => {
       if (!item) return [];
@@ -166,12 +161,10 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
       // Всё остальное — передаём как есть с гарантией Название
       const passthrough = { ...item, Название: item.Название || item.name, quantity: item.quantity || 1 };
       if (!item.Название && !item.name) {
-        console.warn('[EquipmentKitModal] item without name:', item);
       }
       return [passthrough];
     }).filter(Boolean);
 
-    console.log('[EquipmentKitModal] allItems after enrich:', allItems);
 
     const totalCaps = allItems.reduce((acc, item) => {
       if (item.itemType === 'currency' && item.name === 'Крышки') return acc + (item.quantity || 0);
@@ -190,7 +183,6 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
     }, 0);
 
     const payload = { name: kit.name, items: finalItems, weight: totalWeight, price: totalPrice, caps: totalCaps };
-    console.log('[EquipmentKitModal] onSelectKit payload:', payload);
     onSelectKit(payload);
     onClose();
   };

@@ -67,7 +67,6 @@ export function rollCustomDice(diceString) {
   const numDice = parts[0] ? parseInt(parts[0], 10) : 1;
   const numSides = parseInt(parts[1], 10);
   if (isNaN(numDice) || isNaN(numSides) || numSides <= 0) {
-    console.error('[Calculator] Invalid dice string:', diceString);
     return 0;
   }
   let total = 0;
@@ -122,7 +121,6 @@ export function evaluateFormula(formula) {
     return base + rollMultipleCombatDice(cdCount).total;
   }
 
-  console.warn('[Calculator] Unknown formula format:', f);
   return 0;
 }
 

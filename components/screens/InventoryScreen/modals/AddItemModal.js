@@ -52,7 +52,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
         grouped[label].push({ ...w, itemType: 'weapon' });
       });
       setWeaponsByType(grouped);
-    }).catch(e => console.warn('[AddItemModal] failed to load weapons:', e));
+    });
   }, [visible]);
 
   const allData = useMemo(() => ({

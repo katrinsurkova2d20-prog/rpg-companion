@@ -31,7 +31,6 @@ const PerksAndTraitsScreen = () => {
   };
 
   const handleChoosePerk = (perk) => {
-    console.log('handleChoosePerk called with perk:', perk);
     if (!perk) return;
     
     // Блокируем выбор, если уже взяли максимум на уровне (доп. защита)
@@ -46,7 +45,6 @@ const PerksAndTraitsScreen = () => {
     }
 
     // Специальная обработка для перка "ИНТЕНСИВНЫЕ ТРЕНИРОВКИ"
-    console.log('Checking perk name:', perk.perk_name, '===', "ИНТЕНСИВНЫЕ ТРЕНИРОВКИ");
     if (perk.perk_name === "ИНТЕНСИВНЫЕ ТРЕНИРОВКИ") {
       // Проверяем условия для выбора этого перка
       const canTakeIntensiveTraining = level >= 2 || attributesSaved;
@@ -63,9 +61,7 @@ const PerksAndTraitsScreen = () => {
 
       // Добавляем очко атрибута
       const attributeBonus = perk.modifiers?.attributeBonus || 1;
-      console.log('Adding perk attribute points:', attributeBonus);
       addPerkAttributePoints(attributeBonus);
-      console.log('Perk attribute points added successfully');
       
       // Показываем сообщение пользователю
       const successMessage = `Перк "${perk.perk_name}" выбран! Вы получили +${attributeBonus} очко атрибута. Перейдите на вкладку "Персонаж", чтобы распределить его.`;

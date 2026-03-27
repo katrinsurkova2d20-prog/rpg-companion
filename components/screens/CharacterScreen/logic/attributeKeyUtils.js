@@ -23,7 +23,6 @@ const ATTRIBUTE_KEY_ALIASES = {
 export const getCanonicalAttributeKey = (key) => ATTRIBUTE_KEY_ALIASES[key] || null;
 
 const logKeyValueError = (key) => {
-  console.error(`[attributeKeyUtils] key value error: ${String(key)}`);
 };
 
 export const getAttributeLabel = (key) => {

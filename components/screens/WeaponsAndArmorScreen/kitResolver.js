@@ -22,7 +22,6 @@ function resolveAmmoQuantity(formula, ammo) {
       Редкость: ammo.rarity,
     };
   } catch (e) {
-    console.warn('[kitResolver] resolveAmmoQuantity error:', e.message, 'formula:', formula);
     return null;
   }
 }
@@ -38,7 +37,6 @@ export async function resolveWeaponItem(item) {
   const weapon = await getWeaponById(item.weaponId);
 
   if (!weapon) {
-    console.warn('[kitResolver] weapon not found:', item.weaponId);
     return {
       ...item,
       displayName: item.weaponId,
@@ -57,7 +55,6 @@ export async function resolveWeaponItem(item) {
     if (mod) {
       mods.push(mod);
     } else {
-      console.warn('[kitResolver] mod not found:', modId);
     }
   }
 
@@ -72,7 +69,6 @@ export async function resolveWeaponItem(item) {
     if (ammo) {
       resolvedAmmunition = resolveAmmoQuantity(item.ammunition, ammo);
     } else {
-      console.warn('[kitResolver] ammo not found:', weapon.ammo_id);
     }
   }
 
@@ -134,7 +130,6 @@ export async function resolveNonWeaponItem(item) {
         return { ...resolved, quantity: resolved.quantity || 1 };
       }
     } catch (e) {
-      console.warn('[kitResolver] resolveRandomLoot error:', e.message, 'name:', item.name);
     }
     return item;
   }
@@ -165,10 +160,8 @@ export async function resolveNonWeaponItem(item) {
         price: dbItem.price,
       };
     }
-    console.warn('[kitResolver] item not found in DB:', item.name);
     return { ...item, Название: item.name };
   } catch (e) {
-    console.warn('[kitResolver] resolveNonWeaponItem error:', e.message, 'name:', item.name);
     return { ...item, Название: item.name };
   }
 }

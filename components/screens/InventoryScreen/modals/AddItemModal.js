@@ -61,7 +61,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   }), [weaponsByType, staticData]);
 
   const handleSelect = (item) => {
-    const itemName = item.Name || item.name;
+    const itemName = item.Name || item.name || item.Название;
     if (typeof item === 'object' && itemName) {
       onSelectItem(item);
       onClose();
@@ -113,7 +113,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
       // Фильтруем по поисковому запросу
       const filteredItems = allItems.filter(item => {
         if (!item) return false;
-        const itemName = item.Name || item.name;
+        const itemName = item.Name || item.name || item.Название;
         return itemName && itemName.toLowerCase().includes(searchTerm.toLowerCase());
       });
       
@@ -143,7 +143,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   }, [currentPath, searchTerm, allData]);
 
   const renderItem = ({ item }) => {
-    const itemName = item.Name || item.name;
+    const itemName = item.Name || item.name || item.Название;
     const isItem = typeof item === 'object' && itemName;
     
     // Определяем тип предмета для отображения
@@ -204,7 +204,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
             data={currentData.items || currentData.categories}
             renderItem={renderItem}
             keyExtractor={(item, index) => {
-                const key = typeof item === 'object' ? (item.Name || item.name) : item;
+                const key = typeof item === 'object' ? (item.Name || item.name || item.Название) : item;
                 return `${key}-${index}`;
             }}
             ListEmptyComponent={<Text style={styles.emptyText}>Категория пуста</Text>}

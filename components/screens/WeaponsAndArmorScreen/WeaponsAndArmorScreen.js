@@ -5,6 +5,7 @@ import { calculateInitiative, calculateDefense, calculateMeleeBonus, calculateMa
 import { TRAITS } from '../CharacterScreen/logic/traitsData';
 import styles from '../../../styles';
 import { renderTextWithIcons } from './textUtils';
+import { useLocale } from '../../../i18n/locale';
 
 // Импортируем модальное окно модификаций
 import WeaponModificationModal from './WeaponModificationModal';
@@ -189,8 +190,11 @@ const WeaponsAndArmorScreen = () => {
     equipment,
     setEquipment,
     effects,
+    activeTimedEffects,
     attributesSaved
   } = useCharacter();
+  const locale = useLocale();
+  const isEn = locale === 'en-EN';
 
   const initiative = calculateInitiative(attributes);
   const defense = calculateDefense(attributes);
@@ -199,6 +203,11 @@ const WeaponsAndArmorScreen = () => {
   
   const hasRadImmunity = effects.includes('Иммунитет к радиации');
   const hasPoisonImmunity = effects.includes('Иммунитет к яду');
+  const timedEffectsText = (activeTimedEffects || []).length > 0
+    ? activeTimedEffects
+      .map((effect) => effect.effectName || effect.effectLabel)
+      .join(', ')
+    : '—';
   
   // Состояние для модального окна модификаций
   const [modificationModalVisible, setModificationModalVisible] = useState(false);
@@ -280,7 +289,7 @@ const WeaponsAndArmorScreen = () => {
                 <StatBox title="Бонус Б.Боя" value={meleeBonus} />
             </View>
             <View style={[localStyles.statsRow, { marginTop: 8 }]}>
-                <StatBox title="Зависимость" />
+                <StatBox title={isEn ? 'Effects' : 'Эффекты'} value={timedEffectsText} />
                 <StatBox title="Сопр. Яду" value={hasPoisonImmunity ? '∞' : '0'} />
                 <StatBox title="Здоровье" max={maxHealth}>
                   <HealthCounter max={maxHealth} isEnabled={attributesSaved} />

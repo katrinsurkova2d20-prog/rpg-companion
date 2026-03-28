@@ -290,6 +290,16 @@ export const CharacterProvider = ({ children }) => {
     const result = applyConsumableToEffects(item, normalizedCurrent.effects);
     const normalizedResult = pruneExpiredTimedEffects(result.effects);
     setActiveTimedEffects(normalizedResult.effects);
+
+    if (normalizedResult.effects.length > 0) {
+      const timerPreview = normalizedResult.effects
+        .map((effect) => `${effect.effectName || effect.effectLabel}: ${effect.scenesLeft} сцен`)
+        .join(' | ');
+      console.log(`[TimedEffects] ${timerPreview}`);
+    } else {
+      console.log('[TimedEffects] Активных эффектов нет.');
+    }
+
     return {
       ...result,
       expired: normalizedCurrent.expired,

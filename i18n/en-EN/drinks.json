@@ -1,0 +1,15 @@
+[
+  {
+    "itemType": "drinks",
+    "Name": "Nuke-Cola",
+    "Weight": 0.1,
+    "Cost": 25,
+    "Rarity": 1,
+    "Positive effect": "+1 AP",
+    "Negative effect": "Dependency",
+    "Positive effect duration": "1 scene",
+    "Negative effect duration": "",
+    "Positive effect label": "+1 AP",
+    "Negative effect label": "Dependency: Nuke-Cola"
+  }
+]

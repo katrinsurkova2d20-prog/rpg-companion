@@ -1,0 +1,15 @@
+[
+  {
+    "itemType": "drinks",
+    "Name": "Нюка-Кола",
+    "Weight": 0.1,
+    "Cost": 25,
+    "Rarity": 1,
+    "Positive effect": "+1 ОД",
+    "Negative effect": "Зависимость",
+    "Positive effect duration": "1 сцена",
+    "Negative effect duration": "",
+    "Positive effect label": "+1 AP",
+    "Negative effect label": "Зависимость: Нюка-Кола"
+  }
+]

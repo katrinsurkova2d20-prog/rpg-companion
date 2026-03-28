@@ -8,6 +8,7 @@ import { renderTextWithIcons } from './textUtils';
 import { useLocale } from '../../../i18n/locale';
 import { getAttributeValue } from '../CharacterScreen/logic/attributeKeyUtils';
 import { getSkillDisplayName } from '../CharacterScreen/logic/characterScreenI18n';
+import { getEffectTimeText } from '../../../assets/scripts/sceneEffects';
 
 // Импортируем модальное окно модификаций
 import WeaponModificationModal from './WeaponModificationModal';
@@ -235,11 +236,7 @@ const WeaponsAndArmorScreen = () => {
   
   const hasRadImmunity = effects.includes('Иммунитет к радиации');
   const hasPoisonImmunity = effects.includes('Иммунитет к яду');
-  const timedEffectsText = (activeTimedEffects || []).length > 0
-    ? activeTimedEffects
-      .map((effect) => effect.effectName || effect.effectLabel)
-      .join(', ')
-    : '—';
+  const hasTimedEffects = (activeTimedEffects || []).length > 0;
   
   // Состояние для модального окна модификаций
   const [modificationModalVisible, setModificationModalVisible] = useState(false);
@@ -321,7 +318,28 @@ const WeaponsAndArmorScreen = () => {
                 <StatBox title="Бонус Б.Боя" value={meleeBonus} />
             </View>
             <View style={[localStyles.statsRow, { marginTop: 8 }]}>
-                <StatBox title={isEn ? 'Effects' : 'Эффекты'} value={timedEffectsText} />
+                <StatBox title={isEn ? 'Effects' : 'Эффекты'} value={hasTimedEffects ? '' : '—'}>
+                  {hasTimedEffects ? (
+                    <View style={localStyles.effectsListContainer}>
+                      {(activeTimedEffects || []).map((effect) => {
+                        const effectText = effect.effectName || effect.effectLabel || '—';
+                        const isNegative = effect.effectKind === 'negative';
+                        return (
+                          <View key={effect.id} style={localStyles.effectLineContainer}>
+                            <Text style={[localStyles.effectText, isNegative ? localStyles.negativeEffectText : localStyles.positiveEffectText]}>
+                              {effectText}
+                            </Text>
+                            {/* TIMER_VISIBILITY_TOGGLE_START: закомментируйте этот блок, чтобы скрыть таймер эффекта */}
+                            <Text style={localStyles.effectTimerText}>
+                              {getEffectTimeText(effect.scenesLeft)}
+                            </Text>
+                            {/* TIMER_VISIBILITY_TOGGLE_END */}
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ) : null}
+                </StatBox>
                 <StatBox title="Сопр. Яду" value={hasPoisonImmunity ? '∞' : '0'} />
                 <StatBox title="Здоровье" max={maxHealth}>
                   <HealthCounter max={maxHealth} isEnabled={attributesSaved} />
@@ -408,6 +426,29 @@ const localStyles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomLeftRadius: 4,
     borderBottomRightRadius: 4,
+  },
+  effectsListContainer: {
+    width: '100%',
+    marginTop: 4,
+  },
+  effectLineContainer: {
+    marginBottom: 2,
+    alignItems: 'center',
+  },
+  effectText: {
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  positiveEffectText: {
+    color: '#00A651',
+  },
+  negativeEffectText: {
+    color: '#D62828',
+  },
+  effectTimerText: {
+    fontSize: 10,
+    color: '#6B7280',
   },
   armorItemNameTitle: {
     color: '#fff',

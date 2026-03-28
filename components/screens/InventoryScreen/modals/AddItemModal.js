@@ -39,6 +39,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
       }, {}),
       'Боеприпасы': { 'Все': Array.isArray(equipmentCatalog.ammoData) ? equipmentCatalog.ammoData : [] },
       'Еда': {},
+      'Напитки': { 'Все': equipmentCatalog.drinks || [] },
       'Препараты': { 'Все': equipmentCatalog.chems },
       'Материалы': {},
     };
@@ -118,6 +119,11 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
       if (allData['Препараты']['Все']) {
         allItems.push(...allData['Препараты']['Все']);
       }
+
+      // Обрабатываем напитки
+      if (allData['Напитки']['Все']) {
+        allItems.push(...allData['Напитки']['Все']);
+      }
       
       // Фильтруем по поисковому запросу
       const filteredItems = allItems.filter(item => {
@@ -165,6 +171,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
       else if (item.itemType === 'armor') itemType = '🛡️ Броня';
       else if (item.itemType === 'clothing') itemType = '👕 Одежда';
       else if (item.itemType === 'chem') itemType = '💊 Препарат';
+      else if (item.itemType === 'drinks') itemType = '🥤 Напиток';
       else if (item.itemType === 'ammo') itemType = '🔹 Боеприпасы';
     }
     

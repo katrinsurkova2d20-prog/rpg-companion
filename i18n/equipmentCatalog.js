@@ -6,6 +6,7 @@ import ruModsOverrides from './ru-RU/mods_overrides.json';
 import ruArmor from './ru-RU/armor.json';
 import ruClothes from './ru-RU/Clothes.json';
 import ruChems from './ru-RU/chems.json';
+import ruDrinks from './ru-RU/drinks.json';
 import ruMisc from './ru-RU/miscellaneous.json';
 import ruAmmoData from './ru-RU/ammoData.json';
 
@@ -17,6 +18,7 @@ import enModsOverrides from './en-EN/mods_overrides.json';
 import enArmor from './en-EN/armor.json';
 import enClothes from './en-EN/Clothes.json';
 import enChems from './en-EN/chems.json';
+import enDrinks from './en-EN/drinks.json';
 import enMisc from './en-EN/miscellaneous.json';
 import enAmmoData from './en-EN/ammoData.json';
 
@@ -32,6 +34,7 @@ const EQUIPMENT_BY_LOCALE = {
     armor: ruArmor,
     clothes: ruClothes,
     chems: ruChems,
+    drinks: ruDrinks,
     miscellaneous: ruMisc,
     ammoData: ruAmmoData,
   },
@@ -44,21 +47,22 @@ const EQUIPMENT_BY_LOCALE = {
     armor: enArmor,
     clothes: enClothes,
     chems: enChems,
+    drinks: enDrinks,
     miscellaneous: enMisc,
     ammoData: enAmmoData,
   },
 };
 
-const validateChemsContract = (chems) => {
-  if (!Array.isArray(chems)) {
+const validateConsumablesContract = (items, allowedTypes) => {
+  if (!Array.isArray(items)) {
     return [];
   }
 
-  return chems.filter((item) => (
+  return items.filter((item) => (
     item &&
     typeof item === 'object' &&
     typeof item.Name === 'string' &&
-    item.itemType === 'chem'
+    allowedTypes.includes(item.itemType)
   ));
 };
 
@@ -68,6 +72,7 @@ export const getEquipmentCatalog = (locale = getCurrentLocale()) => {
 
   return {
     ...baseCatalog,
-    chems: validateChemsContract(baseCatalog.chems),
+    chems: validateConsumablesContract(baseCatalog.chems, ['chem']),
+    drinks: validateConsumablesContract(baseCatalog.drinks, ['drinks']),
   };
 };

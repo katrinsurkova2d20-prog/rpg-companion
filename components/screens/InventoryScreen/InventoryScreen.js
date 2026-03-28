@@ -80,15 +80,15 @@ const InventoryScreen = () => {
     }
   };
 
-  const handleApplyChem = (item) => {
-    const chemItem = { ...item, itemType: 'chem' };
-    const itemName = getItemName(chemItem);
+  const handleApplyConsumable = (item) => {
+    const consumableItem = { ...item };
+    const itemName = getItemName(consumableItem);
 
     const applyToSelf = () => {
-      const timedResult = applyConsumableTimedEffects(chemItem);
-      if (chemItem.healAmount) {
+      const timedResult = applyConsumableTimedEffects(consumableItem);
+      if (consumableItem.healAmount) {
         const maxHealth = calculateMaxHealth(attributes, level);
-        const healAmount = chemItem.healAmount;
+        const healAmount = consumableItem.healAmount;
         const newHealth = Math.min(maxHealth, currentHealth + healAmount);
         setCurrentHealth(newHealth);
         Alert.alert("Успешно", `Восстановлено ${healAmount} единиц здоровья.`);
@@ -100,12 +100,12 @@ const InventoryScreen = () => {
         Alert.alert('Эффекты', timedResult.events.join('\n'));
       }
 
-      handleRemoveItem(chemItem, 1);
+      handleRemoveItem(consumableItem, 1);
     };
 
     const applyToOther = () => {
       Alert.alert("Применено", `${itemName} применен на другого персонажа.`);
-      handleRemoveItem(chemItem, 1);
+      handleRemoveItem(consumableItem, 1);
     };
 
     if (typeof window !== 'undefined' && window.confirm) {
@@ -119,7 +119,7 @@ const InventoryScreen = () => {
     }
 
     Alert.alert(
-      "Применение химиката",
+      "Применение расходника",
       `Вы хотите применить ${itemName} на себя или другого персонажа?`,
       [
         { text: "Отмена", style: "cancel" },
@@ -629,7 +629,7 @@ const InventoryScreen = () => {
     
     const itemName = getItemName(displayItem) || 'Неизвестный предмет';
     const isEquippable = item.itemType === 'weapon' || item.itemType === 'armor' || item.itemType === 'clothing';
-    const isChem = item.itemType === 'chem';
+    const isConsumable = item.itemType === 'chem' || item.itemType === 'drinks';
 
     const handleActionPress = () => {
         if (item.isEquipped) {
@@ -671,10 +671,10 @@ const InventoryScreen = () => {
               </TouchableOpacity>
           )}
 
-          {isChem && !item.isEquipped && (
+          {isConsumable && !item.isEquipped && (
               <TouchableOpacity 
                   style={[styles.actionButton, styles.applyButton]} 
-                  onPress={() => handleApplyChem(item)}>
+                  onPress={() => handleApplyConsumable(item)}>
                   <Text style={styles.actionButtonText}>Применить</Text>
               </TouchableOpacity>
           )}

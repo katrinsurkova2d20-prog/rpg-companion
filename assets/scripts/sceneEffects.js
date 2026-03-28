@@ -11,15 +11,15 @@ const toStringSafe = (value) => (value === undefined || value === null ? '' : St
 
 const normalizeDuration = (rawDuration) => {
   const value = toStringSafe(rawDuration).toLowerCase();
-  if (!value || value === EFFECT_DURATION.NONE) {
+  if (!value || value === EFFECT_DURATION.NONE || value === 'none') {
     return { type: 'none', scenes: 0 };
   }
 
-  if (value === EFFECT_DURATION.INSTANT) {
+  if (value === EFFECT_DURATION.INSTANT || value === 'instant') {
     return { type: 'instant', scenes: 0 };
   }
 
-  const sceneMatch = value.match(/(\d+)\s*сцен/);
+  const sceneMatch = value.match(/(\d+)\s*(сцен\w*|scene\w*)/);
   if (sceneMatch) {
     return { type: 'scene', scenes: Number(sceneMatch[1]) || 0 };
   }

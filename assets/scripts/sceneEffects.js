@@ -1,4 +1,5 @@
 const SCENE_DURATION_MINUTES = 5;
+const SCENE_DURATION_MS = SCENE_DURATION_MINUTES * 60 * 1000;
 const CANONICAL_ATTRIBUTES = new Set(['STR', 'END', 'PER', 'AGI', 'INT', 'CHA', 'LCK']);
 
 const EFFECT_DURATION = {
@@ -44,6 +45,9 @@ const buildTimedEffect = ({ effectName, effectLabel, effectKind, scenes, sourceN
   effectLabel,
   effectKind,
   sourceName,
+  createdAt: Date.now(),
+  durationMs: Math.max(0, scenes) * SCENE_DURATION_MS,
+  expiresAt: Date.now() + (Math.max(0, scenes) * SCENE_DURATION_MS),
   scenesLeft: scenes,
 });
 
@@ -58,12 +62,45 @@ const applyOrStackEffect = (activeEffects, newEffect) => {
   }
 
   const next = [...activeEffects];
+  const prevDuration = Number(next[existingIndex].durationMs) || ((Number(next[existingIndex].scenesLeft) || 0) * SCENE_DURATION_MS);
+  const incomingDuration = Number(newEffect.durationMs) || ((Number(newEffect.scenesLeft) || 0) * SCENE_DURATION_MS);
+  const previousExpiresAt = Number(next[existingIndex].expiresAt) || (Date.now() + prevDuration);
   next[existingIndex] = {
     ...next[existingIndex],
     effectLabel: newEffect.effectLabel || next[existingIndex].effectLabel,
     scenesLeft: (Number(next[existingIndex].scenesLeft) || 0) + (Number(newEffect.scenesLeft) || 0),
+    durationMs: prevDuration + incomingDuration,
+    expiresAt: previousExpiresAt + incomingDuration,
   };
   return next;
+};
+
+const normalizeTimedEffectWithClock = (effect, nowMs) => {
+  if (!effect) return { normalized: effect, expired: false, changed: false };
+  const currentScenes = Math.max(0, Number(effect.scenesLeft) || 0);
+  const hasExpiresAt = Number.isFinite(Number(effect.expiresAt));
+  const expiresAt = hasExpiresAt
+    ? Number(effect.expiresAt)
+    : nowMs + (currentScenes * SCENE_DURATION_MS);
+
+  const remainingMs = Math.max(0, expiresAt - nowMs);
+  const nextScenesLeft = Math.ceil(remainingMs / SCENE_DURATION_MS);
+  const nextDuration = Number(effect.durationMs) || (currentScenes * SCENE_DURATION_MS);
+  const expired = remainingMs <= 0;
+  const changed = !hasExpiresAt
+    || Number(effect.durationMs) !== nextDuration
+    || currentScenes !== nextScenesLeft;
+
+  return {
+    expired,
+    changed,
+    normalized: {
+      ...effect,
+      expiresAt,
+      durationMs: nextDuration,
+      scenesLeft: nextScenesLeft,
+    },
+  };
 };
 
 const normalizeAttributeToken = (token) => {
@@ -169,21 +206,47 @@ export const applyConsumableToEffects = (item, currentEffects = []) => {
 };
 
 export const advanceEffectsByScene = (currentEffects = []) => {
+  const nowMs = Date.now() + SCENE_DURATION_MS;
   const expired = [];
-  const nextEffects = currentEffects
-    .map((effect) => ({
-      ...effect,
-      scenesLeft: Math.max(0, (Number(effect.scenesLeft) || 0) - 1),
-    }))
-    .filter((effect) => {
-      if (effect.scenesLeft > 0) return true;
-      expired.push(effect);
-      return false;
-    });
+  const nextEffects = currentEffects.reduce((acc, effect) => {
+    const normalized = normalizeTimedEffectWithClock(effect, nowMs);
+    if (normalized.expired) {
+      expired.push(normalized.normalized);
+      return acc;
+    }
+    acc.push(normalized.normalized);
+    return acc;
+  }, []);
 
   return {
     effects: nextEffects,
     expired,
+  };
+};
+
+export const pruneExpiredTimedEffects = (currentEffects = [], nowMs = Date.now()) => {
+  let changed = false;
+  const expired = [];
+  const effects = currentEffects.reduce((acc, effect) => {
+    const normalized = normalizeTimedEffectWithClock(effect, nowMs);
+    if (normalized.expired) {
+      expired.push(normalized.normalized);
+      changed = true;
+      return acc;
+    }
+    if (normalized.changed) changed = true;
+    acc.push(normalized.normalized);
+    return acc;
+  }, []);
+
+  if (effects.length !== currentEffects.length) {
+    changed = true;
+  }
+
+  return {
+    effects,
+    expired,
+    changed,
   };
 };
 
@@ -201,6 +264,7 @@ export default {
   SCENE_RULES,
   applyConsumableToEffects,
   advanceEffectsByScene,
+  pruneExpiredTimedEffects,
   getTimedAttributeModifiers,
   getEffectTimeText,
 };

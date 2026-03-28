@@ -6,7 +6,6 @@ import CapsModal from './modals/CapsModal';
 import SellItemModal from './modals/SellItemModal';
 import AddItemModal from './modals/AddItemModal';
 import { calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
-import { getEffectTimeText } from '../../../assets/scripts/sceneEffects';
 
 const CapsSection = ({ caps, onAdd, onSubtract }) => (
   <View style={styles.capsContainer}>
@@ -29,11 +28,7 @@ const InventoryScreen = () => {
     caps, setCaps,
     attributes, level,
     currentHealth, setCurrentHealth,
-    activeTimedEffects,
-    sceneCounter,
-    sceneDurationMinutes,
     applyConsumableTimedEffects,
-    advanceScene,
     saveModifiedItem,
     getModifiedItem
   } = useCharacter();
@@ -48,6 +43,7 @@ const InventoryScreen = () => {
   const getItemName = (item) => item?.Name || item?.name || item?.Название || '';
   const getItemType = (item) => {
     if (item?.itemType) return item.itemType;
+    if (item?.effectType || item?.durationInScenes || item?.duration || item?.Effects) return 'chem';
     if (item?.type === 'ammo') return 'ammo';
     if (item?.weaponId || item?.damage !== undefined || item?.Урон !== undefined) return 'weapon';
     if (item?.clothingType) return 'clothing';
@@ -85,51 +81,50 @@ const InventoryScreen = () => {
   };
 
   const handleApplyChem = (item) => {
-    if (!item.itemType) {
-      // Ensure the item has the correct itemType
-      item = { ...item, itemType: 'chem' };
+    const chemItem = { ...item, itemType: 'chem' };
+    const itemName = getItemName(chemItem);
+
+    const applyToSelf = () => {
+      const timedResult = applyConsumableTimedEffects(chemItem);
+      if (chemItem.healAmount) {
+        const maxHealth = calculateMaxHealth(attributes, level);
+        const healAmount = chemItem.healAmount;
+        const newHealth = Math.min(maxHealth, currentHealth + healAmount);
+        setCurrentHealth(newHealth);
+        Alert.alert("Успешно", `Восстановлено ${healAmount} единиц здоровья.`);
+      } else {
+        Alert.alert("Применено", `${itemName} применен на вас.`);
+      }
+
+      if (timedResult.events.length > 0) {
+        Alert.alert('Эффекты', timedResult.events.join('\n'));
+      }
+
+      handleRemoveItem(chemItem, 1);
+    };
+
+    const applyToOther = () => {
+      Alert.alert("Применено", `${itemName} применен на другого персонажа.`);
+      handleRemoveItem(chemItem, 1);
+    };
+
+    if (typeof window !== 'undefined' && window.confirm) {
+      const applyOnSelf = window.confirm(`Применить ${itemName} на себя? Нажмите "Отмена", чтобы применить на другого персонажа.`);
+      if (applyOnSelf) {
+        applyToSelf();
+      } else {
+        applyToOther();
+      }
+      return;
     }
-    
+
     Alert.alert(
       "Применение химиката",
-      `Вы хотите применить ${getItemName(item)} на себя или другого персонажа?`,
+      `Вы хотите применить ${itemName} на себя или другого персонажа?`,
       [
         { text: "Отмена", style: "cancel" },
-        { 
-          text: "На себя", 
-          onPress: () => {
-            const timedResult = applyConsumableTimedEffects(item);
-            if (item.healAmount) {
-              // Обновляем здоровье персонажа
-              const maxHealth = calculateMaxHealth(attributes, level);
-              
-              // Вычисляем новое здоровье
-              const healAmount = item.healAmount;
-              const newHealth = Math.min(maxHealth, currentHealth + healAmount);
-              
-              // Обновляем текущее здоровье
-              setCurrentHealth(newHealth);
-              
-              Alert.alert("Успешно", `Восстановлено ${healAmount} единиц здоровья.`);
-            } else {
-              Alert.alert("Применено", `${getItemName(item)} применен на вас.`);
-            }
-
-            if (timedResult.events.length > 0) {
-              Alert.alert('Эффекты', timedResult.events.join('\n'));
-            }
-            
-            // Удаляем один экземпляр предмета из инвентаря
-            handleRemoveItem(item, 1);
-          } 
-        },
-        { 
-          text: "На другого", 
-          onPress: () => {
-            Alert.alert("Применено", `${getItemName(item)} применен на другого персонажа.`);
-            handleRemoveItem(item, 1);
-          } 
-        }
+        { text: "На себя", onPress: applyToSelf },
+        { text: "На другого", onPress: applyToOther }
       ]
     );
   };
@@ -704,16 +699,6 @@ const InventoryScreen = () => {
     </TouchableOpacity>
   );
 
-  const handleNextScene = () => {
-    const { expired } = advanceScene();
-    if (expired.length > 0) {
-      const expiredText = expired.map((effect) => `${effect.effectName} (${effect.effectKind === 'positive' ? 'плюс' : 'минус'})`).join(', ');
-      Alert.alert('Сцена завершена', `Истекли эффекты: ${expiredText}`);
-      return;
-    }
-    Alert.alert('Сцена завершена', 'Активные эффекты обновлены.');
-  };
-
   const totalWeight = useMemo(() => {
     let total = 0;
     
@@ -849,24 +834,6 @@ const InventoryScreen = () => {
           <View style={styles.summaryContainer}>
             <Text style={styles.summaryText}>Общий вес: {totalWeight}</Text>
             <Text style={styles.summaryText}>Общая цена: {totalPrice}</Text>
-          </View>
-          <View style={styles.effectsContainer}>
-            <Text style={styles.effectsTitle}>Эффекты сцен</Text>
-            <Text style={styles.effectsMeta}>
-              Сцена: {sceneCounter} • {sceneDurationMinutes} минут за сцену
-            </Text>
-            {activeTimedEffects.length === 0 ? (
-              <Text style={styles.effectItemText}>Нет активных временных эффектов.</Text>
-            ) : (
-              activeTimedEffects.map((effect) => (
-                <Text key={effect.id} style={styles.effectItemText}>
-                  {effect.effectKind === 'positive' ? '🟢' : '🔴'} {effect.effectName || effect.effectLabel} — {getEffectTimeText(effect.scenesLeft)}
-                </Text>
-              ))
-            )}
-            <TouchableOpacity style={styles.nextSceneButton} onPress={handleNextScene}>
-              <Text style={styles.nextSceneButtonText}>Следующая сцена (+{sceneDurationMinutes} мин)</Text>
-            </TouchableOpacity>
           </View>
         </View>
         <AddWeaponModal
@@ -1040,40 +1007,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  effectsContainer: {
-    marginTop: 10,
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-  },
-  effectsTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  effectsMeta: {
-    marginTop: 4,
-    marginBottom: 6,
-    color: '#555',
-    fontSize: 12,
-  },
-  effectItemText: {
-    color: '#111',
-    fontSize: 13,
-    marginBottom: 3,
-  },
-  nextSceneButton: {
-    marginTop: 8,
-    alignSelf: 'flex-start',
-    backgroundColor: '#222',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-  },
-  nextSceneButtonText: {
-    color: '#fff',
-    fontWeight: '600',
   },
   emptyListText: {
     textAlign: 'center',

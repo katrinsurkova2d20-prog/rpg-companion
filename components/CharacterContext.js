@@ -12,7 +12,7 @@ import {
 } from './screens/CharacterScreen/logic/characterLogic';
 import { getAttributeValue } from './screens/CharacterScreen/logic/attributeKeyUtils';
 import { meetsPerkRequirements, getPerkUnmetReasons, annotatePerks } from './screens/CharacterScreen/logic/perksLogic';
-import { applyConsumableToEffects, advanceEffectsByScene, SCENE_RULES } from '../assets/scripts/sceneEffects';
+import { applyConsumableToEffects, advanceEffectsByScene, pruneExpiredTimedEffects, SCENE_RULES } from '../assets/scripts/sceneEffects';
 
 const CharacterContext = createContext();
 
@@ -76,6 +76,17 @@ export const CharacterProvider = ({ children }) => {
   const characterIdRef = useRef(characterId);
   useEffect(() => { isSavedRef.current = isSaved; }, [isSaved]);
   useEffect(() => { characterIdRef.current = characterId; }, [characterId]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTimedEffects((prev) => {
+        const { effects: nextEffects, changed } = pruneExpiredTimedEffects(prev);
+        return changed ? nextEffects : prev;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Собираем снапшот всего состояния персонажа
   const buildSnapshot = useCallback(() => ({
@@ -191,7 +202,7 @@ export const CharacterProvider = ({ children }) => {
       setTrait(data.trait || null);
       setEquipment(data.equipment || null);
       setEffects(data.effects || []);
-      setActiveTimedEffects(data.activeTimedEffects || []);
+      setActiveTimedEffects(pruneExpiredTimedEffects(data.activeTimedEffects || []).effects);
       setSceneCounter(data.sceneCounter ?? 0);
       setEquippedWeapons(data.equippedWeapons || [null, null]);
       setEquippedArmor(data.equippedArmor || {
@@ -275,16 +286,22 @@ export const CharacterProvider = ({ children }) => {
   };
 
   const applyConsumableTimedEffects = (item) => {
-    const result = applyConsumableToEffects(item, activeTimedEffects);
-    setActiveTimedEffects(result.effects);
-    return result;
+    const normalizedCurrent = pruneExpiredTimedEffects(activeTimedEffects);
+    const result = applyConsumableToEffects(item, normalizedCurrent.effects);
+    const normalizedResult = pruneExpiredTimedEffects(result.effects);
+    setActiveTimedEffects(normalizedResult.effects);
+    return {
+      ...result,
+      expired: normalizedCurrent.expired,
+    };
   };
 
   const advanceScene = () => {
-    const { effects: nextEffects, expired } = advanceEffectsByScene(activeTimedEffects);
+    const normalizedCurrent = pruneExpiredTimedEffects(activeTimedEffects);
+    const { effects: nextEffects, expired } = advanceEffectsByScene(normalizedCurrent.effects);
     setActiveTimedEffects(nextEffects);
     setSceneCounter(prev => prev + 1);
-    return { active: nextEffects, expired };
+    return { active: nextEffects, expired: [...normalizedCurrent.expired, ...expired] };
   };
 
   const commitAttributeChanges = (newAttributes, pointsSpent) => {

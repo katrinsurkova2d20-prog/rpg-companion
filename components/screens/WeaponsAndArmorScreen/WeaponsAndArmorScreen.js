@@ -6,6 +6,8 @@ import { TRAITS } from '../CharacterScreen/logic/traitsData';
 import styles from '../../../styles';
 import { renderTextWithIcons } from './textUtils';
 import { useLocale } from '../../../i18n/locale';
+import { getAttributeValue } from '../CharacterScreen/logic/attributeKeyUtils';
+import { getSkillDisplayName } from '../CharacterScreen/logic/characterScreenI18n';
 
 // Импортируем модальное окно модификаций
 import WeaponModificationModal from './WeaponModificationModal';
@@ -108,10 +110,40 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
     const fireRateBase = Number(fireRateRaw) || 0;
     const rangeValue = displayWeapon.range_name ?? displayWeapon['Дистанция'] ?? 'Близкая';
     const qualitiesValue = displayWeapon.qualities ?? displayWeapon.Качества;
-    const mainAttr = displayWeapon.main_attr ?? 'ЛОВ';
-    const mainSkill = displayWeapon.main_skill ?? 'Стрелковое оружие';
-    const attrValue = attributes?.find(a => a.name === mainAttr)?.value ?? 0;
-    const skillValue = skills?.find(s => s.name === mainSkill)?.value ?? 0;
+    const mainAttr = displayWeapon.main_attr ?? 'AGI';
+    const mainSkill = displayWeapon.main_skill ?? 'SMALL_GUNS';
+
+    const SKILL_ALIASES = {
+      ATHLETICS: ['ATHLETICS', 'Атлетика', 'Athletics'],
+      BARTER: ['BARTER', 'Бартер', 'Barter'],
+      BIG_GUNS: ['BIG_GUNS', 'Тяжелое оружие', 'Тяжёлое оружие', 'Big Guns'],
+      ENERGY_WEAPONS: ['ENERGY_WEAPONS', 'Энергооружие', 'Energy Weapons'],
+      EXPLOSIVES: ['EXPLOSIVES', 'Взрывчатка', 'Explosives'],
+      LOCKPICK: ['LOCKPICK', 'Отмычки', 'Lockpick'],
+      MEDICINE: ['MEDICINE', 'Медицина', 'Medicine'],
+      MELEE_WEAPONS: ['MELEE_WEAPONS', 'Ближний бой', 'Melee Weapons'],
+      PILOT: ['PILOT', 'Управление ТС', 'Pilot'],
+      REPAIR: ['REPAIR', 'Ремонт', 'Repair'],
+      SCIENCE: ['SCIENCE', 'Наука', 'Science'],
+      SMALL_GUNS: ['SMALL_GUNS', 'Стрелковое оружие', 'Small Guns'],
+      SNEAK: ['SNEAK', 'Скрытность', 'Sneak'],
+      SPEECH: ['SPEECH', 'Красноречие', 'Speech'],
+      SURVIVAL: ['SURVIVAL', 'Выживание', 'Survival'],
+      THROWING: ['THROWING', 'Метание', 'Throwing'],
+      UNARMED: ['UNARMED', 'Рукопашная', 'Unarmed'],
+    };
+
+    const findSkillValue = (skillKeyOrName) => {
+      const canonical = SKILL_ALIASES[skillKeyOrName] ? skillKeyOrName : Object.keys(SKILL_ALIASES).find((key) =>
+        SKILL_ALIASES[key].includes(skillKeyOrName),
+      );
+
+      const aliases = SKILL_ALIASES[canonical] || [skillKeyOrName, getSkillDisplayName(skillKeyOrName)];
+      return skills?.find((s) => aliases.includes(s.name))?.value ?? 0;
+    };
+
+    const attrValue = getAttributeValue(attributes, mainAttr) ?? 0;
+    const skillValue = findSkillValue(mainSkill);
     const successValue = attrValue + skillValue;
   
     // Бонус урона для НКР "Пехотинец"

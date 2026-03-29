@@ -6,6 +6,8 @@ import { TRAITS } from '../CharacterScreen/logic/traitsData';
 import styles from '../../../styles';
 import { renderTextWithIcons } from './textUtils';
 import { useLocale } from '../../../i18n/locale';
+import { getEquipmentCatalog } from '../../../i18n/equipmentCatalog';
+import { applyArmorMods } from './armorModificationUtils';
 import { getAttributeValue } from '../CharacterScreen/logic/attributeKeyUtils';
 import { getSkillDisplayName } from '../CharacterScreen/logic/characterScreenI18n';
 import { getEffectTimeText } from '../../../assets/scripts/sceneEffects';
@@ -237,6 +239,7 @@ const WeaponsAndArmorScreen = () => {
   const hasRadImmunity = effects.includes('Иммунитет к радиации');
   const hasPoisonImmunity = effects.includes('Иммунитет к яду');
   const hasTimedEffects = (activeTimedEffects || []).length > 0;
+  const equipmentCatalog = getEquipmentCatalog(locale);
   
   // Состояние для модального окна модификаций
   const [modificationModalVisible, setModificationModalVisible] = useState(false);
@@ -279,10 +282,12 @@ const WeaponsAndArmorScreen = () => {
     const armorItem = slotData ? slotData.armor : null;
     const clothingItem = slotData ? slotData.clothing : null;
     const config = armorSlotConfig[slotKey];
-    
-    const physDef = (armorItem?.['Физ.СУ'] || 0) + (clothingItem?.['Физ.СУ'] || 0);
-    const energyDef = (armorItem?.['Энрг.СУ'] || 0) + (clothingItem?.['Энрг.СУ'] || 0);
-    const radDef = (armorItem?.['Рад.СУ'] || 0) + (clothingItem?.['Рад.СУ'] || 0);
+
+    const { item: modifiedArmor } = applyArmorMods(armorItem, equipmentCatalog);
+
+    const physDef = (modifiedArmor?.['Физ.СУ'] || 0) + (clothingItem?.['Физ.СУ'] || 0);
+    const energyDef = (modifiedArmor?.['Энрг.СУ'] || 0) + (clothingItem?.['Энрг.СУ'] || 0);
+    const radDef = (modifiedArmor?.['Рад.СУ'] || 0) + (clothingItem?.['Рад.СУ'] || 0);
 
     const stats = [
       { label: 'Физ.Су', value: physDef > 0 ? physDef : '00' },
@@ -295,8 +300,8 @@ const WeaponsAndArmorScreen = () => {
             key={slotKey} 
             title={config.title} 
             subtitle={config.subtitle}
-            armorName={armorItem?.Название}
-            clothingName={clothingItem?.Название}
+            armorName={modifiedArmor?.Название || modifiedArmor?.Name || modifiedArmor?.name}
+            clothingName={clothingItem?.Название || clothingItem?.Name || clothingItem?.name}
             stats={stats}
         />
     );

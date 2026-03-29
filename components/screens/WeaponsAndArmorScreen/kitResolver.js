@@ -1,6 +1,7 @@
 import { getWeaponById, getWeaponModById, getAmmoById, getItemByName } from '../../../db/Database';
 import { resolveRandomLoot } from '../CharacterScreen/logic/RandomLootLogic';
 import { evaluateFormula } from '../CharacterScreen/logic/Calculator';
+import { getEquipmentCatalog } from '../../../i18n/equipmentCatalog';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -83,6 +84,25 @@ export async function resolveWeaponItem(item) {
   };
 }
 
+
+function resolveArmorOrClothingById(item) {
+  const catalog = getEquipmentCatalog();
+  if (item.armorId) {
+    const found = catalog?.armorIndex?.byId?.get(item.armorId);
+    if (found) {
+      return { ...found, ...item, name: found.Name || found.name, Название: found.Название || found.Name, itemType: 'armor' };
+    }
+  }
+  if (item.clothingId) {
+    const allClothes = (catalog?.clothes?.clothes || []).flatMap((g) => g.items || []);
+    const found = allClothes.find((c) => c.id === item.clothingId);
+    if (found) {
+      return { ...found, ...item, name: found.Name || found.name, Название: found.Название || found.Name, itemType: found.itemType || 'clothing' };
+    }
+  }
+  return null;
+}
+
 // ─── 2.2 resolveNonWeaponItem ─────────────────────────────────────────────────
 
 // Теги валют — результат вычисления формулы становится количеством
@@ -103,6 +123,8 @@ const CURRENCY_TAGS = {
  *   - Иначе → поиск в БД
  */
 export async function resolveNonWeaponItem(item) {
+  const resolvedById = resolveArmorOrClothingById(item);
+  if (resolvedById) return resolvedById;
   if (!item.name) return item;
 
   // Формат [формула]<тег>

@@ -1,0 +1,269 @@
+[
+  /* ========================= */
+  /* RAIDER ARMOR             */
+  /* ========================= */
+
+  {
+    "id": "uniq_raider_welded",
+    "modCategory": "raiderUniqueMods",
+    "name": "Сварная",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 1,
+    "requiredPerk": "",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 3 },
+    "weightModifier": { "op": "+", "value": 1 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 1 },
+      "energyDamageRating": { "op": "+", "value": 1 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_raider_hardened",
+    "modCategory": "raiderUniqueMods",
+    "name": "Закалённая",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 2,
+    "requiredPerk": "",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 6 },
+    "weightModifier": { "op": "+", "value": 1 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 2 },
+      "energyDamageRating": { "op": "+", "value": 2 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_raider_reinforced",
+    "modCategory": "raiderUniqueMods",
+    "name": "Укреплённая",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 3,
+    "requiredPerk": "Armorer 1",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 9 },
+    "weightModifier": { "op": "+", "value": 2 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 3 },
+      "energyDamageRating": { "op": "+", "value": 3 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_raider_bolstered",
+    "modCategory": "raiderUniqueMods",
+    "name": "Усиленная",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 4,
+    "requiredPerk": "Armorer 1",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 12 },
+    "weightModifier": { "op": "+", "value": 3 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 4 },
+      "energyDamageRating": { "op": "+", "value": 4 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+
+  /* ========================= */
+  /* LEATHER ARMOR            */
+  /* ========================= */
+
+  {
+    "id": "uniq_leather_treated_1",
+    "modCategory": "leatherUniqueMods",
+    "name": "Обработанная I",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 1,
+    "requiredPerk": "",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 5 },
+    "weightModifier": { "op": "+", "value": 1 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 1 },
+      "energyDamageRating": { "op": "+", "value": 1 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_leather_treated_2",
+    "modCategory": "leatherUniqueMods",
+    "name": "Обработанная II",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 2,
+    "requiredPerk": "",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 10 },
+    "weightModifier": { "op": "+", "value": 1 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 2 },
+      "energyDamageRating": { "op": "+", "value": 2 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_leather_treated_3",
+    "modCategory": "leatherUniqueMods",
+    "name": "Обработанная III",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 3,
+    "requiredPerk": "Armorer 1",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 15 },
+    "weightModifier": { "op": "+", "value": 1 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 3 },
+      "energyDamageRating": { "op": "+", "value": 3 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_leather_treated_4",
+    "modCategory": "leatherUniqueMods",
+    "name": "Обработанная IV",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 4,
+    "requiredPerk": "Armorer 1",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 25 },
+    "weightModifier": { "op": "+", "value": 2 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 4 },
+      "energyDamageRating": { "op": "+", "value": 4 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+
+  /* ========================= */
+  /* METAL ARMOR              */
+  /* ========================= */
+
+  {
+    "id": "uniq_metal_polished",
+    "modCategory": "metalUniqueMods",
+    "name": "Полированная",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 2,
+    "requiredPerk": "",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 10 },
+    "weightModifier": { "op": "+", "value": 1 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 1 },
+      "energyDamageRating": { "op": "+", "value": 1 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_metal_alloyed",
+    "modCategory": "metalUniqueMods",
+    "name": "Легированный сплав",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 3,
+    "requiredPerk": "Armorer 1",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 30 },
+    "weightModifier": { "op": "+", "value": 3 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 3 },
+      "energyDamageRating": { "op": "+", "value": 3 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+
+  /* ========================= */
+  /* COMBAT ARMOR             */
+  /* ========================= */
+
+  {
+    "id": "uniq_combat_polymer",
+    "modCategory": "combatUniqueMods",
+    "name": "Полимерная",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 3,
+    "requiredPerk": "Armorer 1",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 45 },
+    "weightModifier": { "op": "+", "value": 2 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 3 },
+      "energyDamageRating": { "op": "+", "value": 3 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+
+  /* ========================= */
+  /* SYNTH ARMOR              */
+  /* ========================= */
+
+  {
+    "id": "uniq_synth_laminated",
+    "modCategory": "synthUniqueMods",
+    "name": "Ламинированная",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 1,
+    "requiredPerk": "",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 5 },
+    "weightModifier": { "op": "+", "value": 1 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 1 },
+      "energyDamageRating": { "op": "+", "value": 1 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_synth_nanofiber",
+    "modCategory": "synthUniqueMods",
+    "name": "Нановолоконная",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 4,
+    "requiredPerk": "Armorer 1",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 20 },
+    "weightModifier": { "op": "+", "value": 3 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 4 },
+      "energyDamageRating": { "op": "+", "value": 4 },
+      "radiationDamageRating": { "op": "+", "value": 0 }
+    },
+    "specialEffects": []
+  },
+
+  /* ========================= */
+  /* VAULT SECURITY ARMOR     */
+  /* ========================= */
+
+  {
+    "id": "uniq_vault_reinforced",
+    "modCategory": "vaultSecurityUniqueMods",
+    "name": "Укреплённая Волт-Тек",
+    "protectedAreas": ["Body","Hand","Leg","Head"],
+    "complexity": 2,
+    "requiredPerk": "Armorer 1",
+    "requiredSkill": "Repair",
+    "costModifier": { "op": "+", "value": 10 },
+    "weightModifier": { "op": "+", "value": 2 },
+    "statModifiers": {
+      "physicalDamageRating": { "op": "+", "value": 2 },
+      "energyDamageRating": { "op": "+", "value": 2 },
+      "radiationDamageRating": { "op": "+", "value": 1 }
+    },
+    "specialEffects": []
+  }
+]

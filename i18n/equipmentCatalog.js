@@ -87,6 +87,7 @@ export const getEquipmentCatalog = (locale = getCurrentLocale()) => {
 
   return {
     ...baseCatalog,
+    armorRaw: baseCatalog.armor,
     armor: { armor: armorPickerGroups },
     armorList: flattenArmorCatalog(baseCatalog.armor),
     armorIndex: buildArmorIndex(baseCatalog.armor),

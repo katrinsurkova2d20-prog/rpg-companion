@@ -84,7 +84,7 @@
       "Head"
     ],
     "complexity": 3,
-    "requiredPerk": "Armorer 1",
+    "requiredPerk": "Бронник 1",
     "requiredSkill": "Repair",
     "costModifier": {
       "op": "+",
@@ -121,7 +121,7 @@
       "Head"
     ],
     "complexity": 4,
-    "requiredPerk": "Armorer 1",
+    "requiredPerk": "Бронник 1",
     "requiredSkill": "Repair",
     "costModifier": {
       "op": "+",
@@ -148,9 +148,9 @@
     "specialEffects": []
   },
   {
-    "id": "uniq_leather_treated_1",
+    "id": "uniq_leather_boiled",
     "modCategory": "leatherUniqueMods",
-    "name": "Обработанная I",
+    "name": "Вываренная кожа",
     "protectedAreas": [
       "Body",
       "Hand",
@@ -185,9 +185,9 @@
     "specialEffects": []
   },
   {
-    "id": "uniq_leather_treated_2",
+    "id": "uniq_leather_stitched",
     "modCategory": "leatherUniqueMods",
-    "name": "Обработанная II",
+    "name": "Расшитая кожа",
     "protectedAreas": [
       "Body",
       "Hand",
@@ -222,9 +222,9 @@
     "specialEffects": []
   },
   {
-    "id": "uniq_leather_treated_3",
+    "id": "uniq_leather_tanned",
     "modCategory": "leatherUniqueMods",
-    "name": "Обработанная III",
+    "name": "Дублёная кожа",
     "protectedAreas": [
       "Body",
       "Hand",
@@ -232,7 +232,7 @@
       "Head"
     ],
     "complexity": 3,
-    "requiredPerk": "Armorer 1",
+    "requiredPerk": "Бронник 1",
     "requiredSkill": "Repair",
     "costModifier": {
       "op": "+",
@@ -259,9 +259,52 @@
     "specialEffects": []
   },
   {
-    "id": "uniq_leather_treated_4",
+    "id": "uniq_leather_shadowed",
     "modCategory": "leatherUniqueMods",
-    "name": "Обработанная IV",
+    "name": "Затенённая кожа",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 3,
+    "requiredPerk": "Бронник 1",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 20
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 1
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 3
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 3
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": [
+      {
+        "id": "effect_sneak_reroll",
+        "description": "Затенённая",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": "uniq_leather_studded",
+    "modCategory": "leatherUniqueMods",
+    "name": "Клёпаная кожа",
     "protectedAreas": [
       "Body",
       "Hand",
@@ -269,7 +312,7 @@
       "Head"
     ],
     "complexity": 4,
-    "requiredPerk": "Armorer 1",
+    "requiredPerk": "Бронник 1",
     "requiredSkill": "Repair",
     "costModifier": {
       "op": "+",
@@ -296,16 +339,16 @@
     "specialEffects": []
   },
   {
-    "id": "uniq_metal_polished",
+    "id": "uniq_metal_painted",
     "modCategory": "metalUniqueMods",
-    "name": "Полированная",
+    "name": "Крашенный металл",
     "protectedAreas": [
       "Body",
       "Hand",
       "Leg",
       "Head"
     ],
-    "complexity": 2,
+    "complexity": 1,
     "requiredPerk": "",
     "requiredSkill": "Repair",
     "costModifier": {
@@ -333,9 +376,89 @@
     "specialEffects": []
   },
   {
-    "id": "uniq_metal_alloyed",
+    "id": "uniq_metal_enameled",
     "modCategory": "metalUniqueMods",
-    "name": "Легированный сплав",
+    "name": "Эмалированный металл",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 2,
+    "requiredPerk": "Бронник 1",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 20
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 2
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 2
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 2
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_metal_shadowed",
+    "modCategory": "metalUniqueMods",
+    "name": "Затенённый металл",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 2,
+    "requiredPerk": "Бронник 1",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 25
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 2
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 2
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 2
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": [
+      {
+        "id": "effect_sneak_reroll",
+        "description": "Затенённая",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": "uniq_metal_alloy",
+    "modCategory": "metalUniqueMods",
+    "name": "Металлический сплав",
     "protectedAreas": [
       "Body",
       "Hand",
@@ -343,7 +466,7 @@
       "Head"
     ],
     "complexity": 3,
-    "requiredPerk": "Armorer 1",
+    "requiredPerk": "Бронник 1",
     "requiredSkill": "Repair",
     "costModifier": {
       "op": "+",
@@ -370,6 +493,160 @@
     "specialEffects": []
   },
   {
+    "id": "uniq_metal_polished",
+    "modCategory": "metalUniqueMods",
+    "name": "Полированный металл",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 4,
+    "requiredPerk": "Бронник 2",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 40
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 4
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 4
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 4
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_combat_reinforced",
+    "modCategory": "combatUniqueMods",
+    "name": "Усиленная",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 1,
+    "requiredPerk": "",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 15
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 1
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 1
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 1
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_combat_shadowed",
+    "modCategory": "combatUniqueMods",
+    "name": "Затенённая",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 1,
+    "requiredPerk": "Бронник 1",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 15
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 1
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 1
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 1
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": [
+      {
+        "id": "effect_sneak_reroll",
+        "description": "Затенённая",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": "uniq_combat_fiberglass",
+    "modCategory": "combatUniqueMods",
+    "name": "Стекловолоконная",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 2,
+    "requiredPerk": "Бронник 1",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 30
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 1
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 2
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 2
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": []
+  },
+  {
     "id": "uniq_combat_polymer",
     "modCategory": "combatUniqueMods",
     "name": "Полимерная",
@@ -380,7 +657,7 @@
       "Head"
     ],
     "complexity": 3,
-    "requiredPerk": "Armorer 1",
+    "requiredPerk": "Бронник 1",
     "requiredSkill": "Repair",
     "costModifier": {
       "op": "+",
@@ -444,6 +721,80 @@
     "specialEffects": []
   },
   {
+    "id": "uniq_synth_rubberized",
+    "modCategory": "synthUniqueMods",
+    "name": "Прорезиненная",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 2,
+    "requiredPerk": "Бронник 1",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 10
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 1
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 2
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 2
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": []
+  },
+  {
+    "id": "uniq_synth_microcarbon",
+    "modCategory": "synthUniqueMods",
+    "name": "Микроуглеродистая",
+    "protectedAreas": [
+      "Body",
+      "Hand",
+      "Leg",
+      "Head"
+    ],
+    "complexity": 3,
+    "requiredPerk": "Бронник 1",
+    "requiredSkill": "Repair",
+    "costModifier": {
+      "op": "+",
+      "value": 15
+    },
+    "weightModifier": {
+      "op": "+",
+      "value": 2
+    },
+    "statModifiers": {
+      "physicalDamageRating": {
+        "op": "+",
+        "value": 3
+      },
+      "energyDamageRating": {
+        "op": "+",
+        "value": 3
+      },
+      "radiationDamageRating": {
+        "op": "+",
+        "value": 0
+      }
+    },
+    "specialEffects": []
+  },
+  {
     "id": "uniq_synth_nanofiber",
     "modCategory": "synthUniqueMods",
     "name": "Нановолоконная",
@@ -454,7 +805,7 @@
       "Head"
     ],
     "complexity": 4,
-    "requiredPerk": "Armorer 1",
+    "requiredPerk": "Бронник 1",
     "requiredSkill": "Repair",
     "costModifier": {
       "op": "+",
@@ -476,43 +827,6 @@
       "radiationDamageRating": {
         "op": "+",
         "value": 0
-      }
-    },
-    "specialEffects": []
-  },
-  {
-    "id": "uniq_vault_reinforced",
-    "modCategory": "vaultSecurityUniqueMods",
-    "name": "Укреплённая Волт-Тек",
-    "protectedAreas": [
-      "Body",
-      "Hand",
-      "Leg",
-      "Head"
-    ],
-    "complexity": 2,
-    "requiredPerk": "Armorer 1",
-    "requiredSkill": "Repair",
-    "costModifier": {
-      "op": "+",
-      "value": 10
-    },
-    "weightModifier": {
-      "op": "+",
-      "value": 2
-    },
-    "statModifiers": {
-      "physicalDamageRating": {
-        "op": "+",
-        "value": 2
-      },
-      "energyDamageRating": {
-        "op": "+",
-        "value": 2
-      },
-      "radiationDamageRating": {
-        "op": "+",
-        "value": 1
       }
     },
     "specialEffects": []

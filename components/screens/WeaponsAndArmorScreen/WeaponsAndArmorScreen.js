@@ -58,7 +58,7 @@ const StatBox = ({ title, value, children }) => (
   </View>
 );
 
-const ArmorPart = ({ title, subtitle, armorName, clothingName, stats, onModifyArmor, canModifyArmor }) => {
+const ArmorPart = ({ title, subtitle, armorName, clothingName, stats }) => {
     const displayName = [clothingName, armorName].filter(Boolean).join(' / ');
 
     return (
@@ -67,21 +67,14 @@ const ArmorPart = ({ title, subtitle, armorName, clothingName, stats, onModifyAr
                 <Text style={styles.sectionTitle}>{title}</Text>
                 <Text style={[styles.sectionTitle, { fontSize: 12 }]}>{subtitle}</Text>
                 {displayName ? <Text style={localStyles.armorItemNameTitle}>{displayName}</Text> : null}
-                <TouchableOpacity
-                  style={[localStyles.modificationButton, !canModifyArmor && { opacity: 0.4 }]}
-                  disabled={!canModifyArmor}
-                  onPress={onModifyArmor}
-                >
-                  <Text style={localStyles.modificationButtonText}>+</Text>
-                </TouchableOpacity>
             </View>
             <View style={localStyles.armorStatsContainer}>
                 {stats.map((stat, index) => (
                     <View key={index} style={[localStyles.armorStatRow, { borderBottomWidth: index === stats.length - 1 ? 0 : 1 }]}>
                         <Text style={localStyles.armorStatLabel}>{stat.label}</Text>
                         {stat.type === 'button' ? (
-                          <TouchableOpacity style={localStyles.modificationButton} onPress={stat.onPress}>
-                            <Text style={localStyles.modificationButtonText}>{stat.value}</Text>
+                          <TouchableOpacity style={localStyles.armorModificationButton} onPress={stat.onPress}>
+                            <Text style={localStyles.armorModificationButtonText}>{stat.value}</Text>
                           </TouchableOpacity>
                         ) : (
                           <Text style={localStyles.armorStatValue}>{stat.value}</Text>
@@ -190,10 +183,10 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
               <Text style={localStyles.weaponStatLabel}>{stat.label}</Text>
               {stat.type === 'button' ? (
                 <TouchableOpacity 
-                  style={localStyles.modificationButton}
+                  style={localStyles.weaponModificationButton}
                   onPress={() => displayWeapon && onModifyWeapon(displayWeapon)}
                 >
-                  <Text style={localStyles.modificationButtonText}>+</Text>
+                  <Text style={localStyles.weaponModificationButtonText}>+</Text>
                 </TouchableOpacity>
               ) : (
                 stat.label === 'УРОН' 
@@ -331,8 +324,8 @@ const WeaponsAndArmorScreen = () => {
       { label: 'Физ.Су', value: physDef > 0 ? physDef : '00' },
       { label: 'Энрг.Су', value: energyDef > 0 ? energyDef : '00' },
       { label: 'Рад.Су', value: hasRadImmunity ? '∞' : (radDef > 0 ? radDef : '00') },
-      ...(modifiedClothing ? [{ label: 'Улучшение Одежды', value: '+', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'clothing') }] : []),
-      ...(modifiedArmor ? [{ label: 'Улучшение Брони', value: '+', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'armor') }] : []),
+      ...(modifiedClothing ? [{ label: 'Модификация одежды', value: '⋯', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'clothing') }] : []),
+      ...(modifiedArmor ? [{ label: 'Модификация брони', value: '⋯', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'armor') }] : []),
     ];
 
     return (
@@ -343,8 +336,6 @@ const WeaponsAndArmorScreen = () => {
             armorName={modifiedArmor?.Название || modifiedArmor?.Name || modifiedArmor?.name}
             clothingName={clothingItem?.Название || clothingItem?.Name || clothingItem?.name}
             stats={stats}
-            canModifyArmor={!!armorItem}
-            onModifyArmor={() => handleOpenArmorModal(slotKey)}
         />
     );
   };
@@ -589,7 +580,21 @@ const localStyles = StyleSheet.create({
     backgroundColor: '#fff',
     textAlign: 'center'
   },
-  modificationButton: {
+  armorModificationButton: {
+    padding: 8,
+    minWidth: 40,
+    borderLeftWidth: 1,
+    borderColor: '#5a5a5a',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  armorModificationButtonText: {
+    color: styles.derivedValue.color,
+    fontWeight: styles.derivedValue.fontWeight,
+    fontSize: styles.derivedValue.fontSize,
+  },
+  weaponModificationButton: {
     flex: 1,
     padding: 8,
     borderLeftWidth: 1,
@@ -598,7 +603,7 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  modificationButtonText: {
+  weaponModificationButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',

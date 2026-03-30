@@ -170,6 +170,8 @@ export default function HomeScreen({ navigation }) {
                 locale === lang.code && styles.langToggleButtonActive,
               ]}
               onPress={() => setCurrentLocale(lang.code)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              activeOpacity={0.85}
             >
               <Text style={[
                 styles.langToggleText,
@@ -245,15 +247,17 @@ const styles = StyleSheet.create({
   languageContainer: {
     position: 'absolute',
     right: 8,
-    top: 10,
+    top: 8,
     flexDirection: 'row',
   },
   langToggleButton: {
     backgroundColor: '#2a2a2a',
     borderWidth: 1,
     borderColor: '#555',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   langToggleButtonFirst: {
     borderTopLeftRadius: 6,
@@ -270,7 +274,7 @@ const styles = StyleSheet.create({
   },
   langToggleText: {
     color: '#aaa',
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: 'bold',
     letterSpacing: 0.5,
   },

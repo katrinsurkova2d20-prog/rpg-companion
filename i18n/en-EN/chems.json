@@ -1,309 +1,624 @@
 [
   {
-    "itemType": "chem",
-    "Name": "Антидот",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_001",
+    "itemType": "chems",
+    "name": "Addictol",
+    "weight": 0.5,
+    "cost": 125,
+    "rarity": 3,
+    "positiveEffect": {
+      "removeCondition": ["addicted"]
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "instant",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Removes addiction",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Баффаут",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_002",
+    "itemType": "chems",
+    "name": "Antibiotics",
+    "weight": 0.5,
+    "cost": 75,
+    "rarity": 3,
+    "positiveEffect": {
+      "removeCondition": ["diseased"]
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "instant",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Removes disease",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Кейт",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_003",
+    "itemType": "chems",
+    "name": "Healing Salve",
+    "weight": 0.5,
+    "cost": 20,
+    "rarity": 1,
+    "positiveEffect": {
+      "hpModifier": {
+        "op": "+",
+        "value": 2
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "instant",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Restores 2 HP",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Дэй Триппер",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_004",
+    "itemType": "chems",
+    "name": "Skeeto Spit",
+    "weight": 0.5,
+    "cost": 40,
+    "rarity": 2,
+    "positiveEffect": {
+      "maxHpModifier": {
+        "op": "+",
+        "value": 2
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "+2 Max HP",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Фиксер",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_005",
+    "itemType": "chems",
+    "name": "Stimpak",
+    "weight": 0.5,
+    "cost": 50,
+    "rarity": 2,
+    "positiveEffect": {
+      "hpModifier": {
+        "op": "+",
+        "value": 4
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "instant",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Restores 4 HP",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Ярость",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_006",
+    "itemType": "chems",
+    "name": "Stimpak (Diluted)",
+    "weight": 0.5,
+    "cost": 30,
+    "rarity": 1,
+    "positiveEffect": {
+      "hpModifier": {
+        "op": "+",
+        "value": 2
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "instant",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Restores 2 HP",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Гидра",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_007",
+    "itemType": "chems",
+    "name": "Super Stimpak",
+    "weight": 0.5,
+    "cost": 90,
+    "rarity": 4,
+    "positiveEffect": {
+      "hpModifier": {
+        "op": "+",
+        "value": 8
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "instant",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Restores 8 HP",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Мед-Х",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_008",
+    "itemType": "chems",
+    "name": "RadAway",
+    "weight": 0.5,
+    "cost": 80,
+    "rarity": 2,
+    "positiveEffect": {
+      "radiationModifier": {
+        "op": "-",
+        "value": 4
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "instant",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Removes 4 radiation",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Ментаты",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1,
-    "Positive effect": "+1 <CHA>",
-    "Negative effect": "Dependency",
-    "Positive effect duration": "1 сцена",
-    "Negative effect duration": "5 сцен",
-    "Positive effect label": "+1 <ХАР>",
-    "Negative effect label": "Зависимость"
+    "id": "chem_009",
+    "itemType": "chems",
+    "name": "RadAway (Diluted)",
+    "weight": 0.5,
+    "cost": 50,
+    "rarity": 1,
+    "positiveEffect": {
+      "radiationModifier": {
+        "op": "-",
+        "value": 2
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "instant",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Removes 2 radiation",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Апельсиновые ментаты",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_010",
+    "itemType": "chems",
+    "name": "Rad-X",
+    "weight": 0.5,
+    "cost": 40,
+    "rarity": 2,
+    "positiveEffect": {
+      "damageResistanceModifier": {
+        "radiation": {
+          "op": "+",
+          "value": 6
+        }
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "+6 radiation resistance",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Виноградные ментаты",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_011",
+    "itemType": "chems",
+    "name": "Rad-X (Diluted)",
+    "weight": 0.5,
+    "cost": 25,
+    "rarity": 1,
+    "positiveEffect": {
+      "damageResistanceModifier": {
+        "radiation": {
+          "op": "+",
+          "value": 3
+        }
+      }
+    },
+    "negativeEffect": "",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "+3 radiation resistance",
+    "negativeEffectLabel": "",
+    "addictionLevel": 0
   },
   {
-    "itemType": "chem",
-    "Name": "Ягодные ментаты",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_012",
+    "itemType": "chems",
+    "name": "Buffjet",
+    "weight": 0.5,
+    "cost": 75,
+    "rarity": 4,
+    "positiveEffect": {
+      "maxHpModifier": {
+        "op": "+",
+        "value": 4
+      },
+      "apModifier": {
+        "op": "+",
+        "value": 3
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "brief",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "STR/END difficulty -1 (min 0), additional actions cost 1 AP less",
+    "negativeEffectLabel": "Addiction: Buffjet",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "Name": "Психо",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_013",
+    "itemType": "chems",
+    "name": "Buffout",
+    "weight": 0.5,
+    "cost": 45,
+    "rarity": 2,
+    "positiveEffect": {
+      "maxHpModifier": {
+        "op": "+",
+        "value": 3
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Reroll 1d20 on all STR and END tests",
+    "negativeEffectLabel": "Addiction: Buffout",
+    "addictionLevel": 2
   },
   {
-    "itemType": "chem",
-    "Name": "Ракета",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_014",
+    "itemType": "chems",
+    "name": "Bufftats",
+    "weight": 0.5,
+    "cost": 75,
+    "rarity": 4,
+    "positiveEffect": {
+      "maxHpModifier": {
+        "op": "+",
+        "value": 4
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "STR/PER/END difficulty -1 (min 0)",
+    "negativeEffectLabel": "Addiction: Bufftats",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "Name": "Спокойствие",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_015",
+    "itemType": "chems",
+    "name": "Calmex",
+    "weight": 0.5,
+    "cost": 100,
+    "rarity": 4,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Reroll 1d20 on PER and AGI tests, +2 CD sneak attack damage",
+    "negativeEffectLabel": "Addiction: Calmex",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "Name": "Стелс-бой",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_016",
+    "itemType": "chems",
+    "name": "Daddy-O",
+    "weight": 0.5,
+    "cost": 50,
+    "rarity": 2,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "PER/INT difficulty -1 (min 0), CHA difficulty +1",
+    "negativeEffectLabel": "Addiction: Daddy-O",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "healAmount": 4,
-    "Name": "Стим-пак",
-    "Weight": 0.1,
-    "Cost": 40,
-    "Rarity": 1
+    "id": "chem_017",
+    "itemType": "chems",
+    "name": "Day Tripper",
+    "weight": 0.5,
+    "cost": 40,
+    "rarity": 3,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "CHA and LCK(CHA) difficulty -1 (min 0), STR difficulty +1",
+    "negativeEffectLabel": "Addiction: Day Tripper",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "healAmount": 8,
-    "Name": "Супер Стим-пак",
-    "Weight": 0.1,
-    "Cost": 75,
-    "Rarity": 2
+    "id": "chem_018",
+    "itemType": "chems",
+    "name": "Fury",
+    "weight": 0.5,
+    "cost": 30,
+    "rarity": 4,
+    "positiveEffect": {
+      "damageResistanceModifier": {
+        "physical": {
+          "op": "+",
+          "value": 3
+        }
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "PER difficulty +2",
+    "negativeEffectLabel": "Addiction: Fury",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "Name": "Турбо",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_019",
+    "itemType": "chems",
+    "name": "Jet",
+    "weight": 0.5,
+    "cost": 50,
+    "rarity": 2,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "brief",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Additional actions cost 1 AP less",
+    "negativeEffectLabel": "Addiction: Jet",
+    "addictionLevel": 2
   },
   {
-    "itemType": "chem",
-    "Name": "Ультра-Джет",
-    "Weight": 0.1,
-    "Cost": 40,
-    "Rarity": 2
+    "id": "chem_020",
+    "itemType": "chems",
+    "name": "Jet Fuel",
+    "weight": 0.5,
+    "cost": 60,
+    "rarity": 3,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Gain 1 free AP at the start of each turn",
+    "negativeEffectLabel": "Addiction: Jet Fuel",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "Name": "Винт",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_021",
+    "itemType": "chems",
+    "name": "Med-X",
+    "weight": 0.5,
+    "cost": 50,
+    "rarity": 2,
+    "positiveEffect": {
+      "damageResistanceModifier": {
+        "physical": {
+          "op": "+",
+          "value": 3
+        }
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "+3 physical resistance",
+    "negativeEffectLabel": "Addiction: Med-X",
+    "addictionLevel": 2
   },
   {
-    "itemType": "chem",
-    "Name": "Х-клетка",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_022",
+    "itemType": "chems",
+    "name": "Mentats",
+    "weight": 0.5,
+    "cost": 50,
+    "rarity": 2,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Reroll 1d20 on PER and INT tests",
+    "negativeEffectLabel": "Addiction: Mentats",
+    "addictionLevel": 3
   },
   {
-    "itemType": "chem",
-    "Name": "Рад-Х",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_023",
+    "itemType": "chems",
+    "name": "Berry Mentats",
+    "weight": 0.5,
+    "cost": 60,
+    "rarity": 3,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "INT difficulty -2 (min 0)",
+    "negativeEffectLabel": "Addiction: Berry Mentats",
+    "addictionLevel": 2
   },
   {
-    "itemType": "chem",
-    "Name": "Рад-эвэй",
-    "Weight": 0.1,
-    "Cost": 30,
-    "Rarity": 1
+    "id": "chem_024",
+    "itemType": "chems",
+    "name": "Orange Mentats",
+    "weight": 0.5,
+    "cost": 60,
+    "rarity": 3,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "PER difficulty -2 (min 0), aim minor action rerolls 1 extra d20",
+    "negativeEffectLabel": "Addiction: Orange Mentats",
+    "addictionLevel": 2
   },
   {
-    "itemType": "chem",
-    "Name": "Кровавый пакет",
-    "Weight": 0.2,
-    "Cost": 50,
-    "Rarity": 2
+    "id": "chem_025",
+    "itemType": "chems",
+    "name": "Grape Mentats",
+    "weight": 0.5,
+    "cost": 60,
+    "rarity": 3,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "CHA difficulty -2 (min 0), reroll 1d20 on Barter tests",
+    "negativeEffectLabel": "Addiction: Grape Mentats",
+    "addictionLevel": 2
   },
   {
-    "itemType": "chem",
-    "Name": "Иррадиатор",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_026",
+    "itemType": "chems",
+    "name": "Overdrive",
+    "weight": 0.5,
+    "cost": 55,
+    "rarity": 3,
+    "positiveEffect": {
+      "damageModifier": {
+        "op": "+",
+        "value": 3
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Reroll up to 3 CD per damage roll",
+    "negativeEffectLabel": "Addiction: Overdrive",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "Name": "Очищенная вода",
-    "Weight": 0.2,
-    "Cost": 20,
-    "Rarity": 1,
-    "Positive effect": "Restores stamina",
-    "Negative effect": "none",
-    "Positive effect duration": "1 сцена",
-    "Negative effect duration": "нет",
-    "Positive effect label": "Восстанавливает силы",
-    "Negative effect label": "нет"
+    "id": "chem_027",
+    "itemType": "chems",
+    "name": "Psycho",
+    "weight": 0.5,
+    "cost": 50,
+    "rarity": 2,
+    "positiveEffect": {
+      "damageModifier": {
+        "op": "+",
+        "value": 2
+      },
+      "damageResistanceModifier": {
+        "physical": {
+          "op": "+",
+          "value": 3
+        }
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "+2 damage, +3 physical resistance",
+    "negativeEffectLabel": "Addiction: Psycho",
+    "addictionLevel": 2
   },
   {
-    "itemType": "chem",
-    "healAmount": 10,
-    "Name": "Докторский саквояж",
-    "Weight": 1,
-    "Cost": 100,
-    "Rarity": 2
+    "id": "chem_028",
+    "itemType": "chems",
+    "name": "Psychobuff",
+    "weight": 0.5,
+    "cost": 70,
+    "rarity": 4,
+    "positiveEffect": {
+      "damageModifier": {
+        "op": "+",
+        "value": 2
+      },
+      "maxHpModifier": {
+        "op": "+",
+        "value": 4
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "STR/END difficulty -1 (min 0)",
+    "negativeEffectLabel": "Addiction: Psychobuff",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "healAmount": 2,
-    "Name": "Порошок заживляющий",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
+    "id": "chem_029",
+    "itemType": "chems",
+    "name": "Psycho Jet",
+    "weight": 0.5,
+    "cost": 70,
+    "rarity": 4,
+    "positiveEffect": {
+      "damageModifier": {
+        "op": "+",
+        "value": 2
+      },
+      "damageResistanceModifier": {
+        "physical": {
+          "op": "+",
+          "value": 4
+        }
+      },
+      "apModifier": {
+        "op": "+",
+        "value": 4
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "brief",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "+2 damage, +4 physical resistance, +4 AP",
+    "negativeEffectLabel": "Addiction: Psycho Jet",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "Name": "Психотатс",
-    "Weight": 0.1,
-    "Cost": 40,
-    "Rarity": 2
+    "id": "chem_030",
+    "itemType": "chems",
+    "name": "Psychotats",
+    "weight": 0.5,
+    "cost": 70,
+    "rarity": 4,
+    "positiveEffect": {
+      "damageModifier": {
+        "op": "+",
+        "value": 2
+      },
+      "damageResistanceModifier": {
+        "physical": {
+          "op": "+",
+          "value": 2
+        }
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "PER difficulty -1 (min 0)",
+    "negativeEffectLabel": "Addiction: Psychotats",
+    "addictionLevel": 1
   },
   {
-    "itemType": "chem",
-    "Name": "Баффтэтс",
-    "Weight": 0.1,
-    "Cost": 40,
-    "Rarity": 2
+    "id": "chem_031",
+    "itemType": "chems",
+    "name": "Ultra Jet",
+    "weight": 0.5,
+    "cost": 67,
+    "rarity": 2,
+    "positiveEffect": {
+      "apModifier": {
+        "op": "+",
+        "value": 6
+      }
+    },
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "brief",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "Additional actions cost 1 AP less",
+    "negativeEffectLabel": "Addiction: Ultra Jet",
+    "addictionLevel": 3
   },
   {
-    "itemType": "chem",
-    "Name": "Мед-Х-татс",
-    "Weight": 0.1,
-    "Cost": 40,
-    "Rarity": 2
-  },
-  {
-    "itemType": "chem",
-    "Name": "Ментаты-татс",
-    "Weight": 0.1,
-    "Cost": 40,
-    "Rarity": 2
-  },
-  {
-    "itemType": "chem",
-    "Name": "Овердрайв",
-    "Weight": 0.1,
-    "Cost": 35,
-    "Rarity": 2
-  },
-  {
-    "itemType": "chem",
-    "Name": "Сладкоежка",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
-  },
-  {
-    "itemType": "chem",
-    "Name": "Кальвин",
-    "Weight": 0.1,
-    "Cost": 25,
-    "Rarity": 1
-  },
-  {
-    "itemType": "chem",
-    "Name": "Психо-бафф",
-    "Weight": 0.1,
-    "Cost": 45,
-    "Rarity": 2
-  },
-  {
-    "itemType": "chem",
-    "healAmount": 6,
-    "Name": "Супер-стим",
-    "Weight": 0.1,
-    "Cost": 60,
-    "Rarity": 2
-  },
-  {
-    "itemType": "chem",
-    "healAmount": 10,
-    "Name": "Ультра-стим",
-    "Weight": 0.1,
-    "Cost": 80,
-    "Rarity": 3
-  },
-  {
-    "itemType": "chem",
-    "Name": "Детоксин",
-    "Weight": 0.1,
-    "Cost": 45,
-    "Rarity": 2,
-    "Positive effect": "Removes dependency",
-    "Negative effect": "none",
-    "Positive effect duration": "моментально",
-    "Negative effect duration": "нет",
-    "Positive effect label": "Снимает зависимости",
-    "Negative effect label": "нет",
-    "Removes negative effects": [
-      "Dependency"
-    ]
+    "id": "chem_032",
+    "itemType": "chems",
+    "name": "X-Cell",
+    "weight": 0.5,
+    "cost": 60,
+    "rarity": 4,
+    "positiveEffect": {},
+    "negativeEffect": "Addiction",
+    "positiveEffectDuration": "lasting",
+    "negativeEffectDuration": "",
+    "positiveEffectLabel": "First purchased d20 on all tests is free",
+    "negativeEffectLabel": "Addiction: X-Cell",
+    "addictionLevel": 1
   }
 ]

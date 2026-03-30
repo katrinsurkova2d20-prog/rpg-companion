@@ -218,24 +218,37 @@ const InventoryScreen = () => {
 
 
 
-  const getSlotsForArea = (area) => {
+  const parseProtectedAreas = (item) => {
+    if (Array.isArray(item?.protectedAreas) && item.protectedAreas.length > 0) {
+      return item.protectedAreas;
+    }
+
+    const areaText = String(item?.protected_area || '').toLowerCase();
+    const areas = [];
+
+    if (areaText.includes('head') || areaText.includes('голова')) areas.push('Head');
+    if (areaText.includes('body') || areaText.includes('тело')) areas.push('Body');
+    if (areaText.includes('hand') || areaText.includes('рука') || areaText.includes('руки')) areas.push('Hand');
+    if (areaText.includes('leg') || areaText.includes('нога') || areaText.includes('ноги')) areas.push('Leg');
+
+    return areas;
+  };
+
+  const getSlotsForArea = (item) => {
+    const areas = parseProtectedAreas(item);
     const slots = [];
-    if (!area) return slots;
-    if (area.includes('Голова')) slots.push('head');
-    if (area.includes('Тело')) slots.push('body');
-    if (area.includes('Руки')) {
-        slots.push('leftArm', 'rightArm');
-    }
-    if (area.includes('Ноги')) {
-        slots.push('leftLeg', 'rightLeg');
-    }
+    if (areas.includes('Head')) slots.push('head');
+    if (areas.includes('Body')) slots.push('body');
+    if (areas.includes('Hand')) slots.push('leftArm', 'rightArm');
+    if (areas.includes('Leg')) slots.push('leftLeg', 'rightLeg');
     return slots;
   };
 
-  const getSingleLimbCandidateSlots = (area) => {
-    if (!area) return null;
-    if (area.includes('Рука') && !area.includes('Руки')) return ['leftArm', 'rightArm'];
-    if (area.includes('Нога') && !area.includes('Ноги')) return ['leftLeg', 'rightLeg'];
+  const getSingleLimbCandidateSlots = (item) => {
+    const areas = parseProtectedAreas(item);
+    if (areas.length !== 1) return null;
+    if (areas[0] === 'Hand') return ['leftArm', 'rightArm'];
+    if (areas[0] === 'Leg') return ['leftLeg', 'rightLeg'];
     return null;
   };
 
@@ -366,7 +379,6 @@ const InventoryScreen = () => {
   };
 
   const handleEquipArmor = (itemToEquip) => {
-    const { protected_area } = itemToEquip;
     const currentEquipped = equippedArmor;
     const targetSlotType = (itemToEquip.itemType === 'clothing') ? 'clothing' : 'armor';
 
@@ -431,9 +443,9 @@ const InventoryScreen = () => {
       }
     };
 
-    const singleLimbSlots = getSingleLimbCandidateSlots(protected_area);
+    const singleLimbSlots = getSingleLimbCandidateSlots(itemToEquip);
     if (!singleLimbSlots) {
-      executeEquip(getSlotsForArea(protected_area));
+      executeEquip(getSlotsForArea(itemToEquip));
       return;
     }
 
@@ -467,8 +479,7 @@ const InventoryScreen = () => {
   };
 
   const handleUnequipArmor = (itemToUnequip) => {
-    const { protected_area } = itemToUnequip;
-    const slotsToClear = itemToUnequip.equippedSlot ? [itemToUnequip.equippedSlot] : getSlotsForArea(protected_area);
+    const slotsToClear = itemToUnequip.equippedSlot ? [itemToUnequip.equippedSlot] : getSlotsForArea(itemToUnequip);
 
 
 

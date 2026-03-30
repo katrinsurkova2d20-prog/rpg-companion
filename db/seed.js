@@ -141,7 +141,7 @@ async function seedPerks() {
 
 async function seedItems(equipmentCatalog) {
   const {
-    armor: armorData,
+    armorList,
     clothes: clothesData,
     chems: chemsData,
     miscellaneous: miscData,
@@ -150,7 +150,7 @@ async function seedItems(equipmentCatalog) {
   const statements = [];
 
   const addItem = (item, itemType, category = null, subtype = null) => {
-    const name = item.name || item['Название'] || '';
+    const name = item.Name || item.name || item['Название'] || '';
     const id = itemType + '_' + slugify(name) + (category ? '_' + slugify(category) : '');
     statements.push({
       sql: `INSERT OR REPLACE INTO items
@@ -170,7 +170,7 @@ async function seedItems(equipmentCatalog) {
     });
   };
 
-  armorData.armor.forEach(group => group.items.forEach(item => addItem(item, 'armor', group.type)));
+  (armorList || []).forEach(item => addItem(item, 'armor', item.category || item.armorCategoryKey || null));
   clothesData.clothes.forEach(group => group.items.forEach(item => addItem(item, 'clothing', group.type, item.clothingType)));
   chemsData.forEach(item => {
     const name = item['Название'] || '';

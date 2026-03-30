@@ -6,12 +6,15 @@ import { TRAITS } from '../CharacterScreen/logic/traitsData';
 import styles from '../../../styles';
 import { renderTextWithIcons } from './textUtils';
 import { useLocale } from '../../../i18n/locale';
+import { getEquipmentCatalog } from '../../../i18n/equipmentCatalog';
+import { applyArmorMods } from './armorModificationUtils';
 import { getAttributeValue } from '../CharacterScreen/logic/attributeKeyUtils';
 import { getSkillDisplayName } from '../CharacterScreen/logic/characterScreenI18n';
 import { getEffectTimeText } from '../../../assets/scripts/sceneEffects';
 
 // Импортируем модальное окно модификаций
 import WeaponModificationModal from './WeaponModificationModal';
+import ArmorModificationModal from './ArmorModificationModal';
 
 
 const HealthCounter = ({ max, isEnabled }) => {
@@ -26,13 +29,6 @@ const HealthCounter = ({ max, isEnabled }) => {
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <TouchableOpacity
-        onPress={() => handleAdjustHealth(-1)}
-        disabled={!isEnabled}
-        style={[styles.counterButton, !isEnabled && { opacity: 0.5 }]}
-      >
-        <Text style={styles.counterButtonText}>-</Text>
-      </TouchableOpacity>
       <Text style={[styles.counterValue, { minWidth: 50, textAlign: 'center' }]}>{healthText}</Text>
       <TouchableOpacity
         onPress={() => handleAdjustHealth(1)}
@@ -76,7 +72,13 @@ const ArmorPart = ({ title, subtitle, armorName, clothingName, stats }) => {
                 {stats.map((stat, index) => (
                     <View key={index} style={[localStyles.armorStatRow, { borderBottomWidth: index === stats.length - 1 ? 0 : 1 }]}>
                         <Text style={localStyles.armorStatLabel}>{stat.label}</Text>
-                        <Text style={localStyles.armorStatValue}>{stat.value}</Text>
+                        {stat.type === 'button' ? (
+                          <TouchableOpacity style={localStyles.modificationButton} onPress={stat.onPress}>
+                            <Text style={localStyles.modificationButtonText}>{stat.value}</Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <Text style={localStyles.armorStatValue}>{stat.value}</Text>
+                        )}
                     </View>
                 ))}
             </View>
@@ -219,6 +221,7 @@ const WeaponsAndArmorScreen = () => {
     equippedWeapons,
     setEquippedWeapons,
     equippedArmor,
+    setEquippedArmor,
     saveModifiedItem,
     equipment,
     setEquipment,
@@ -237,10 +240,14 @@ const WeaponsAndArmorScreen = () => {
   const hasRadImmunity = effects.includes('Иммунитет к радиации');
   const hasPoisonImmunity = effects.includes('Иммунитет к яду');
   const hasTimedEffects = (activeTimedEffects || []).length > 0;
+  const equipmentCatalog = getEquipmentCatalog(locale);
   
   // Состояние для модального окна модификаций
   const [modificationModalVisible, setModificationModalVisible] = useState(false);
   const [selectedWeaponForModification, setSelectedWeaponForModification] = useState(null);
+  const [armorModalVisible, setArmorModalVisible] = useState(false);
+  const [selectedArmorSlot, setSelectedArmorSlot] = useState(null);
+  const [armorModalMode, setArmorModalMode] = useState('armor');
   
 
   
@@ -274,20 +281,51 @@ const WeaponsAndArmorScreen = () => {
     setEquippedWeapons(newEquippedWeapons);
   };
 
+
+  const handleOpenArmorModal = (slotKey, mode = 'armor') => {
+    const item = mode === 'clothing' ? equippedArmor?.[slotKey]?.clothing : equippedArmor?.[slotKey]?.armor;
+    if (!item) return;
+    setSelectedArmorSlot(slotKey);
+    setArmorModalMode(mode);
+    setArmorModalVisible(true);
+  };
+
+  const handleApplyArmorModification = (modifiedItem) => {
+    if (!selectedArmorSlot) return;
+    const field = armorModalMode === 'clothing' ? 'clothing' : 'armor';
+    const original = equippedArmor?.[selectedArmorSlot]?.[field];
+    if (original) saveModifiedItem(original, modifiedItem);
+
+    setEquippedArmor((prev) => ({
+      ...prev,
+      [selectedArmorSlot]: {
+        ...(prev[selectedArmorSlot] || {}),
+        [field]: modifiedItem,
+      },
+    }));
+    setArmorModalVisible(false);
+    setSelectedArmorSlot(null);
+  };
+
   const renderArmorPart = (slotKey) => {
     const slotData = equippedArmor[slotKey];
     const armorItem = slotData ? slotData.armor : null;
     const clothingItem = slotData ? slotData.clothing : null;
     const config = armorSlotConfig[slotKey];
-    
-    const physDef = (armorItem?.['Физ.СУ'] || 0) + (clothingItem?.['Физ.СУ'] || 0);
-    const energyDef = (armorItem?.['Энрг.СУ'] || 0) + (clothingItem?.['Энрг.СУ'] || 0);
-    const radDef = (armorItem?.['Рад.СУ'] || 0) + (clothingItem?.['Рад.СУ'] || 0);
+
+    const { item: modifiedArmor } = applyArmorMods(armorItem, equipmentCatalog);
+    const { item: modifiedClothing } = applyArmorMods(clothingItem, equipmentCatalog, { standardKey: 'appliedClothingModId', uniqueKey: 'unused' });
+
+    const physDef = (modifiedArmor?.['Физ.СУ'] || 0) + (modifiedClothing?.['Физ.СУ'] || 0);
+    const energyDef = (modifiedArmor?.['Энрг.СУ'] || 0) + (modifiedClothing?.['Энрг.СУ'] || 0);
+    const radDef = (modifiedArmor?.['Рад.СУ'] || 0) + (modifiedClothing?.['Рад.СУ'] || 0);
 
     const stats = [
       { label: 'Физ.Су', value: physDef > 0 ? physDef : '00' },
       { label: 'Энрг.Су', value: energyDef > 0 ? energyDef : '00' },
       { label: 'Рад.Су', value: hasRadImmunity ? '∞' : (radDef > 0 ? radDef : '00') },
+      ...(modifiedClothing ? [{ label: 'Улучшение Одежды', value: '+', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'clothing') }] : []),
+      ...(modifiedArmor ? [{ label: 'Улучшение Брони', value: '+', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'armor') }] : []),
     ];
 
     return (
@@ -295,8 +333,8 @@ const WeaponsAndArmorScreen = () => {
             key={slotKey} 
             title={config.title} 
             subtitle={config.subtitle}
-            armorName={armorItem?.Название}
-            clothingName={clothingItem?.Название}
+            armorName={modifiedArmor?.Название || modifiedArmor?.Name || modifiedArmor?.name}
+            clothingName={clothingItem?.Название || clothingItem?.Name || clothingItem?.name}
             stats={stats}
         />
     );
@@ -384,6 +422,13 @@ const WeaponsAndArmorScreen = () => {
         onClose={handleCloseModificationModal}
         weapon={selectedWeaponForModification}
         onApplyModification={handleApplyModification}
+      />
+      <ArmorModificationModal
+        visible={armorModalVisible}
+        onClose={() => { setArmorModalVisible(false); setSelectedArmorSlot(null); }}
+        targetItem={selectedArmorSlot ? equippedArmor?.[selectedArmorSlot]?.[armorModalMode === 'clothing' ? 'clothing' : 'armor'] : null}
+        mode={armorModalMode}
+        onApply={handleApplyArmorModification}
       />
     </ImageBackground>
   );

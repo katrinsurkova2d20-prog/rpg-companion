@@ -23,7 +23,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   const [currentPath, setCurrentPath] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [weaponsByType, setWeaponsByType] = useState({});
-  const getItemName = (item) => item?.Name;
+  const getItemName = (item) => item?.Name || item?.name || item?.Название;
 
   const staticData = useMemo(() => {
     const equipmentCatalog = getEquipmentCatalog();

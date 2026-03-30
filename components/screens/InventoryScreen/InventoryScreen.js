@@ -223,13 +223,20 @@ const InventoryScreen = () => {
     if (!area) return slots;
     if (area.includes('Голова')) slots.push('head');
     if (area.includes('Тело')) slots.push('body');
-    if (area.includes('Руки') || area.includes('Рука')) {
+    if (area.includes('Руки')) {
         slots.push('leftArm', 'rightArm');
     }
-    if (area.includes('Ноги') || area.includes('Нога')) {
+    if (area.includes('Ноги')) {
         slots.push('leftLeg', 'rightLeg');
     }
     return slots;
+  };
+
+  const getSingleLimbCandidateSlots = (area) => {
+    if (!area) return null;
+    if (area.includes('Рука') && !area.includes('Руки')) return ['leftArm', 'rightArm'];
+    if (area.includes('Нога') && !area.includes('Ноги')) return ['leftLeg', 'rightLeg'];
+    return null;
   };
 
   const handleEquipWeapon = (weaponToEquip) => {
@@ -359,97 +366,109 @@ const InventoryScreen = () => {
   };
 
   const handleEquipArmor = (itemToEquip) => {
-    const { clothingType, protected_area } = itemToEquip;
-    const slotsToOccupy = getSlotsForArea(protected_area);
-    
-
-    
+    const { protected_area } = itemToEquip;
     const currentEquipped = equippedArmor;
-    const itemsToUnequip = new Set();
+    const targetSlotType = (itemToEquip.itemType === 'clothing') ? 'clothing' : 'armor';
 
-    // Определяем тип предмета для правильной логики
-    const itemType = itemToEquip.itemType;
-    const itemClothingType = itemToEquip.clothingType;
+    const executeEquip = (slotsToOccupy) => {
+      const itemsToUnequip = [];
+      const itemType = itemToEquip.itemType;
+      const itemClothingType = itemToEquip.clothingType;
 
-    if (itemType === 'clothing') {
-        // Для одежды типа "suit" не снимаем броню, только другую одежду
-        if (itemClothingType === 'suit') {
-            slotsToOccupy.forEach(slot => {
-                if (currentEquipped[slot].clothing) itemsToUnequip.add(currentEquipped[slot].clothing);
-                if (currentEquipped[slot].armor?.clothingType === 'outfit') itemsToUnequip.add(currentEquipped[slot].armor);
-            });
-        } else {
-            // Для обычной одежды снимаем и одежду, и броню
-            slotsToOccupy.forEach(slot => {
-                if (currentEquipped[slot].clothing) itemsToUnequip.add(currentEquipped[slot].clothing);
-                if (currentEquipped[slot].armor) itemsToUnequip.add(currentEquipped[slot].armor);
-            });
-        }
-    } else if (itemType === 'armor') {
-        // Для брони снимаем только другую броню, но не одежду типа "suit"
-        slotsToOccupy.forEach(slot => {
-            if (currentEquipped[slot].armor) itemsToUnequip.add(currentEquipped[slot].armor);
-        });
-    } else if (itemType === 'outfit') {
-        // Для костюмов снимаем всё
-        slotsToOccupy.forEach(slot => {
-            if (currentEquipped[slot].clothing) itemsToUnequip.add(currentEquipped[slot].clothing);
-            if (currentEquipped[slot].armor) itemsToUnequip.add(currentEquipped[slot].armor);
-        });
-    }
+      if (itemType === 'clothing') {
+          if (itemClothingType === 'suit') {
+              slotsToOccupy.forEach(slot => {
+                  if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
+                  if (currentEquipped[slot].armor?.clothingType === 'outfit') itemsToUnequip.push({ slot, type: 'armor' });
+              });
+          } else {
+              slotsToOccupy.forEach(slot => {
+                  if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
+                  if (currentEquipped[slot].armor) itemsToUnequip.push({ slot, type: 'armor' });
+              });
+          }
+      } else if (itemType === 'armor') {
+          slotsToOccupy.forEach(slot => {
+              if (currentEquipped[slot].armor) itemsToUnequip.push({ slot, type: 'armor' });
+          });
+      } else if (itemType === 'outfit') {
+          slotsToOccupy.forEach(slot => {
+              if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
+              if (currentEquipped[slot].armor) itemsToUnequip.push({ slot, type: 'armor' });
+          });
+      }
 
-    const performEquip = () => {
-        const finalEquipped = JSON.parse(JSON.stringify(currentEquipped));
+      const performEquip = () => {
+          const finalEquipped = JSON.parse(JSON.stringify(currentEquipped));
+          itemsToUnequip.forEach(({ slot, type }) => {
+              finalEquipped[slot][type] = null;
+          });
 
-        // Сначала снимаем предметы, которые нужно заменить
-        itemsToUnequip.forEach(item => {
-            const itemNameToRemove = getItemName(item);
-            const itemSlots = getSlotsForArea(item.protected_area);
-            itemSlots.forEach(slot => {
-                if (getItemName(finalEquipped[slot].clothing) === itemNameToRemove) {
-                    finalEquipped[slot].clothing = null;
-                }
-                if (getItemName(finalEquipped[slot].armor) === itemNameToRemove) {
-                    finalEquipped[slot].armor = null;
-                }
-            });
-        });
+          slotsToOccupy.forEach(slot => {
+              finalEquipped[slot][targetSlotType] = { ...itemToEquip, equippedSlot: slot };
+          });
 
-        // Затем надеваем новый предмет
-        const targetSlotType = (itemToEquip.itemType === 'clothing') ? 'clothing' : 'armor';
-        slotsToOccupy.forEach(slot => {
-            finalEquipped[slot][targetSlotType] = itemToEquip;
-        });
+          setEquippedArmor(finalEquipped);
+      };
 
-        setEquippedArmor(finalEquipped);
+      if (itemsToUnequip.length > 0) {
+          if (typeof window !== 'undefined' && window.confirm) {
+              if (window.confirm("Надетые предметы будут сняты, чтобы освободить место. Продолжить?")) {
+                  performEquip();
+              }
+          } else {
+              Alert.alert(
+                  "Замена экипировки",
+                  "Надетые предметы будут сняты, чтобы освободить место. Продолжить?",
+                  [
+                      { text: "Отмена", style: "cancel" },
+                      { text: "Да", onPress: performEquip },
+                  ]
+              );
+          }
+      } else {
+          performEquip();
+      }
     };
 
-    if (itemsToUnequip.size > 0) {
-        // Используем confirm для веб-версии и Alert.alert для мобильной
-        if (typeof window !== 'undefined' && window.confirm) {
-            // Веб-версия
-            if (window.confirm("Надетые предметы будут сняты, чтобы освободить место. Продолжить?")) {
-                performEquip();
-            }
-        } else {
-            // Мобильная версия
-            Alert.alert(
-                "Замена экипировки", 
-                "Надетые предметы будут сняты, чтобы освободить место. Продолжить?", 
-                [
-                    { text: "Отмена", style: "cancel" },
-                    { text: "Да", onPress: performEquip },
-                ]
-            );
-        }
-    } else {
-        performEquip();
+    const singleLimbSlots = getSingleLimbCandidateSlots(protected_area);
+    if (!singleLimbSlots) {
+      executeEquip(getSlotsForArea(protected_area));
+      return;
     }
+
+    const freeSlot = singleLimbSlots.find((slot) => !currentEquipped[slot]?.[targetSlotType]);
+    if (freeSlot) {
+      executeEquip([freeSlot]);
+      return;
+    }
+
+    const leftSlot = singleLimbSlots[0];
+    const rightSlot = singleLimbSlots[1];
+    const leftLabel = leftSlot === 'leftArm' ? 'Левый наруч' : 'Левый понож';
+    const rightLabel = rightSlot === 'rightArm' ? 'Правый наруч' : 'Правый понож';
+
+    if (typeof window !== 'undefined' && window.prompt) {
+      const answer = window.prompt(`Оба слота заняты. Что заменить? Введите 1 (${leftLabel}) или 2 (${rightLabel}).`, '1');
+      if (answer === '1') executeEquip([leftSlot]);
+      if (answer === '2') executeEquip([rightSlot]);
+      return;
+    }
+
+    Alert.alert(
+      "Замена экипировки",
+      "Оба слота заняты. Какой предмет заменить?",
+      [
+        { text: leftLabel, onPress: () => executeEquip([leftSlot]) },
+        { text: rightLabel, onPress: () => executeEquip([rightSlot]) },
+        { text: "Отмена", style: "cancel" },
+      ]
+    );
   };
 
   const handleUnequipArmor = (itemToUnequip) => {
-    const { protected_area, clothingType } = itemToUnequip;
-    const slotsToClear = getSlotsForArea(protected_area);
+    const { protected_area } = itemToUnequip;
+    const slotsToClear = itemToUnequip.equippedSlot ? [itemToUnequip.equippedSlot] : getSlotsForArea(protected_area);
 
 
 

@@ -1,0 +1,64 @@
+{
+  "stats": {
+    "initiative": "Initiative",
+    "defense": "Defense",
+    "meleeBonus": "Melee Bonus",
+    "effects": "Effects",
+    "poisonResistance": "Poison Res.",
+    "health": "Health"
+  },
+  "armor": {
+    "slots": {
+      "head": { "title": "Head", "subtitle": "1-2" },
+      "leftArm": { "title": "Left Arm", "subtitle": "9-11" },
+      "rightArm": { "title": "Right Arm", "subtitle": "12-14" },
+      "body": { "title": "Body", "subtitle": "3-8" },
+      "leftLeg": { "title": "Left Leg", "subtitle": "15-17" },
+      "rightLeg": { "title": "Right Leg", "subtitle": "18-20" }
+    },
+    "fields": {
+      "physical": "Phys. DR",
+      "energy": "Energy DR",
+      "radiation": "Rad. DR",
+      "clothingModification": "Clothing Mod",
+      "armorModification": "Armor Mod"
+    }
+  },
+  "weapon": {
+    "emptySlot": "Empty Slot",
+    "notEquipped": "No weapon equipped",
+    "fields": {
+      "success": "SUCCESS VALUE",
+      "damageType": "DAMAGE TYPE",
+      "damage": "DAMAGE",
+      "effect": "EFFECT",
+      "fireRate": "RATE OF FIRE",
+      "range": "RANGE",
+      "qualities": "QUALITIES",
+      "modification": "Modification"
+    }
+  },
+  "common": {
+    "empty": "—",
+    "none": "00"
+  },
+  "modals": {
+    "requirements": "Requirements",
+    "armorModification": "Armor Modification",
+    "clothingModification": "Clothing Modification",
+    "availableModifications": "Available modifications",
+    "standard": "Standard",
+    "unique": "Unique",
+    "removeStandard": "Remove standard mod",
+    "noStandard": "No standard mod",
+    "removeUnique": "Remove unique mod",
+    "noUnique": "No unique mod",
+    "preview": "Preview",
+    "effects": "Effects",
+    "weight": "Weight",
+    "cost": "Cost",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "improvements": "Improvements"
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ImageBackground, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useCharacter } from '../../CharacterContext';
 import { calculateInitiative, calculateDefense, calculateMeleeBonus, calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
@@ -11,6 +11,7 @@ import { applyArmorMods } from './armorModificationUtils';
 import { getAttributeValue } from '../CharacterScreen/logic/attributeKeyUtils';
 import { getSkillDisplayName } from '../CharacterScreen/logic/characterScreenI18n';
 import { getEffectTimeText } from '../../../assets/scripts/sceneEffects';
+import { tWeaponsAndArmorScreen } from './weaponsAndArmorScreenI18n';
 
 // Импортируем модальное окно модификаций
 import WeaponModificationModal from './WeaponModificationModal';
@@ -44,14 +45,14 @@ const HealthCounter = ({ max, isEnabled }) => {
 
 // --- Reusable Components ---
 
-const StatBox = ({ title, value, children }) => (
+const StatBox = ({ title, value, children, highlightMeleeBonus = false }) => (
   <View style={localStyles.statBoxContainer}>
     <View style={localStyles.statBoxHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
     </View>
     <View style={localStyles.statBoxValueContainer}>
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        {title === "Бонус Б.Боя" ? renderTextWithIcons(String(value).replace('{CD}', ' {CD}'), styles.statValue) : <Text style={styles.statValue}>{value}</Text>}
+        {highlightMeleeBonus ? renderTextWithIcons(String(value).replace('{CD}', ' {CD}'), styles.statValue) : <Text style={styles.statValue}>{value}</Text>}
         {children}
       </View>
     </View>
@@ -92,10 +93,10 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
       return (
         <View style={localStyles.weaponCardContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { textAlign: 'center', width: '100%' }]}>Пустой слот</Text>
+            <Text style={[styles.sectionTitle, { textAlign: 'center', width: '100%' }]}>{tWeaponsAndArmorScreen('weapon.emptySlot')}</Text>
           </View>
           <View style={localStyles.emptyWeaponStats}>
-            <Text>Оружие не надето</Text>
+            <Text>{tWeaponsAndArmorScreen('weapon.notEquipped')}</Text>
           </View>
         </View>
       );
@@ -103,16 +104,14 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
   
     const displayWeapon = weapon;
 
-    // БД-формат (приоритет) + обратная совместимость со старым (русские ключи)
-    const weaponName = displayWeapon.Name ?? displayWeapon.name ?? displayWeapon.Название;
-    const damageType = displayWeapon.damage_type ?? displayWeapon['Тип урона'];
-    const baseDamageRaw = displayWeapon.damage ?? displayWeapon.Урон;
-    const baseDamage = Number(baseDamageRaw) || 0;
-    const effectsValue = displayWeapon.damage_effects ?? displayWeapon.Эффекты;
-    const fireRateRaw = displayWeapon.fire_rate ?? displayWeapon['Скорость стрельбы'];
-    const fireRateBase = Number(fireRateRaw) || 0;
-    const rangeValue = displayWeapon.range_name ?? displayWeapon['Дистанция'] ?? 'Близкая';
-    const qualitiesValue = displayWeapon.qualities ?? displayWeapon.Качества;
+    // Канонический формат полей оружия
+    const weaponName = displayWeapon.Name ?? displayWeapon.name ?? tWeaponsAndArmorScreen('common.empty');
+    const damageType = displayWeapon.damage_type ?? displayWeapon.damageType ?? tWeaponsAndArmorScreen('common.empty');
+    const baseDamage = Number(displayWeapon.damage ?? 0) || 0;
+    const effectsValue = displayWeapon.damage_effects ?? displayWeapon.damageEffects ?? tWeaponsAndArmorScreen('common.empty');
+    const fireRateBase = Number(displayWeapon.fire_rate ?? 0) || 0;
+    const rangeValue = displayWeapon.range_name ?? displayWeapon.rangeName ?? tWeaponsAndArmorScreen('common.empty');
+    const qualitiesValue = displayWeapon.qualities ?? tWeaponsAndArmorScreen('common.empty');
     const mainAttr = displayWeapon.main_attr ?? 'AGI';
     const mainSkill = displayWeapon.main_skill ?? 'SMALL_GUNS';
 
@@ -162,14 +161,14 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
     const fireRateWithTrait = hasTrait('Техника спуска') && isLightOrEnergy ? Math.max(0, fireRateBase - 1) : fireRateBase;
 
     const stats = [
-      { label: 'ЗНАЧЕНИЕ УСПЕХА', value: `${successValue}` },
-      { label: 'ТИП УРОНА', value: damageType },
-      { label: 'УРОН', value: `${damageWithNcr}` },
-      { label: 'ЭФФЕКТ', value: effectsValue },
-      { label: 'СКОРОСТЬ СТРЕЛЬБЫ', value: fireRateWithTrait },
-      { label: 'ДИСТАНЦИЯ', value: rangeValue },
-      { label: 'КАЧЕСТВА', value: qualitiesValue },
-      { label: 'Модификация', type: 'button' }
+      { label: tWeaponsAndArmorScreen('weapon.fields.success'), value: `${successValue}` },
+      { label: tWeaponsAndArmorScreen('weapon.fields.damageType'), value: damageType },
+      { label: tWeaponsAndArmorScreen('weapon.fields.damage'), value: `${damageWithNcr}` },
+      { label: tWeaponsAndArmorScreen('weapon.fields.effect'), value: effectsValue },
+      { label: tWeaponsAndArmorScreen('weapon.fields.fireRate'), value: fireRateWithTrait },
+      { label: tWeaponsAndArmorScreen('weapon.fields.range'), value: rangeValue },
+      { label: tWeaponsAndArmorScreen('weapon.fields.qualities'), value: qualitiesValue },
+      { label: tWeaponsAndArmorScreen('weapon.fields.modification'), type: 'button' }
     ];
   
     return (
@@ -189,7 +188,7 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
                   <Text style={localStyles.weaponModificationButtonText}>+</Text>
                 </TouchableOpacity>
               ) : (
-                stat.label === 'УРОН' 
+                stat.label === tWeaponsAndArmorScreen('weapon.fields.damage') 
                   ? renderTextWithIcons(`${stat.value} {CD}`, localStyles.weaponStatValue) 
                   : <Text style={localStyles.weaponStatValue}>{stat.value}</Text>
               )}
@@ -200,17 +199,6 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
     );
   };
 
-
-// --- Screen Data ---
-
-const armorSlotConfig = {
-  head: { title: 'Голова', subtitle: '1-2' },
-  leftArm: { title: 'Левая рука', subtitle: '9-11' },
-  rightArm: { title: 'Правая рука', subtitle: '12-14' },
-  body: { title: 'Тело', subtitle: '3-8' },
-  leftLeg: { title: 'Левая нога', subtitle: '15-17' },
-  rightLeg: { title: 'Правая нога', subtitle: '18-20' },
-};
 
 // --- Main Component ---
 
@@ -223,14 +211,11 @@ const WeaponsAndArmorScreen = () => {
     equippedArmor,
     setEquippedArmor,
     saveModifiedItem,
-    equipment,
-    setEquipment,
     effects,
     activeTimedEffects,
     attributesSaved
   } = useCharacter();
   const locale = useLocale();
-  const isEn = locale === 'en-EN';
 
   const initiative = calculateInitiative(attributes);
   const defense = calculateDefense(attributes);
@@ -311,21 +296,24 @@ const WeaponsAndArmorScreen = () => {
     const slotData = equippedArmor[slotKey];
     const armorItem = slotData ? slotData.armor : null;
     const clothingItem = slotData ? slotData.clothing : null;
-    const config = armorSlotConfig[slotKey];
+    const config = {
+      title: tWeaponsAndArmorScreen(`armor.slots.${slotKey}.title`),
+      subtitle: tWeaponsAndArmorScreen(`armor.slots.${slotKey}.subtitle`),
+    };
 
     const { item: modifiedArmor } = applyArmorMods(armorItem, equipmentCatalog);
     const { item: modifiedClothing } = applyArmorMods(clothingItem, equipmentCatalog, { standardKey: 'appliedClothingModId', uniqueKey: 'unused' });
 
-    const physDef = (modifiedArmor?.['Физ.СУ'] || 0) + (modifiedClothing?.['Физ.СУ'] || 0);
-    const energyDef = (modifiedArmor?.['Энрг.СУ'] || 0) + (modifiedClothing?.['Энрг.СУ'] || 0);
-    const radDef = (modifiedArmor?.['Рад.СУ'] || 0) + (modifiedClothing?.['Рад.СУ'] || 0);
+    const physDef = Number(modifiedArmor?.physicalDamageRating || 0) + Number(modifiedClothing?.physicalDamageRating || 0);
+    const energyDef = Number(modifiedArmor?.energyDamageRating || 0) + Number(modifiedClothing?.energyDamageRating || 0);
+    const radDef = Number(modifiedArmor?.radiationDamageRating || 0) + Number(modifiedClothing?.radiationDamageRating || 0);
 
     const stats = [
-      { label: 'Физ.Су', value: physDef > 0 ? physDef : '00' },
-      { label: 'Энрг.Су', value: energyDef > 0 ? energyDef : '00' },
-      { label: 'Рад.Су', value: hasRadImmunity ? '∞' : (radDef > 0 ? radDef : '00') },
-      ...(modifiedClothing ? [{ label: 'Модификация одежды', value: '⋯', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'clothing') }] : []),
-      ...(modifiedArmor ? [{ label: 'Модификация брони', value: '⋯', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'armor') }] : []),
+      { label: tWeaponsAndArmorScreen('armor.fields.physical'), value: physDef > 0 ? physDef : tWeaponsAndArmorScreen('common.none') },
+      { label: tWeaponsAndArmorScreen('armor.fields.energy'), value: energyDef > 0 ? energyDef : tWeaponsAndArmorScreen('common.none') },
+      { label: tWeaponsAndArmorScreen('armor.fields.radiation'), value: hasRadImmunity ? '∞' : (radDef > 0 ? radDef : tWeaponsAndArmorScreen('common.none')) },
+      ...(modifiedClothing ? [{ label: tWeaponsAndArmorScreen('armor.fields.clothingModification'), value: '⋯', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'clothing') }] : []),
+      ...(modifiedArmor ? [{ label: tWeaponsAndArmorScreen('armor.fields.armorModification'), value: '⋯', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'armor') }] : []),
     ];
 
     return (
@@ -333,8 +321,8 @@ const WeaponsAndArmorScreen = () => {
             key={slotKey} 
             title={config.title} 
             subtitle={config.subtitle}
-            armorName={modifiedArmor?.Название || modifiedArmor?.Name || modifiedArmor?.name}
-            clothingName={clothingItem?.Название || clothingItem?.Name || clothingItem?.name}
+            armorName={modifiedArmor?.name || modifiedArmor?.Name}
+            clothingName={modifiedClothing?.name || modifiedClothing?.Name}
             stats={stats}
         />
     );
@@ -351,12 +339,12 @@ const WeaponsAndArmorScreen = () => {
             {/* Основные характеристики */}
             <View style={{ marginBottom: 16 }}>
             <View style={localStyles.statsRow}>
-                <StatBox title="Инициатива" value={initiative} />
-                <StatBox title="Защита" value={defense} />
-                <StatBox title="Бонус Б.Боя" value={meleeBonus} />
+                <StatBox title={tWeaponsAndArmorScreen('stats.initiative')} value={initiative} />
+                <StatBox title={tWeaponsAndArmorScreen('stats.defense')} value={defense} />
+                <StatBox title={tWeaponsAndArmorScreen('stats.meleeBonus')} value={meleeBonus} highlightMeleeBonus />
             </View>
             <View style={[localStyles.statsRow, { marginTop: 8 }]}>
-                <StatBox title={isEn ? 'Effects' : 'Эффекты'} value={hasTimedEffects ? '' : '—'}>
+                <StatBox title={tWeaponsAndArmorScreen('stats.effects')} value={hasTimedEffects ? '' : tWeaponsAndArmorScreen('common.empty')}>
                   {hasTimedEffects ? (
                     <View style={localStyles.effectsListContainer}>
                       {(activeTimedEffects || []).map((effect) => {
@@ -378,8 +366,8 @@ const WeaponsAndArmorScreen = () => {
                     </View>
                   ) : null}
                 </StatBox>
-                <StatBox title="Сопр. Яду" value={hasPoisonImmunity ? '∞' : '0'} />
-                <StatBox title="Здоровье" max={maxHealth}>
+                <StatBox title={tWeaponsAndArmorScreen('stats.poisonResistance')} value={hasPoisonImmunity ? '∞' : '0'} />
+                <StatBox title={tWeaponsAndArmorScreen('stats.health')} max={maxHealth}>
                   <HealthCounter max={maxHealth} isEnabled={attributesSaved} />
                 </StatBox>
             </View>

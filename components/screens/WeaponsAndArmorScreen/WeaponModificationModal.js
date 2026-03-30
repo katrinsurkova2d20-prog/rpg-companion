@@ -106,7 +106,7 @@ function getModDisplayNameRu(mod, weaponBaseName) {
 
 function applyDbModEffectsToWeapon(baseWeapon, selectedBySlot) {
   const selectedMods = Object.values(selectedBySlot).filter(Boolean);
-  const baseName = baseWeapon._baseName ?? baseWeapon.base_name ?? baseWeapon.name ?? baseWeapon.Название ?? '';
+  const baseName = baseWeapon._baseName ?? baseWeapon.base_name ?? baseWeapon.name ?? '';
 
   // строим имя только от базового имени, чтобы не дублировать префиксы при повторных открытиях
   const prefixesRu = [];
@@ -117,10 +117,10 @@ function applyDbModEffectsToWeapon(baseWeapon, selectedBySlot) {
   }
   const name = prefixesRu.length ? `${prefixesRu.join(' ')} ${baseName}` : baseName;
 
-  const damageBase = toNumber(baseWeapon.damage ?? baseWeapon.Урон);
-  const fireRateBase = toNumber(baseWeapon.fire_rate ?? baseWeapon['Скорость стрельбы']);
-  const weightBase = toNumber(baseWeapon.weight ?? baseWeapon.Вес);
-  const costBase = toNumber(baseWeapon.cost ?? baseWeapon.Цена);
+  const damageBase = toNumber(baseWeapon.damage);
+  const fireRateBase = toNumber(baseWeapon.fire_rate);
+  const weightBase = toNumber(baseWeapon.weight);
+  const costBase = toNumber(baseWeapon.cost);
 
   let damage = damageBase;
   let fire_rate = fireRateBase;
@@ -128,7 +128,7 @@ function applyDbModEffectsToWeapon(baseWeapon, selectedBySlot) {
   let cost = costBase;
   let rangeShift = 0;
   const qualities = new Set(
-    String(baseWeapon.qualities ?? baseWeapon.Качества ?? '')
+    String(baseWeapon.qualities ?? '')
       .split(',')
       .map(q => q.trim())
       .filter(Boolean)
@@ -170,7 +170,7 @@ function applyDbModEffectsToWeapon(baseWeapon, selectedBySlot) {
   }
 
   const rangeOrder = ['Близкая', 'Средняя', 'Дальняя', 'Экстремальная'];
-  const currentRangeName = String(baseWeapon.range_name ?? baseWeapon.Дистанция ?? 'Близкая').trim();
+  const currentRangeName = String(baseWeapon.range_name ?? 'Близкая').trim();
   const currentRangeIndex = Math.max(0, rangeOrder.indexOf(currentRangeName));
   const nextRangeIndex = Math.max(0, Math.min(rangeOrder.length - 1, currentRangeIndex + rangeShift));
   const range_name = rangeOrder[nextRangeIndex];
@@ -180,14 +180,11 @@ function applyDbModEffectsToWeapon(baseWeapon, selectedBySlot) {
     ...baseWeapon,
     Name: name,
     name,
-    Название: name,
     _baseName: baseName,
     damage,
     fire_rate,
     range_name,
-    Дистанция: range_name,
     qualities: qualitiesValue,
-    Качества: qualitiesValue,
     weight: String(weight),
     cost,
     // сохраняем выбранные моды
@@ -240,7 +237,7 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
           ...(dbWeapon || {}),
           id: weaponId ?? dbWeapon?.id,
           weaponId: weaponId ?? dbWeapon?.id,
-          _baseName: dbWeapon?.name ?? weapon._baseName ?? weapon.base_name ?? weapon.name ?? weapon.Название ?? '',
+          _baseName: dbWeapon?.name ?? weapon._baseName ?? weapon.base_name ?? weapon.name ?? '',
           appliedMods: weapon.appliedMods || {},
         };
 
@@ -370,10 +367,10 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
           <ScrollView style={styles.modalBody}>
             {/* Информация об оружии */}
             <View style={styles.weaponInfo}>
-              <Text style={styles.weaponTitle}>{weapon?.name || weapon?.Название || 'Неизвестное оружие'}</Text>
+              <Text style={styles.weaponTitle}>{weapon?.name || 'Неизвестное оружие'}</Text>
               <Text style={styles.weaponStats}>
-                Урон: {weapon?.damage ?? weapon?.Урон ?? 0} | Скорость: {weapon?.fire_rate ?? weapon?.['Скорость стрельбы'] ?? 0} | 
-                Дистанция: {weapon?.range_name ?? weapon?.['Дистанция'] ?? 'Близкая'} | Вес: {weapon?.weight ?? weapon?.Вес ?? 0} | Цена: {weapon?.cost ?? weapon?.Цена ?? 0}
+                Урон: {weapon?.damage ?? 0} | Скорость: {weapon?.fire_rate ?? 0} | 
+                Дистанция: {weapon?.range_name ?? 'Близкая'} | Вес: {weapon?.weight ?? 0} | Цена: {weapon?.cost ?? 0}
               </Text>
             </View>
 
@@ -396,7 +393,7 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
                        ]}
                        onPress={() => handleSelectModification(slot, mod)}
                      >
-                       <Text style={styles.modificationName}>{getModDisplayNameRu(mod, weapon?._baseName ?? weapon?.name ?? weapon?.Название) || mod.name}</Text>
+                       <Text style={styles.modificationName}>{getModDisplayNameRu(mod, weapon?._baseName ?? weapon?.name) || mod.name}</Text>
                        <Text style={styles.modificationEffects}>{mod.effect_description || mod.effects}</Text>
                        <Text style={styles.modificationStats}>
                          Вес: {toNumber(mod.weight) >= 0 ? '+' : ''}{toNumber(mod.weight)} | Цена: +{toNumber(mod.cost)}
@@ -413,17 +410,17 @@ const WeaponModificationModal = ({ visible, onClose, weapon, onApplyModification
                 <Text style={styles.sectionTitle}>Предварительный просмотр:</Text>
                 <View style={styles.previewContent}>
                                      <Text style={styles.previewTitle}>
-                     {modifiedWeapon.name ?? modifiedWeapon.Название}
-                   </Text>
+                    {modifiedWeapon.name}
+                  </Text>
                   <Text style={styles.previewStats}>
-                    Урон: {modifiedWeapon.damage ?? modifiedWeapon.Урон} | Скорость: {modifiedWeapon.fire_rate ?? modifiedWeapon['Скорость стрельбы']} | 
-                    Дистанция: {(modifiedWeapon.range_name ?? modifiedWeapon['Дистанция']) || 'Близкая'} | Вес: {modifiedWeapon.weight ?? modifiedWeapon.Вес} | Цена: {modifiedWeapon.cost ?? modifiedWeapon.Цена}
+                    Урон: {modifiedWeapon.damage} | Скорость: {modifiedWeapon.fire_rate} | 
+                    Дистанция: {modifiedWeapon.range_name || 'Близкая'} | Вес: {modifiedWeapon.weight} | Цена: {modifiedWeapon.cost}
                   </Text>
                   <Text style={styles.previewEffects}>
                     Эффекты: {modifiedWeapon.damage_effects ?? modifiedWeapon.Эффекты ?? modifiedWeapon._mods_effects_debug}
                   </Text>
                   <Text style={styles.previewQualities}>
-                    Качества: {modifiedWeapon.qualities ?? modifiedWeapon.Качества}
+                    Качества: {modifiedWeapon.qualities}
                   </Text>
                 </View>
               </View>

@@ -3,26 +3,13 @@ import { Modal, View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'rea
 import { useLocale } from '../../../i18n/locale';
 import { getEquipmentCatalog } from '../../../i18n/equipmentCatalog';
 import { applyArmorMods, formatModBonuses } from './armorModificationUtils';
+import { tWeaponsAndArmorScreen } from './weaponsAndArmorScreenI18n';
 
 const hasIntersection = (a = [], b = []) => a.some((x) => b.includes(x));
 
-const AREA_MAP = {
-  Голова: 'Head',
-  Тело: 'Body',
-  Рука: 'Hand',
-  Руки: 'Hand',
-  Нога: 'Leg',
-  Ноги: 'Leg',
-};
-
 const parseProtectedAreas = (item) => {
   if (Array.isArray(item?.protectedAreas) && item.protectedAreas.length) return item.protectedAreas;
-  const areaText = String(item?.protected_area || '');
-  return areaText
-    .split(',')
-    .map((x) => x.trim())
-    .map((x) => AREA_MAP[x])
-    .filter(Boolean);
+  return [];
 };
 
 const CollapsibleSection = ({ title, children, isExpanded, onToggle }) => (
@@ -36,13 +23,13 @@ const CollapsibleSection = ({ title, children, isExpanded, onToggle }) => (
 );
 
 const ModRow = ({ mod, selected, onPress }) => {
-  const meta = formatModBonuses(mod);
+  const meta = formatModBonuses(mod, { improvements: tWeaponsAndArmorScreen('modals.improvements'), effects: tWeaponsAndArmorScreen('modals.effects') });
   return (
     <TouchableOpacity style={[styles.modificationItem, selected && styles.selectedModification]} onPress={onPress}>
       <Text style={styles.modificationName}>{mod.name}</Text>
       <Text style={styles.modificationText}>{meta.bonuses}</Text>
       <Text style={styles.modificationText}>{meta.effects}</Text>
-      <Text style={styles.modificationText}>Требования: {mod.requiredPerk || '—'}</Text>
+      <Text style={styles.modificationText}>{tWeaponsAndArmorScreen('modals.requirements')}: {mod.requiredPerk || '—'}</Text>
     </TouchableOpacity>
   );
 };
@@ -116,7 +103,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
     return null;
   }
 
-  const baseName = targetItem?.Название || targetItem?.Name || targetItem?.name || '—';
+  const baseName = targetItem?.name || targetItem?.Name || '—';
   const previewEffects = (previewItem?.effects?.bonusEffects || []).map((x) => x.description).filter(Boolean);
 
   return (
@@ -124,7 +111,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{isClothingMode ? 'Модификация одежды' : 'Модификация брони'}</Text>
+            <Text style={styles.modalTitle}>{isClothingMode ? tWeaponsAndArmorScreen('modals.clothingModification') : tWeaponsAndArmorScreen('modals.armorModification')}</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
@@ -134,15 +121,15 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
             <View style={styles.itemInfo}>
               <Text style={styles.itemTitle}>{baseName}</Text>
               <Text style={styles.itemStats}>
-                Физ. Су.: {targetItem['Физ.СУ'] || 0} | Энерго Су.: {targetItem['Энрг.СУ'] || 0} | Рад. Су.: {targetItem['Рад.СУ'] || 0}
+                {tWeaponsAndArmorScreen('armor.fields.physical')}: {targetItem.physicalDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.energy')}: {targetItem.energyDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.radiation')}: {targetItem.radiationDamageRating || 0}
               </Text>
             </View>
 
             <View style={styles.modificationsSection}>
-              <Text style={styles.sectionTitle}>Доступные модификации:</Text>
+              <Text style={styles.sectionTitle}>{tWeaponsAndArmorScreen('modals.availableModifications')}:</Text>
 
               <CollapsibleSection
-                title={`Стандартные (${standardMods.length})`}
+                title={`${tWeaponsAndArmorScreen('modals.standard')} (${standardMods.length})`}
                 isExpanded={expandedCategories.standard}
                 onToggle={() => handleToggleCategory('standard')}
               >
@@ -150,7 +137,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
                   style={[styles.modificationItem, !selectedStd && styles.selectedModification]}
                   onPress={() => setSelectedStd(null)}
                 >
-                  <Text style={styles.modificationName}>{selectedStd ? 'Снять стандартный мод' : 'Без стандартного мода'}</Text>
+                  <Text style={styles.modificationName}>{selectedStd ? tWeaponsAndArmorScreen('modals.removeStandard') : tWeaponsAndArmorScreen('modals.noStandard')}</Text>
                 </TouchableOpacity>
                 {standardMods.map((m) => (
                   <ModRow key={m.id} mod={m} selected={selectedStd === m.id} onPress={() => setSelectedStd(m.id)} />
@@ -159,7 +146,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
 
               {!isClothingMode && (
                 <CollapsibleSection
-                  title={`Уникальные (${uniqueMods.length})`}
+                  title={`${tWeaponsAndArmorScreen('modals.unique')} (${uniqueMods.length})`}
                   isExpanded={expandedCategories.unique}
                   onToggle={() => handleToggleCategory('unique')}
                 >
@@ -167,7 +154,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
                     style={[styles.modificationItem, !selectedUniq && styles.selectedModification]}
                     onPress={() => setSelectedUniq(null)}
                   >
-                    <Text style={styles.modificationName}>{selectedUniq ? 'Снять уникальный мод' : 'Без уникального мода'}</Text>
+                    <Text style={styles.modificationName}>{selectedUniq ? tWeaponsAndArmorScreen('modals.removeUnique') : tWeaponsAndArmorScreen('modals.noUnique')}</Text>
                   </TouchableOpacity>
                   {uniqueMods.map((m) => (
                     <ModRow key={m.id} mod={m} selected={selectedUniq === m.id} onPress={() => setSelectedUniq(m.id)} />
@@ -177,25 +164,25 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
             </View>
 
             <View style={styles.previewSection}>
-              <Text style={styles.sectionTitle}>Предварительный просмотр:</Text>
+              <Text style={styles.sectionTitle}>{tWeaponsAndArmorScreen('modals.preview')}:</Text>
               <View style={styles.previewContent}>
-                <Text style={styles.previewTitle}>{previewItem?.item?.Название || previewItem?.item?.Name || baseName}</Text>
+                <Text style={styles.previewTitle}>{previewItem?.item?.name || previewItem?.item?.Name || baseName}</Text>
                 <Text style={styles.previewStats}>
-                  Физ. Су.: {previewItem?.item?.['Физ.СУ'] || 0} | Энерго Су.: {previewItem?.item?.['Энрг.СУ'] || 0} | Рад. Су.: {previewItem?.item?.['Рад.СУ'] || 0}
+                  {tWeaponsAndArmorScreen('armor.fields.physical')}: {previewItem?.item?.physicalDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.energy')}: {previewItem?.item?.energyDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.radiation')}: {previewItem?.item?.radiationDamageRating || 0}
                 </Text>
-                <Text style={styles.previewStats}>Вес: {previewItem?.item?.weight ?? targetItem?.weight ?? targetItem?.['Вес'] ?? 0}</Text>
-                <Text style={styles.previewStats}>Цена: {previewItem?.item?.price ?? targetItem?.price ?? targetItem?.['Цена'] ?? 0}</Text>
-                <Text style={styles.previewText}>Эффекты: {previewEffects.length ? previewEffects.join(' | ') : '—'}</Text>
+                <Text style={styles.previewStats}>{tWeaponsAndArmorScreen('modals.weight')}: {previewItem?.item?.weight ?? targetItem?.weight ?? 0}</Text>
+                <Text style={styles.previewStats}>{tWeaponsAndArmorScreen('modals.cost')}: {previewItem?.item?.cost ?? targetItem?.cost ?? 0}</Text>
+                <Text style={styles.previewText}>{tWeaponsAndArmorScreen('modals.effects')}: {previewEffects.length ? previewEffects.join(' | ') : '—'}</Text>
               </View>
             </View>
           </ScrollView>
 
           <View style={styles.modalFooter}>
             <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
-              <Text style={styles.cancelButtonText}>Отмена</Text>
+              <Text style={styles.cancelButtonText}>{tWeaponsAndArmorScreen('modals.cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={apply} style={styles.applyButton}>
-              <Text style={styles.applyButtonText}>Применить</Text>
+              <Text style={styles.applyButtonText}>{tWeaponsAndArmorScreen('modals.apply')}</Text>
             </TouchableOpacity>
           </View>
         </View>

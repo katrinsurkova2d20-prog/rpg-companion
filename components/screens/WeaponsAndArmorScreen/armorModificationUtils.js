@@ -6,25 +6,27 @@ const normalizeModifierValue = (mod) => {
   return sign * Number(mod.value || 0);
 };
 
-export const formatModBonuses = (mod) => {
+export const formatModBonuses = (mod, labels = {}) => {
+  const improvementsLabel = labels.improvements || 'Improvements';
+  const effectsLabel = labels.effects || 'Effects';
   const p = normalizeModifierValue(mod?.statModifiers?.physicalDamageRating);
   const e = normalizeModifierValue(mod?.statModifiers?.energyDamageRating);
   const r = normalizeModifierValue(mod?.statModifiers?.radiationDamageRating);
   const effectsText = (mod?.specialEffects || []).map((x) => x.description).filter(Boolean).join(' | ');
   return {
-    bonuses: `Улучшения: ${p >= 0 ? '+' : ''}${p} Физ. Су.; ${e >= 0 ? '+' : ''}${e} Энерго Су.; ${r >= 0 ? '+' : ''}${r} Рад. Су.`,
-    effects: effectsText ? `Эффекты: ${effectsText}` : 'Эффекты: —',
+    bonuses: `${improvementsLabel}: ${p >= 0 ? '+' : ''}${p} Phys. DR; ${e >= 0 ? '+' : ''}${e} Energy DR; ${r >= 0 ? '+' : ''}${r} Rad. DR`,
+    effects: effectsText ? `${effectsLabel}: ${effectsText}` : `${effectsLabel}: —`,
   };
 };
 
 export const applyArmorModToItem = (armorItem, mod) => {
   if (!armorItem || !mod) return armorItem;
   const next = { ...armorItem };
-  next['Физ.СУ'] = Number(next['Физ.СУ'] || 0) + normalizeModifierValue(mod.statModifiers?.physicalDamageRating);
-  next['Энрг.СУ'] = Number(next['Энрг.СУ'] || 0) + normalizeModifierValue(mod.statModifiers?.energyDamageRating);
-  next['Рад.СУ'] = Number(next['Рад.СУ'] || 0) + normalizeModifierValue(mod.statModifiers?.radiationDamageRating);
-  next.weight = Number(next.weight || next['Вес'] || 0) + normalizeModifierValue(mod.weightModifier);
-  next.price = Number(next.price || next['Цена'] || 0) + normalizeModifierValue(mod.costModifier);
+  next.physicalDamageRating = Number(next.physicalDamageRating || 0) + normalizeModifierValue(mod.statModifiers?.physicalDamageRating);
+  next.energyDamageRating = Number(next.energyDamageRating || 0) + normalizeModifierValue(mod.statModifiers?.energyDamageRating);
+  next.radiationDamageRating = Number(next.radiationDamageRating || 0) + normalizeModifierValue(mod.statModifiers?.radiationDamageRating);
+  next.weight = Number(next.weight || 0) + normalizeModifierValue(mod.weightModifier);
+  next.cost = Number(next.cost || 0) + normalizeModifierValue(mod.costModifier);
   next.appliedArmorModsMeta = [...(next.appliedArmorModsMeta || []), mod];
   return next;
 };

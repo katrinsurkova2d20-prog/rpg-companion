@@ -1,0 +1,64 @@
+{
+  "stats": {
+    "initiative": "Инициатива",
+    "defense": "Защита",
+    "meleeBonus": "Бонус Б.Боя",
+    "effects": "Эффекты",
+    "poisonResistance": "Сопр. Яду",
+    "health": "Здоровье"
+  },
+  "armor": {
+    "slots": {
+      "head": { "title": "Голова", "subtitle": "1-2" },
+      "leftArm": { "title": "Левая рука", "subtitle": "9-11" },
+      "rightArm": { "title": "Правая рука", "subtitle": "12-14" },
+      "body": { "title": "Тело", "subtitle": "3-8" },
+      "leftLeg": { "title": "Левая нога", "subtitle": "15-17" },
+      "rightLeg": { "title": "Правая нога", "subtitle": "18-20" }
+    },
+    "fields": {
+      "physical": "Физ.Су",
+      "energy": "Энрг.Су",
+      "radiation": "Рад.Су",
+      "clothingModification": "Модификация одежды",
+      "armorModification": "Модификация брони"
+    }
+  },
+  "weapon": {
+    "emptySlot": "Пустой слот",
+    "notEquipped": "Оружие не надето",
+    "fields": {
+      "success": "ЗНАЧЕНИЕ УСПЕХА",
+      "damageType": "ТИП УРОНА",
+      "damage": "УРОН",
+      "effect": "ЭФФЕКТ",
+      "fireRate": "СКОРОСТЬ СТРЕЛЬБЫ",
+      "range": "ДИСТАНЦИЯ",
+      "qualities": "КАЧЕСТВА",
+      "modification": "Модификация"
+    }
+  },
+  "common": {
+    "empty": "—",
+    "none": "00"
+  },
+  "modals": {
+    "requirements": "Требования",
+    "armorModification": "Модификация брони",
+    "clothingModification": "Модификация одежды",
+    "availableModifications": "Доступные модификации",
+    "standard": "Стандартные",
+    "unique": "Уникальные",
+    "removeStandard": "Снять стандартный мод",
+    "noStandard": "Без стандартного мода",
+    "removeUnique": "Снять уникальный мод",
+    "noUnique": "Без уникального мода",
+    "preview": "Предварительный просмотр",
+    "effects": "Эффекты",
+    "weight": "Вес",
+    "cost": "Цена",
+    "cancel": "Отмена",
+    "apply": "Применить",
+    "improvements": "Улучшения"
+  }
+}

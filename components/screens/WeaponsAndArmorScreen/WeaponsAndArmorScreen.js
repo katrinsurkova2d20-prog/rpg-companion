@@ -58,7 +58,7 @@ const StatBox = ({ title, value, children }) => (
   </View>
 );
 
-const ArmorPart = ({ title, subtitle, armorName, clothingName, stats }) => {
+const ArmorPart = ({ title, subtitle, armorName, clothingName, stats, onModifyArmor, canModifyArmor }) => {
     const displayName = [clothingName, armorName].filter(Boolean).join(' / ');
 
     return (
@@ -67,6 +67,13 @@ const ArmorPart = ({ title, subtitle, armorName, clothingName, stats }) => {
                 <Text style={styles.sectionTitle}>{title}</Text>
                 <Text style={[styles.sectionTitle, { fontSize: 12 }]}>{subtitle}</Text>
                 {displayName ? <Text style={localStyles.armorItemNameTitle}>{displayName}</Text> : null}
+                <TouchableOpacity
+                  style={[localStyles.modificationButton, !canModifyArmor && { opacity: 0.4 }]}
+                  disabled={!canModifyArmor}
+                  onPress={onModifyArmor}
+                >
+                  <Text style={localStyles.modificationButtonText}>+</Text>
+                </TouchableOpacity>
             </View>
             <View style={localStyles.armorStatsContainer}>
                 {stats.map((stat, index) => (
@@ -336,6 +343,8 @@ const WeaponsAndArmorScreen = () => {
             armorName={modifiedArmor?.Название || modifiedArmor?.Name || modifiedArmor?.name}
             clothingName={clothingItem?.Название || clothingItem?.Name || clothingItem?.name}
             stats={stats}
+            canModifyArmor={!!armorItem}
+            onModifyArmor={() => handleOpenArmorModal(slotKey)}
         />
     );
   };

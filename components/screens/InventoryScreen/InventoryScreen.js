@@ -65,6 +65,18 @@ const InventoryScreen = () => {
     return `${itemType}:${getItemName(item)}`;
   };
   const createWeaponInstanceId = () => `weapon-instance-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const createArmorInstanceId = () => `armor-instance-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const getArmorInstanceKey = (item, slot, type) =>
+    item?.equipInstanceId || `${type || item?.itemType || 'armor'}:${item?.stackKey || getStackKey(item)}:${slot}`;
+  const getItemTypeIcon = (itemType) => {
+    if (itemType === 'weapon') return '🔫';
+    if (itemType === 'armor') return '🛡️';
+    if (itemType === 'clothing' || itemType === 'outfit') return '👕';
+    if (itemType === 'chem' || itemType === 'chems') return '💊';
+    if (itemType === 'drinks') return '🥤';
+    if (itemType === 'ammo') return '🔹';
+    return '📦';
+  };
 
 
   const handleOpenCapsModal = (type) => {
@@ -252,6 +264,31 @@ const InventoryScreen = () => {
     return null;
   };
 
+  const collectEquippedArmorInstances = (armorState) => {
+    const instanceMap = new Map();
+    Object.entries(armorState || {}).forEach(([slotKey, slotData]) => {
+      const processItem = (item, type) => {
+        if (!item) return;
+        const instanceKey = getArmorInstanceKey(item, slotKey, type);
+        if (!instanceMap.has(instanceKey)) {
+          instanceMap.set(instanceKey, {
+            item,
+            itemName: getItemName(item),
+            itemType: item.itemType || type,
+            stackKey: item.stackKey || getStackKey(item),
+            slots: [slotKey],
+            type,
+          });
+          return;
+        }
+        instanceMap.get(instanceKey).slots.push(slotKey);
+      };
+      processItem(slotData.clothing, 'clothing');
+      processItem(slotData.armor, 'armor');
+    });
+    return instanceMap;
+  };
+
   const handleEquipWeapon = (weaponToEquip) => {
     const displayWeapon = weaponToEquip;
     
@@ -384,47 +421,85 @@ const InventoryScreen = () => {
       itemToEquip.allowsArmor === true || itemToEquip.clothingType === 'suit'
     );
     const targetSlotType = canWearUnderArmor ? 'clothing' : 'armor';
+    const equippedInstances = collectEquippedArmorInstances(currentEquipped);
+    const ownedCount = equipment?.items?.find((i) => (i.stackKey || getStackKey(i)) === (itemToEquip.stackKey || getStackKey(itemToEquip)))?.quantity || 0;
+    const equippedCount = Array.from(equippedInstances.values()).filter((entry) => {
+      if (itemToEquip.itemType === 'armor' || itemToEquip.itemType === 'clothing' || itemToEquip.itemType === 'outfit') {
+        return entry.stackKey === (itemToEquip.stackKey || getStackKey(itemToEquip));
+      }
+      return false;
+    }).length;
+
+    if (ownedCount <= equippedCount) {
+      Alert.alert("Ошибка", "Нет доступных предметов для экипировки.");
+      return;
+    }
 
     const executeEquip = (slotsToOccupy) => {
-      const itemsToUnequip = [];
+      const instancesToUnequip = new Set();
       const itemType = itemToEquip.itemType;
+      const markForUnequip = (slot, type) => {
+        const slotItem = currentEquipped?.[slot]?.[type];
+        if (!slotItem) return;
+        instancesToUnequip.add(getArmorInstanceKey(slotItem, slot, type));
+      };
 
       if (itemType === 'clothing') {
           if (canWearUnderArmor) {
             slotsToOccupy.forEach(slot => {
-                if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
+                if (currentEquipped[slot].clothing) markForUnequip(slot, 'clothing');
             });
           } else {
             slotsToOccupy.forEach(slot => {
-                if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
-                if (currentEquipped[slot].armor) itemsToUnequip.push({ slot, type: 'armor' });
+                if (currentEquipped[slot].clothing) markForUnequip(slot, 'clothing');
+                if (currentEquipped[slot].armor) markForUnequip(slot, 'armor');
             });
           }
       } else if (itemType === 'armor') {
           slotsToOccupy.forEach(slot => {
-              if (currentEquipped[slot].armor) itemsToUnequip.push({ slot, type: 'armor' });
+              if (currentEquipped[slot].armor) markForUnequip(slot, 'armor');
           });
       } else if (itemType === 'outfit') {
           slotsToOccupy.forEach(slot => {
-              if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
-              if (currentEquipped[slot].armor) itemsToUnequip.push({ slot, type: 'armor' });
+              if (currentEquipped[slot].clothing) markForUnequip(slot, 'clothing');
+              if (currentEquipped[slot].armor) markForUnequip(slot, 'armor');
           });
       }
 
       const performEquip = () => {
           const finalEquipped = JSON.parse(JSON.stringify(currentEquipped));
-          itemsToUnequip.forEach(({ slot, type }) => {
-              finalEquipped[slot][type] = null;
+          const slotsByInstance = new Map();
+          Object.entries(currentEquipped || {}).forEach(([slotKey, slotData]) => {
+            const addSlot = (item, type) => {
+              if (!item) return;
+              const key = getArmorInstanceKey(item, slotKey, type);
+              if (!slotsByInstance.has(key)) slotsByInstance.set(key, []);
+              slotsByInstance.get(key).push({ slot: slotKey, type });
+            };
+            addSlot(slotData.clothing, 'clothing');
+            addSlot(slotData.armor, 'armor');
           });
 
+          instancesToUnequip.forEach((instanceKey) => {
+            (slotsByInstance.get(instanceKey) || []).forEach(({ slot, type }) => {
+              finalEquipped[slot][type] = null;
+            });
+          });
+
+          const equipInstanceId = createArmorInstanceId();
           slotsToOccupy.forEach(slot => {
-              finalEquipped[slot][targetSlotType] = { ...itemToEquip, equippedSlot: slot };
+              finalEquipped[slot][targetSlotType] = {
+                ...itemToEquip,
+                itemType: itemToEquip.itemType || targetSlotType,
+                stackKey: itemToEquip.stackKey || getStackKey(itemToEquip),
+                equipInstanceId,
+              };
           });
 
           setEquippedArmor(finalEquipped);
       };
 
-      if (itemsToUnequip.length > 0) {
+      if (instancesToUnequip.size > 0) {
           if (typeof window !== 'undefined' && window.confirm) {
               if (window.confirm("Надетые предметы будут сняты, чтобы освободить место. Продолжить?")) {
                   performEquip();
@@ -480,33 +555,20 @@ const InventoryScreen = () => {
   };
 
   const handleUnequipArmor = (itemToUnequip) => {
-    const slotsToClear = itemToUnequip.equippedSlot ? [itemToUnequip.equippedSlot] : getSlotsForArea(itemToUnequip);
-
-
-
     setEquippedArmor(prevEquipped => {
         const newEquipped = JSON.parse(JSON.stringify(prevEquipped));
-        slotsToClear.forEach(slot => {
-            // Определяем, какой тип предмета снимаем
-            const itemType = itemToUnequip.itemType;
-            
-            if (itemType === 'clothing') {
-                if (newEquipped[slot].clothing && getItemName(newEquipped[slot].clothing) === getItemName(itemToUnequip)) {
-                    newEquipped[slot].clothing = null;
-                }
-            } else if (itemType === 'armor') {
-                if (newEquipped[slot].armor && getItemName(newEquipped[slot].armor) === getItemName(itemToUnequip)) {
-                    newEquipped[slot].armor = null;
-                }
-            } else if (itemType === 'outfit') {
-                // Для костюмов снимаем и одежду, и броню
-                if (newEquipped[slot].clothing && getItemName(newEquipped[slot].clothing) === getItemName(itemToUnequip)) {
-                    newEquipped[slot].clothing = null;
-                }
-                if (newEquipped[slot].armor && getItemName(newEquipped[slot].armor) === getItemName(itemToUnequip)) {
-                    newEquipped[slot].armor = null;
-                }
-            }
+        Object.keys(newEquipped).forEach((slot) => {
+            const clearByType = (type) => {
+              const equippedItem = newEquipped[slot]?.[type];
+              if (!equippedItem) return;
+              const sameInstance = equippedItem.equipInstanceId && itemToUnequip.equipInstanceId && equippedItem.equipInstanceId === itemToUnequip.equipInstanceId;
+              const sameNameAndType = getItemName(equippedItem) === getItemName(itemToUnequip) && (itemToUnequip.itemType === type || itemToUnequip.itemType === 'outfit');
+              if (sameInstance || sameNameAndType) {
+                newEquipped[slot][type] = null;
+              }
+            };
+            clearByType('clothing');
+            clearByType('armor');
         });
         return newEquipped;
     });
@@ -543,42 +605,10 @@ const InventoryScreen = () => {
         }
     });
 
-    // Собираем все экипированные предметы брони и одежды
-    const equippedArmorItems = new Map(); // itemName -> { item, count, type }
-
-    Object.entries(equippedArmor).forEach(([slotKey, slotData]) => {
-        const processItem = (item, type) => {
-            if (!item) return;
-
-            const itemName = getItemName(item);
-            
-            if (equippedArmorItems.has(itemName)) {
-                // Если предмет уже есть, увеличиваем счетчик
-                const existing = equippedArmorItems.get(itemName);
-                existing.count++;
-            } else {
-                // Добавляем новый предмет
-                equippedArmorItems.set(itemName, {
-                    item: { 
-                        ...item, 
-                        itemType: item.itemType || type,
-                        isEquipped: true, 
-                        quantity: 1, 
-                        slot: slotKey, 
-                        uniqueId: `${type}-${itemName}` 
-                    },
-                    count: 1,
-                    type: type
-                });
-            }
-        };
-
-        processItem(slotData.clothing, 'clothing');
-        processItem(slotData.armor, 'armor');
-    });
+    const equippedArmorItems = collectEquippedArmorInstances(equippedArmor);
 
     // Добавляем экипированные предметы в список
-    equippedArmorItems.forEach(({ item, count, type }) => {
+    equippedArmorItems.forEach(({ item, type, stackKey }) => {
         // Получаем модифицированную версию предмета, если она есть
         const itemWithType = {
           ...item,
@@ -589,8 +619,12 @@ const InventoryScreen = () => {
         
         equippedItemsList.push({
             ...displayItem,
-            quantity: count,
-            uniqueId: `${type}-${getItemName(item)}`
+            itemType: item.itemType || type,
+            stackKey,
+            equipInstanceId: item.equipInstanceId,
+            isEquipped: true,
+            quantity: 1,
+            uniqueId: item.equipInstanceId || `${type}-${getItemName(item)}-${stackKey}`
         });
     });
 
@@ -612,7 +646,7 @@ const InventoryScreen = () => {
                 if (isWeaponItem(displayItem) && isWeaponItem(equippedItem)) {
                   return (equippedItem.stackKey || getStackKey(equippedItem)) === itemStackKey;
                 }
-                return equippedName === itemName;
+                return (equippedItem.stackKey || getStackKey(equippedItem)) === itemStackKey || equippedName === itemName;
             }).length;
             
 
@@ -659,6 +693,7 @@ const InventoryScreen = () => {
     const displayItem = modifiedItem || item;
     
     const itemName = getItemName(displayItem) || 'Неизвестный предмет';
+    const itemIcon = getItemTypeIcon(item.itemType);
     const isEquippable = item.itemType === 'weapon' || item.itemType === 'armor' || item.itemType === 'clothing';
     const isConsumable = item.itemType === 'chem' || item.itemType === 'chems' || item.itemType === 'drinks';
 
@@ -691,6 +726,7 @@ const InventoryScreen = () => {
         <View style={styles.mainRowContent}>
           <View style={styles.itemNameContainer}>
             <Text style={[styles.itemNameText, item.isEquipped && styles.equippedItemText]}>{itemName}</Text>
+            <Text style={styles.itemTypeIcon}>{itemIcon}</Text>
           </View>
         </View>
         <View style={styles.actionContainer}>
@@ -979,6 +1015,8 @@ const styles = StyleSheet.create({
   },
   itemNameContainer: { 
     flex: 0.7,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   itemNameText: {
     fontSize: 16,
@@ -998,6 +1036,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginRight: 15, 
+  },
+  itemTypeIcon: {
+    fontSize: 16,
+    marginLeft: 6,
   },
   actionContainer: {
     flexDirection: 'row',

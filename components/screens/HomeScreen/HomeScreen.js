@@ -160,17 +160,24 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <View style={styles.languageContainer}>
-          {languageOptions.map((lang, index) => (
-            <View key={lang.code} style={styles.langLinkRow}>
+          {languageOptions.map((lang, index) => {
+            const isFirst = index === 0;
+            const isLast = index === languageOptions.length - 1;
+            return (
               <Text
-              style={[styles.langLink, locale === lang.code && styles.langLinkActive]}
-              onPress={() => setCurrentLocale(lang.code)}
-            >
-              {lang.code === 'ru-RU' ? 'ru' : 'en'}
+                key={lang.code}
+                style={[
+                  styles.langSegment,
+                  isFirst && styles.langSegmentLeft,
+                  isLast && styles.langSegmentRight,
+                  locale === lang.code && styles.langSegmentActive,
+                ]}
+                onPress={() => setCurrentLocale(lang.code)}
+              >
+                {lang.code === 'ru-RU' ? 'ru' : 'en'}
               </Text>
-              {index !== languageOptions.length - 1 ? <Text style={styles.langDivider}> / </Text> : null}
-            </View>
-          ))}
+            );
+          })}
         </View>
         <Text style={styles.title}>{tHomeScreen("title", "Менеджер персонажей")}</Text>
         <Text style={styles.subtitle}>{tHomeScreen("subtitle", "Ролевая игра Fallout (2d20)")}</Text>
@@ -239,23 +246,34 @@ const styles = StyleSheet.create({
     right: 8,
     top: 8,
     flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#6b7280',
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(17,24,39,0.85)',
   },
-  langLinkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  langLink: {
+  langSegment: {
     color: '#9ca3af',
-    fontSize: 14,
-    textDecorationLine: 'underline',
+    fontSize: 13,
+    textTransform: 'uppercase',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRightWidth: 1,
+    borderRightColor: '#6b7280',
   },
-  langLinkActive: {
-    color: '#f0e68c',
-    fontWeight: 'bold',
+  langSegmentLeft: {
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
   },
-  langDivider: {
-    color: '#9ca3af',
-    marginHorizontal: 4,
+  langSegmentRight: {
+    borderRightWidth: 0,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  langSegmentActive: {
+    color: '#111827',
+    backgroundColor: '#f0e68c',
+    fontWeight: '700',
   },
   scrollView: {
     flex: 1,

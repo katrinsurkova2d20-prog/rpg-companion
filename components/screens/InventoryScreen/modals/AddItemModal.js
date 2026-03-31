@@ -18,6 +18,16 @@ const WEAPON_TYPE_LABELS = {
   'Explosive': 'Взрывчатка',
   'Explosives': 'Взрывчатка',
 };
+const CATEGORY_ICONS = {
+  'Оружие': '🔫',
+  'Броня': '🛡️',
+  'Одежда': '👕',
+  'Боеприпасы': '🔹',
+  'Еда': '🍖',
+  'Напитки': '🥤',
+  'Препараты': '💊',
+  'Материалы': '🧰',
+};
 
 const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   const [currentPath, setCurrentPath] = useState([]);
@@ -69,6 +79,25 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
     'Оружие': weaponsByType,
     ...staticData,
   }), [weaponsByType, staticData]);
+
+  const getTypeLabelAndIcon = (itemType) => {
+    if (itemType === 'weapon') return '🔫 Оружие';
+    if (itemType === 'armor') return '🛡️ Броня';
+    if (itemType === 'clothing' || itemType === 'outfit') return '👕 Одежда';
+    if (itemType === 'chem' || itemType === 'chems') return '💊 Препарат';
+    if (itemType === 'drinks') return '🥤 Напиток';
+    if (itemType === 'ammo') return '🔹 Боеприпасы';
+    return '';
+  };
+
+  const unwrapSingleAllCategory = (data) => {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
+    const keys = Object.keys(data);
+    if (keys.length === 1 && keys[0] === 'Все' && Array.isArray(data['Все'])) {
+      return data['Все'];
+    }
+    return data;
+  };
 
   const handleSelect = (item) => {
     const itemName = getItemName(item);
@@ -142,6 +171,7 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
       }
       data = data[key];
     }
+    data = unwrapSingleAllCategory(data);
     
     // Check if after navigating, the result is an array of items.
     // This happens for categories like 'Кожаная броня'.
@@ -165,19 +195,13 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
     const isItem = typeof item === 'object' && itemName;
     
     // Определяем тип предмета для отображения
-    let itemType = '';
-    if (isItem) {
-      if (item.itemType === 'weapon') itemType = '🔫 Оружие';
-      else if (item.itemType === 'armor') itemType = '🛡️ Броня';
-      else if (item.itemType === 'clothing') itemType = '👕 Одежда';
-      else if (item.itemType === 'chem') itemType = '💊 Препарат';
-      else if (item.itemType === 'drinks') itemType = '🥤 Напиток';
-      else if (item.itemType === 'ammo') itemType = '🔹 Боеприпасы';
-    }
+    const itemType = isItem ? getTypeLabelAndIcon(item.itemType) : '';
+    const categoryIcon = !isItem ? (CATEGORY_ICONS[item] || '📁') : '';
     
     return (
       <TouchableOpacity style={styles.itemContainer} onPress={() => handleSelect(item)}>
         <Text style={styles.itemName}>{isItem ? itemName : item}</Text>
+        {!isItem && <Text style={styles.itemType}>{categoryIcon}</Text>}
         {isItem && itemType && <Text style={styles.itemType}>{itemType}</Text>}
       </TouchableOpacity>
     );

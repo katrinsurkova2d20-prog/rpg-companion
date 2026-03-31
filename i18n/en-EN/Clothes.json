@@ -1,13 +1,13 @@
 {
   "suits": {
-    "categoryName": "Костюмы",
+    "categoryName": "Suits",
     "itemType": "clothing",
     "clothingType": "suit",
     "allowsArmor": true,
     "items": [
       {
         "id": "clothing_harness",
-        "name": "Портупея",
+        "name": "Harness",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 0,
         "energyDamageRating": 0,
@@ -19,7 +19,7 @@
       },
       {
         "id": "clothing_bos_uniform",
-        "name": "Униформа Братства Стали",
+        "name": "Brotherhood of Steel Uniform",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 1,
         "energyDamageRating": 1,
@@ -31,7 +31,7 @@
       },
       {
         "id": "clothing_casual_clothes",
-        "name": "Повседневная одежда",
+        "name": "Casual Clothes",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 0,
         "energyDamageRating": 0,
@@ -43,7 +43,7 @@
       },
       {
         "id": "clothing_road_leathers",
-        "name": "Дорожная кожа",
+        "name": "Road Leathers",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 1,
         "energyDamageRating": 1,
@@ -55,7 +55,7 @@
       },
       {
         "id": "clothing_sturdy_clothes",
-        "name": "Прочная одежда",
+        "name": "Sturdy Clothes",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 1,
         "energyDamageRating": 1,
@@ -67,7 +67,7 @@
       },
       {
         "id": "clothing_military_fatigues",
-        "name": "Военная форма",
+        "name": "Military Fatigues",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 0,
         "energyDamageRating": 1,
@@ -79,7 +79,7 @@
       },
       {
         "id": "clothing_vault_jumpsuit",
-        "name": "Комбинезон Убежища",
+        "name": "Vault Jumpsuit",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 0,
         "energyDamageRating": 1,
@@ -91,7 +91,7 @@
       },
       {
         "id": "clothing_lab_coat",
-        "name": "Лабораторный халат",
+        "name": "Lab Coat",
         "protectedAreas": ["Body", "Hand"],
         "physicalDamageRating": 0,
         "energyDamageRating": 1,
@@ -101,21 +101,21 @@
         "rarity": 2,
         "specialEffects": [
           {
-            "description": "Один раз за сцену вы можете перебросить 1d20 при проверке Интеллекта."
+            "description": "Once per scene, you may reroll 1d20 on an Intelligence skill test."
           }
         ]
       }
     ]
   },
   "outfits": {
-    "categoryName": "Обмундирование",
+    "categoryName": "Outfits",
     "itemType": "clothing",
     "clothingType": "outfit",
     "allowsArmor": false,
     "items": [
       {
         "id": "clothing_nomad_outfit",
-        "name": "Костюм бродяги",
+        "name": "Nomad Outfit",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 1,
         "energyDamageRating": 2,
@@ -127,7 +127,7 @@
       },
       {
         "id": "clothing_hides",
-        "name": "Шкура",
+        "name": "Hides",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 1,
         "energyDamageRating": 0,
@@ -139,7 +139,7 @@
       },
       {
         "id": "clothing_cage_armor",
-        "name": "Бойцовская броня",
+        "name": "Cage Armor",
         "protectedAreas": ["Head", "Body", "Hand", "Leg"],
         "physicalDamageRating": 3,
         "energyDamageRating": 4,
@@ -151,7 +151,7 @@
       },
       {
         "id": "clothing_engineer_armor",
-        "name": "Броня инженера",
+        "name": "Engineer Armor",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 1,
         "energyDamageRating": 1,
@@ -163,7 +163,7 @@
       },
       {
         "id": "clothing_heavy_coat",
-        "name": "Плотное пальто",
+        "name": "Heavy Coat",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 1,
         "energyDamageRating": 1,
@@ -173,13 +173,13 @@
         "rarity": 1,
         "specialEffects": [
           {
-            "description": "Один раз за сцену вы можете перебросить 1d20 при проверке Выносливости."
+            "description": "Once per scene, you may reroll 1d20 on an Endurance skill test."
           }
         ]
       },
       {
         "id": "clothing_work_coveralls",
-        "name": "Рабочий Комбинезон",
+        "name": "Work Coveralls",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 2,
         "energyDamageRating": 0,
@@ -190,14 +190,14 @@
         "specialEffects": [
           {
             "id": "effect_carry_capacity",
-            "description": "+5 к максимальной грузоподъемности.",
+            "description": "+5 to maximum carry capacity.",
             "value": 5
           }
         ]
       },
       {
         "id": "clothing_fancy_clothes",
-        "name": "Формальная одежда",
+        "name": "Fancy Clothes",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 0,
         "energyDamageRating": 0,
@@ -209,7 +209,7 @@
       },
       {
         "id": "clothing_bos_scribe_armor",
-        "name": "Доспехи писца Братства",
+        "name": "Brotherhood Field Scribe Armor",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 1,
         "energyDamageRating": 2,
@@ -221,7 +221,7 @@
       },
       {
         "id": "clothing_bos_fatigues",
-        "name": "Облачение Братства Стали",
+        "name": "Brotherhood of Steel Fatigues",
         "protectedAreas": ["Body", "Hand", "Leg"],
         "physicalDamageRating": 2,
         "energyDamageRating": 2,
@@ -233,7 +233,7 @@
       },
       {
         "id": "clothing_hazmat_suit",
-        "name": "Защитный костюм",
+        "name": "Hazmat Suit",
         "protectedAreas": ["Head", "Body", "Hand", "Leg"],
         "physicalDamageRating": 0,
         "energyDamageRating": 0,
@@ -243,13 +243,13 @@
         "rarity": 3,
         "specialEffects": [
           {
-            "description": "Полный иммунитет к радиационному урону и эффектам облучения."
+            "description": "Complete immunity to radiation damage and radiation effects."
           }
         ]
       },
       {
         "id": "clothing_spiked_armor",
-        "name": "Броня с шипами",
+        "name": "Spiked Armor",
         "protectedAreas": ["Head", "Body", "Hand", "Leg"],
         "physicalDamageRating": 2,
         "energyDamageRating": 2,
@@ -262,14 +262,14 @@
     ]
   },
   "headwear": {
-    "categoryName": "Головные уборы",
+    "categoryName": "Headwear",
     "itemType": "clothing",
     "clothingType": "headwear",
     "allowsArmor": false,
     "items": [
       {
         "id": "headwear_casual_hat",
-        "name": "Обычная шляпа",
+        "name": "Casual Hat",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 0,
         "energyDamageRating": 0,
@@ -279,13 +279,13 @@
         "rarity": 1,
         "specialEffects": [
           {
-            "description": "Игнорируйте увеличение сложности от ослепляющего или яркого света."
+            "description": "Ignore difficulty increase from bright or blinding light."
           }
         ]
       },
       {
         "id": "headwear_military_helmet",
-        "name": "Армейский шлем",
+        "name": "Military Helmet",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 2,
         "energyDamageRating": 0,
@@ -297,7 +297,7 @@
       },
       {
         "id": "headwear_bos_scribe_hat",
-        "name": "Шляпа писца",
+        "name": "Brotherhood Field Scribe Hat",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 0,
         "energyDamageRating": 2,
@@ -309,7 +309,7 @@
       },
       {
         "id": "headwear_bos_hood",
-        "name": "Капюшон Братства Стали",
+        "name": "Brotherhood of Steel Hood",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 0,
         "energyDamageRating": 1,
@@ -321,7 +321,7 @@
       },
       {
         "id": "headwear_sack_hood",
-        "name": "Капюшон из мешковины",
+        "name": "Sack Hood",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 0,
         "energyDamageRating": 0,
@@ -333,7 +333,7 @@
       },
       {
         "id": "headwear_hood",
-        "name": "Капюшон",
+        "name": "Hood",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 1,
         "energyDamageRating": 0,
@@ -345,7 +345,7 @@
       },
       {
         "id": "headwear_hard_hat",
-        "name": "Каска",
+        "name": "Hard Hat",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 2,
         "energyDamageRating": 0,
@@ -357,7 +357,7 @@
       },
       {
         "id": "headwear_welding_mask",
-        "name": "Щиток сварщика",
+        "name": "Welding Mask",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 2,
         "energyDamageRating": 2,
@@ -369,7 +369,7 @@
       },
       {
         "id": "headwear_fancy_hat",
-        "name": "Формальная шляпа",
+        "name": "Fancy Hat",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 0,
         "energyDamageRating": 0,
@@ -379,13 +379,13 @@
         "rarity": 2,
         "specialEffects": [
           {
-            "description": "Один раз за сцену вы можете перебросить 1d20 при проверке Харизмы."
+            "description": "Once per scene, you may reroll 1d20 on a Charisma skill test."
           }
         ]
       },
       {
         "id": "headwear_gas_mask",
-        "name": "Противогаз",
+        "name": "Gas Mask",
         "protectedAreas": ["Head"],
         "physicalDamageRating": 1,
         "energyDamageRating": 0,
@@ -396,11 +396,11 @@
         "specialEffects": [
           {
             "id": "effect_poison_resistance",
-            "description": "+3 к сопротивлению урону от яда.",
+            "description": "+3 to resistance against poison damage.",
             "value": 3
           },
           {
-            "description": "Иммунитет к воздействию газов и пыли. Все проверки Речи получают +1 к сложности."
+            "description": "Immune to gas and dust effects. All Speech tests suffer +1 difficulty."
           }
         ]
       }

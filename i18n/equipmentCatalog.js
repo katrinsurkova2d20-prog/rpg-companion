@@ -66,17 +66,24 @@ const EQUIPMENT_BY_LOCALE = {
   },
 };
 
-const validateConsumablesContract = (items, allowedTypes) => {
+const validateConsumablesContract = (items, allowedTypes, fallbackType) => {
   if (!Array.isArray(items)) {
     return [];
   }
 
-  return items.filter((item) => (
-    item &&
-    typeof item === 'object' &&
-    typeof item.Name === 'string' &&
-    allowedTypes.includes(item.itemType)
-  ));
+  return items
+    .filter((item) => item && typeof item === 'object')
+    .map((item) => {
+      const normalizedType = item.itemType === 'chems' ? 'chem' : item.itemType;
+      const finalType = allowedTypes.includes(normalizedType) ? normalizedType : fallbackType;
+      return {
+        ...item,
+        itemType: finalType,
+        Name: item.Name || item.name,
+        Название: item.Название || item.name || item.Name,
+      };
+    })
+    .filter((item) => typeof item.Name === 'string' && allowedTypes.includes(item.itemType));
 };
 
 export const getEquipmentCatalog = (locale = getCurrentLocale()) => {
@@ -92,7 +99,7 @@ export const getEquipmentCatalog = (locale = getCurrentLocale()) => {
     armorList: flattenArmorCatalog(baseCatalog.armor),
     armorIndex: buildArmorIndex(baseCatalog.armor),
     clothes: { clothes: normalizedClothes },
-    chems: validateConsumablesContract(baseCatalog.chems, ['chem']),
-    drinks: validateConsumablesContract(baseCatalog.drinks, ['drinks']),
+    chems: validateConsumablesContract(baseCatalog.chems, ['chem'], 'chem'),
+    drinks: validateConsumablesContract(baseCatalog.drinks, ['drinks'], 'drinks'),
   };
 };

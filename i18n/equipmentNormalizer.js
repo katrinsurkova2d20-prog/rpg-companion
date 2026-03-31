@@ -71,6 +71,30 @@ export const normalizeClothesCatalog = (rawClothes) => {
     return [{ type: rawClothes.type || 'Одежда', items: rawClothes.items }];
   }
 
+  if (rawClothes && typeof rawClothes === 'object') {
+    return Object.entries(rawClothes).flatMap(([groupKey, group]) => {
+      if (!group || !Array.isArray(group.items)) return [];
+      const type = group.categoryName || group.type || groupKey;
+      const defaultItemType = group.itemType || 'clothing';
+      const defaultClothingType = group.clothingType || null;
+      const defaultAllowsArmor = typeof group.allowsArmor === 'boolean'
+        ? group.allowsArmor
+        : defaultClothingType === 'suit';
+
+      return [{
+        type,
+        items: group.items.map((item) => ({
+          ...item,
+          itemType: item.itemType || defaultItemType,
+          clothingType: item.clothingType || defaultClothingType,
+          allowsArmor: typeof item.allowsArmor === 'boolean' ? item.allowsArmor : defaultAllowsArmor,
+          Name: item.Name || item.name,
+          Название: item.Название || item.name || item.Name,
+        })),
+      }];
+    });
+  }
+
   return [];
 };
 

@@ -304,9 +304,9 @@ const WeaponsAndArmorScreen = () => {
     const { item: modifiedArmor } = applyArmorMods(armorItem, equipmentCatalog);
     const { item: modifiedClothing } = applyArmorMods(clothingItem, equipmentCatalog, { standardKey: 'appliedClothingModId', uniqueKey: 'unused' });
 
-    const physDef = Number(modifiedArmor?.physicalDamageRating || 0) + Number(modifiedClothing?.physicalDamageRating || 0);
-    const energyDef = Number(modifiedArmor?.energyDamageRating || 0) + Number(modifiedClothing?.energyDamageRating || 0);
-    const radDef = Number(modifiedArmor?.radiationDamageRating || 0) + Number(modifiedClothing?.radiationDamageRating || 0);
+    const physDef = Math.max(Number(modifiedArmor?.physicalDamageRating || 0), Number(modifiedClothing?.physicalDamageRating || 0));
+    const energyDef = Math.max(Number(modifiedArmor?.energyDamageRating || 0), Number(modifiedClothing?.energyDamageRating || 0));
+    const radDef = Math.max(Number(modifiedArmor?.radiationDamageRating || 0), Number(modifiedClothing?.radiationDamageRating || 0));
 
     const stats = [
       { label: tWeaponsAndArmorScreen('armor.fields.physical'), value: physDef > 0 ? physDef : tWeaponsAndArmorScreen('common.none') },

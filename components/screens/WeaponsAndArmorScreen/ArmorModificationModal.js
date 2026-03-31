@@ -39,7 +39,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
   const catalog = useMemo(() => getEquipmentCatalog(locale), [locale]);
   const [selectedStd, setSelectedStd] = useState(null);
   const [selectedUniq, setSelectedUniq] = useState(null);
-  const [expandedCategories, setExpandedCategories] = useState({ standard: true, unique: true });
+  const [expandedCategories, setExpandedCategories] = useState({ standard: false, unique: false });
 
   const isClothingMode = mode === 'clothing';
   const stdKey = isClothingMode ? 'appliedClothingModId' : 'appliedArmorModId';
@@ -49,7 +49,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
     if (!visible || !targetItem) return;
     setSelectedStd(targetItem[stdKey] || null);
     setSelectedUniq(uniqKey ? (targetItem[uniqKey] || null) : null);
-    setExpandedCategories({ standard: true, unique: true });
+    setExpandedCategories({ standard: false, unique: false });
   }, [visible, targetItem, stdKey, uniqKey]);
 
   const { standardMods, uniqueMods } = useMemo(() => {

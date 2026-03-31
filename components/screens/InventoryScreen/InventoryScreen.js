@@ -43,7 +43,7 @@ const InventoryScreen = () => {
   const getItemName = (item) => item?.Name || item?.name || item?.Название || '';
   const getItemType = (item) => {
     if (item?.itemType) return item.itemType;
-    if (item?.effectType || item?.durationInScenes || item?.duration || item?.Effects) return 'chem';
+    if (item?.effectType || item?.durationInScenes || item?.duration || item?.Effects || item?.positiveEffect) return 'chem';
     if (item?.type === 'ammo') return 'ammo';
     if (item?.weaponId || item?.damage !== undefined || item?.Урон !== undefined) return 'weapon';
     if (item?.clothingType) return 'clothing';
@@ -380,24 +380,25 @@ const InventoryScreen = () => {
 
   const handleEquipArmor = (itemToEquip) => {
     const currentEquipped = equippedArmor;
-    const targetSlotType = (itemToEquip.itemType === 'clothing') ? 'clothing' : 'armor';
+    const canWearUnderArmor = itemToEquip.itemType === 'clothing' && (
+      itemToEquip.allowsArmor === true || itemToEquip.clothingType === 'suit'
+    );
+    const targetSlotType = canWearUnderArmor ? 'clothing' : 'armor';
 
     const executeEquip = (slotsToOccupy) => {
       const itemsToUnequip = [];
       const itemType = itemToEquip.itemType;
-      const itemClothingType = itemToEquip.clothingType;
 
       if (itemType === 'clothing') {
-          if (itemClothingType === 'suit') {
-              slotsToOccupy.forEach(slot => {
-                  if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
-                  if (currentEquipped[slot].armor?.clothingType === 'outfit') itemsToUnequip.push({ slot, type: 'armor' });
-              });
+          if (canWearUnderArmor) {
+            slotsToOccupy.forEach(slot => {
+                if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
+            });
           } else {
-              slotsToOccupy.forEach(slot => {
-                  if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
-                  if (currentEquipped[slot].armor) itemsToUnequip.push({ slot, type: 'armor' });
-              });
+            slotsToOccupy.forEach(slot => {
+                if (currentEquipped[slot].clothing) itemsToUnequip.push({ slot, type: 'clothing' });
+                if (currentEquipped[slot].armor) itemsToUnequip.push({ slot, type: 'armor' });
+            });
           }
       } else if (itemType === 'armor') {
           slotsToOccupy.forEach(slot => {
@@ -659,7 +660,7 @@ const InventoryScreen = () => {
     
     const itemName = getItemName(displayItem) || 'Неизвестный предмет';
     const isEquippable = item.itemType === 'weapon' || item.itemType === 'armor' || item.itemType === 'clothing';
-    const isConsumable = item.itemType === 'chem' || item.itemType === 'drinks';
+    const isConsumable = item.itemType === 'chem' || item.itemType === 'chems' || item.itemType === 'drinks';
 
     const handleActionPress = () => {
         if (item.isEquipped) {

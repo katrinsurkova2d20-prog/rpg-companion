@@ -161,25 +161,15 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.titleContainer}>
         <View style={styles.languageContainer}>
           {languageOptions.map((lang, index) => (
-            <TouchableOpacity
-              key={lang.code}
-              style={[
-                styles.langToggleButton,
-                index === 0 && styles.langToggleButtonFirst,
-                index === languageOptions.length - 1 && styles.langToggleButtonLast,
-                locale === lang.code && styles.langToggleButtonActive,
-              ]}
+            <View key={lang.code} style={styles.langLinkRow}>
+              <Text
+              style={[styles.langLink, locale === lang.code && styles.langLinkActive]}
               onPress={() => setCurrentLocale(lang.code)}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              activeOpacity={0.85}
             >
-              <Text style={[
-                styles.langToggleText,
-                locale === lang.code && styles.langToggleTextActive,
-              ]}>
-                {lang.code === 'ru-RU' ? 'RU' : 'EN'}
+              {lang.code === 'ru-RU' ? 'ru' : 'en'}
               </Text>
-            </TouchableOpacity>
+              {index !== languageOptions.length - 1 ? <Text style={styles.langDivider}> / </Text> : null}
+            </View>
           ))}
         </View>
         <Text style={styles.title}>{tHomeScreen("title", "Менеджер персонажей")}</Text>
@@ -250,36 +240,22 @@ const styles = StyleSheet.create({
     top: 8,
     flexDirection: 'row',
   },
-  langToggleButton: {
-    backgroundColor: '#2a2a2a',
-    borderWidth: 1,
-    borderColor: '#555',
-    paddingHorizontal: 12,
-    minHeight: 40,
-    justifyContent: 'center',
+  langLinkRow: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  langToggleButtonFirst: {
-    borderTopLeftRadius: 6,
-    borderBottomLeftRadius: 6,
-    borderRightWidth: 0,
+  langLink: {
+    color: '#9ca3af',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
-  langToggleButtonLast: {
-    borderTopRightRadius: 6,
-    borderBottomRightRadius: 6,
-  },
-  langToggleButtonActive: {
-    backgroundColor: '#d4af37',
-    borderColor: '#d4af37',
-  },
-  langToggleText: {
-    color: '#aaa',
-    fontSize: 13,
+  langLinkActive: {
+    color: '#f0e68c',
     fontWeight: 'bold',
-    letterSpacing: 0.5,
   },
-  langToggleTextActive: {
-    color: '#1a1a1a',
+  langDivider: {
+    color: '#9ca3af',
+    marginHorizontal: 4,
   },
   scrollView: {
     flex: 1,

@@ -125,11 +125,21 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
     const load = async () => {
       setIsLoading(true);
       try {
-        const resolved = await Promise.all(equipmentKits.map((kit) => resolveKitItems(kit)));
-        setCalculatedKits(resolved);
+        const resolved = await Promise.all(
+          equipmentKits.map(async (kit) => {
+            try {
+              return await resolveKitItems(kit);
+            } catch (error) {
+              console.warn('Не удалось разрешить комплект снаряжения, используется исходный набор:', kit?.id, error);
+              return kit;
+            }
+          }),
+        );
+        const validKits = resolved.filter((kit) => kit && Array.isArray(kit.items) && kit.items.length > 0);
+        setCalculatedKits(validKits);
 
         const defaults = {};
-        resolved.forEach((kit) => {
+        validKits.forEach((kit) => {
           (kit.items || []).forEach((entry, index) => {
             if (entry?.type === 'choice') {
               const firstOption = (entry.items || [])[0];

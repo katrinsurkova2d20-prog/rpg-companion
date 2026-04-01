@@ -40,17 +40,20 @@ const resolveAmmoObject = async (ammoSpec, weaponAmmoId) => {
   if (!ammoId) return null;
 
   const ammo = await getAmmoById(ammoId);
-  if (!ammo) return null;
+  const catalog = getEquipmentCatalog();
+  const fallbackAmmo = (catalog?.ammoTypes || []).find((entry) => entry.id === ammoId);
+  const ammoData = ammo || fallbackAmmo;
+  if (!ammoData) return null;
 
   const quantity = resolveRollQuantity(ammoSpec.quantity);
   return {
-    name: ammo.name,
-    Название: ammo.name,
+    name: ammoData.name,
+    Название: ammoData.name,
     quantity,
     type: 'ammo',
     itemType: 'ammo',
-    Цена: ammo.cost,
-    Редкость: ammo.rarity,
+    Цена: ammoData.cost,
+    Редкость: ammoData.rarity,
   };
 };
 
@@ -107,7 +110,10 @@ const resolveItemById = (item) => {
 
 export async function resolveWeaponItem(item) {
   const weapon = await getWeaponById(item.weaponId);
-  if (!weapon) {
+  const catalog = getEquipmentCatalog();
+  const fallbackWeapon = (catalog?.weapons || []).find((entry) => entry.id === item.weaponId);
+  const weaponData = weapon || fallbackWeapon;
+  if (!weaponData) {
     return {
       ...item,
       name: item.weaponId,
@@ -126,12 +132,13 @@ export async function resolveWeaponItem(item) {
   }
 
   const prefixes = mods.map((mod) => mod.prefix).filter(Boolean);
-  const displayName = [...prefixes, weapon.name].join(' ');
-  const resolvedAmmunition = await resolveAmmoObject(item.ammo, weapon.ammo_id);
+  const weaponName = weaponData.name || weaponData.Name || item.weaponId;
+  const displayName = [...prefixes, weaponName].join(' ');
+  const resolvedAmmunition = await resolveAmmoObject(item.ammo, weaponData.ammo_id || weaponData.Ammo);
 
   return {
     ...item,
-    _weapon: weapon,
+    _weapon: weaponData,
     _mods: mods,
     displayName,
     name: displayName,

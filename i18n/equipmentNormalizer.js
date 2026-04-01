@@ -73,6 +73,18 @@ export const normalizeClothesCatalog = (rawClothes) => {
 
   if (rawClothes && typeof rawClothes === 'object') {
     return Object.entries(rawClothes).flatMap(([groupKey, group]) => {
+      if (Array.isArray(group)) {
+        return [{
+          type: groupKey,
+          items: group.map((item) => ({
+            ...item,
+            itemType: item.itemType || 'clothing',
+            Name: item.Name || item.name,
+            Название: item.Название || item.name || item.Name,
+          })),
+        }];
+      }
+
       if (!group || !Array.isArray(group.items)) return [];
       const type = group.categoryName || group.type || groupKey;
       const defaultItemType = group.itemType || 'clothing';

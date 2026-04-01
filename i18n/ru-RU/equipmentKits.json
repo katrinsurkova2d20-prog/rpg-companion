@@ -48,7 +48,7 @@
     {
       "id": "robobrain",
       "name": "Робомозг",
-      "equipmentKits": ["robobrain_hypnotron"],
+      "equipmentKits": ["robobrain_hypnotron"]
     },
     {
       "id": "securitron",

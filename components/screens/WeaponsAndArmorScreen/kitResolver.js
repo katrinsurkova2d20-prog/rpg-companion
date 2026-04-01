@@ -85,7 +85,7 @@ export async function resolveWeaponItem(item) {
 }
 
 
-function resolveArmorOrClothingById(item) {
+function resolveItemById(item) {
   const catalog = getEquipmentCatalog();
   if (item.armorId) {
     const found = catalog?.armorIndex?.byId?.get(item.armorId);
@@ -100,8 +100,25 @@ function resolveArmorOrClothingById(item) {
       return { ...found, ...item, name: found.Name || found.name, Название: found.Название || found.Name, itemType: found.itemType || 'clothing' };
     }
   }
+  if (item.itemId) {
+    const miscItems = catalog?.miscellaneous || [];
+    const chems = catalog?.chems || [];
+    const drinks = catalog?.drinks || [];
+    const all = [...miscItems, ...chems, ...drinks];
+    const found = all.find((entry) => entry.id === item.itemId);
+    if (found) {
+      return {
+        ...found,
+        ...item,
+        name: found.Name || found.name,
+        Название: found.Название || found.Name || found.name,
+        itemType: item.itemType || found.itemType || 'misc',
+      };
+    }
+  }
   return null;
 }
+
 
 // ─── 2.2 resolveNonWeaponItem ─────────────────────────────────────────────────
 
@@ -123,7 +140,7 @@ const CURRENCY_TAGS = {
  *   - Иначе → поиск в БД
  */
 export async function resolveNonWeaponItem(item) {
-  const resolvedById = resolveArmorOrClothingById(item);
+  const resolvedById = resolveItemById(item);
   if (resolvedById) return resolvedById;
   if (!item.name) return item;
 

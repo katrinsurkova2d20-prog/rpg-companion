@@ -17,6 +17,25 @@ const ROLL_TABLE_TAG = {
 };
 
 const toNumber = (value) => Number.isFinite(value) ? value : Number(value) || 0;
+const safeDbCall = async (fn, ...args) => {
+  try {
+    return await fn(...args);
+  } catch {
+    return null;
+  }
+};
+
+const flattenGroupedItems = (source) => {
+  if (Array.isArray(source)) return source;
+  if (!source || typeof source !== 'object') return [];
+  return Object.values(source).flatMap((entry) => {
+    if (Array.isArray(entry)) {
+      return entry.flatMap((group) => (Array.isArray(group?.items) ? group.items : []));
+    }
+    if (Array.isArray(entry?.items)) return entry.items;
+    return [];
+  });
+};
 
 const resolveRollQuantity = (quantity = {}) => {
   const base = toNumber(quantity.base);
@@ -39,7 +58,7 @@ const resolveAmmoObject = async (ammoSpec, weaponAmmoId) => {
   const ammoId = ammoSpec.ammoId || weaponAmmoId;
   if (!ammoId) return null;
 
-  const ammo = await getAmmoById(ammoId);
+  const ammo = await safeDbCall(getAmmoById, ammoId);
   const catalog = getEquipmentCatalog();
   const fallbackAmmo = (catalog?.ammoTypes || []).find((entry) => entry.id === ammoId);
   const ammoData = ammo || fallbackAmmo;
@@ -89,7 +108,7 @@ const resolveItemById = (item) => {
 
   if (item.itemId) {
     const all = [
-      ...(catalog?.miscellaneous || []),
+      ...flattenGroupedItems(catalog?.miscellaneous),
       ...(catalog?.chems || []),
       ...(catalog?.drinks || []),
     ];
@@ -109,7 +128,7 @@ const resolveItemById = (item) => {
 };
 
 export async function resolveWeaponItem(item) {
-  const weapon = await getWeaponById(item.weaponId);
+  const weapon = await safeDbCall(getWeaponById, item.weaponId);
   const catalog = getEquipmentCatalog();
   const fallbackWeapon = (catalog?.weapons || []).find((entry) => entry.id === item.weaponId);
   const weaponData = weapon || fallbackWeapon;
@@ -127,7 +146,7 @@ export async function resolveWeaponItem(item) {
 
   const mods = [];
   for (const modId of (item.modIds || [])) {
-    const mod = await getWeaponModById(modId);
+    const mod = await safeDbCall(getWeaponModById, modId);
     if (mod) mods.push(mod);
   }
 
@@ -176,7 +195,7 @@ export async function resolveNonWeaponItem(item) {
   }
 
   if (item.name) {
-    const dbItem = await getItemByName(item.name);
+    const dbItem = await safeDbCall(getItemByName, item.name);
     if (dbItem) {
       return {
         ...item,

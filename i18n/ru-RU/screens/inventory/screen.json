@@ -1,0 +1,56 @@
+{
+  "caps": {
+    "title": "Крышки",
+    "subtract": "↓ Списать",
+    "add": "↑ Внести"
+  },
+  "alerts": {
+    "successTitle": "Успешно",
+    "appliedTitle": "Применено",
+    "effectsTitle": "Эффекты",
+    "noItemsTitle": "Ошибка",
+    "noItemsMessage": "Нет доступных предметов для экипировки.",
+    "replaceWeaponTitle": "Заменить оружие",
+    "replaceWeaponMessage": "Какое оружие вы хотите заменить?",
+    "replaceEquipmentTitle": "Замена экипировки",
+    "replaceEquipmentConfirm": "Надетые предметы будут сняты, чтобы освободить место. Продолжить?",
+    "bothSlotsBusy": "Оба слота заняты. Какой предмет заменить?",
+    "bothSlotsBusyPrompt": "Оба слота заняты. Что заменить? Введите 1 ({leftLabel}) или 2 ({rightLabel}).",
+    "applyConsumableTitle": "Применение расходника",
+    "applyConsumableQuestion": "Вы хотите применить {itemName} на себя или другого персонажа?",
+    "windowApplyConsumableQuestion": "Применить {itemName} на себя? Нажмите \"Отмена\", чтобы применить на другого персонажа.",
+    "healMessage": "Восстановлено {healAmount} единиц здоровья.",
+    "appliedSelfMessage": "{itemName} применен на вас.",
+    "appliedOtherMessage": "{itemName} применен на другого персонажа."
+  },
+  "actions": {
+    "cancel": "Отмена",
+    "yes": "Да",
+    "weapon1": "Оружие 1",
+    "weapon2": "Оружие 2",
+    "self": "На себя",
+    "other": "На другого",
+    "unequip": "↓ Снять",
+    "equip": "↑ Надеть",
+    "apply": "Применить",
+    "sell": "Продать",
+    "addLoot": "Добавить добычу",
+    "buyItems": "Купить предметы"
+  },
+  "labels": {
+    "leftArm": "Левый наруч",
+    "rightArm": "Правый наруч",
+    "leftLeg": "Левый понож",
+    "rightLeg": "Правый понож",
+    "item": "ПРЕДМЕТ",
+    "action": "ДЕЙСТВИЕ",
+    "unknownItem": "Неизвестный предмет",
+    "quantity": "Кол-во",
+    "price": "Цена",
+    "weight": "Вес",
+    "pieces": "шт.",
+    "inventoryEmpty": "Инвентарь пуст",
+    "totalWeight": "Общий вес",
+    "totalPrice": "Общая цена"
+  }
+}

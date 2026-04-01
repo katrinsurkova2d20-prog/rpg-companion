@@ -1,21 +1,23 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ImageBackground, SafeAreaView, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useCharacter } from '../../CharacterContext';
-import AddWeaponModal from './modals/AddWeaponModal';
 import CapsModal from './modals/CapsModal';
 import SellItemModal from './modals/SellItemModal';
 import AddItemModal from './modals/AddItemModal';
+import BuyItemModal from './modals/BuyItemModal';
 import { calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
+import { formatInventoryText, tInventory } from './logic/inventoryI18n';
+import { useLocale } from '../../../i18n/locale';
 
 const CapsSection = ({ caps, onAdd, onSubtract }) => (
   <View style={styles.capsContainer}>
-    <Text style={styles.capsLabel}>Крышки</Text>
+    <Text style={styles.capsLabel}>{tInventory('screen.caps.title')}</Text>
     <TouchableOpacity style={styles.capsButton} onPress={onSubtract}>
-      <Text style={styles.capsButtonText}>↓ Списать</Text>
+      <Text style={styles.capsButtonText}>{tInventory('screen.caps.subtract')}</Text>
     </TouchableOpacity>
     <Text style={styles.capsValue}>{caps}</Text>
     <TouchableOpacity style={styles.capsButton} onPress={onAdd}>
-      <Text style={styles.capsButtonText}>↑ Внести</Text>
+      <Text style={styles.capsButtonText}>{tInventory('screen.caps.add')}</Text>
     </TouchableOpacity>
   </View>
 );
@@ -29,25 +31,28 @@ const InventoryScreen = () => {
     attributes, level,
     currentHealth, setCurrentHealth,
     applyConsumableTimedEffects,
-    saveModifiedItem,
     getModifiedItem
   } = useCharacter();
   
-  const [isAddWeaponModalVisible, setIsAddWeaponModalVisible] = useState(false);
   const [isCapsModalVisible, setIsCapsModalVisible] = useState(false);
   const [capsOperationType, setCapsOperationType] = useState('add');
   const [isSellModalVisible, setIsSellModalVisible] = useState(false);
   const [selectedItemForSale, setSelectedItemForSale] = useState(null);
   const [isAddItemModalVisible, setAddItemModalVisible] = useState(false);
+  const [itemSelectionMode, setItemSelectionMode] = useState('loot');
+  const [isBuyItemModalVisible, setIsBuyItemModalVisible] = useState(false);
+  const [selectedItemForBuy, setSelectedItemForBuy] = useState(null);
 
-  const getItemName = (item) => item?.Name || item?.name || item?.Название || '';
+  useLocale();
+
+  const getItemName = (item) => item?.name || '';
   const getItemType = (item) => {
     if (item?.itemType) return item.itemType;
-    if (item?.effectType || item?.durationInScenes || item?.duration || item?.Effects || item?.positiveEffect) return 'chem';
+    if (item?.effectType || item?.durationInScenes || item?.duration || item?.positiveEffect) return 'chem';
     if (item?.type === 'ammo') return 'ammo';
-    if (item?.weaponId || item?.damage !== undefined || item?.Урон !== undefined) return 'weapon';
+    if (item?.weaponId || item?.damage !== undefined) return 'weapon';
     if (item?.clothingType) return 'clothing';
-    if (item?.protected_area) return 'armor';
+    if (item?.protectedAreas) return 'armor';
     return 'misc';
   };
   const isWeaponItem = (item) => getItemType(item) === 'weapon';
@@ -103,25 +108,25 @@ const InventoryScreen = () => {
         const healAmount = consumableItem.healAmount;
         const newHealth = Math.min(maxHealth, currentHealth + healAmount);
         setCurrentHealth(newHealth);
-        Alert.alert("Успешно", `Восстановлено ${healAmount} единиц здоровья.`);
+        Alert.alert(tInventory('screen.alerts.successTitle'), formatInventoryText(tInventory('screen.alerts.healMessage'), { healAmount }));
       } else {
-        Alert.alert("Применено", `${itemName} применен на вас.`);
+        Alert.alert(tInventory('screen.alerts.appliedTitle'), formatInventoryText(tInventory('screen.alerts.appliedSelfMessage'), { itemName }));
       }
 
       if (timedResult.events.length > 0) {
-        Alert.alert('Эффекты', timedResult.events.join('\n'));
+        Alert.alert(tInventory('screen.alerts.effectsTitle'), timedResult.events.join('\n'));
       }
 
       handleRemoveItem(consumableItem, 1);
     };
 
     const applyToOther = () => {
-      Alert.alert("Применено", `${itemName} применен на другого персонажа.`);
+      Alert.alert(tInventory('screen.alerts.appliedTitle'), formatInventoryText(tInventory('screen.alerts.appliedOtherMessage'), { itemName }));
       handleRemoveItem(consumableItem, 1);
     };
 
     if (typeof window !== 'undefined' && window.confirm) {
-      const applyOnSelf = window.confirm(`Применить ${itemName} на себя? Нажмите "Отмена", чтобы применить на другого персонажа.`);
+      const applyOnSelf = window.confirm(formatInventoryText(tInventory('screen.alerts.windowApplyConsumableQuestion'), { itemName }));
       if (applyOnSelf) {
         applyToSelf();
       } else {
@@ -131,12 +136,12 @@ const InventoryScreen = () => {
     }
 
     Alert.alert(
-      "Применение расходника",
-      `Вы хотите применить ${itemName} на себя или другого персонажа?`,
+      tInventory('screen.alerts.applyConsumableTitle'),
+      formatInventoryText(tInventory('screen.alerts.applyConsumableQuestion'), { itemName }),
       [
-        { text: "Отмена", style: "cancel" },
-        { text: "На себя", onPress: applyToSelf },
-        { text: "На другого", onPress: applyToOther }
+        { text: tInventory('screen.actions.cancel'), style: "cancel" },
+        { text: tInventory('screen.actions.self'), onPress: applyToSelf },
+        { text: tInventory('screen.actions.other'), onPress: applyToOther }
       ]
     );
   };
@@ -208,20 +213,20 @@ const InventoryScreen = () => {
     }));
   }
 
-  const handleAddItem = (item) => {
+  const handleAddItem = (item, quantity = 1) => {
     const newItems = equipment?.items ? [...equipment.items] : [];
     const stackKey = getStackKey(item);
     const existingItemIndex = newItems.findIndex(existingItem => (existingItem.stackKey || getStackKey(existingItem)) === stackKey);
 
     if (existingItemIndex > -1) {
-        newItems[existingItemIndex].quantity += 1;
+        newItems[existingItemIndex].quantity += quantity;
     } else {
         // Убеждаемся, что у предмета есть itemType
         const itemWithType = {
           ...item,
           itemType: getItemType(item),
           stackKey,
-          quantity: 1
+          quantity
         };
         newItems.push(itemWithType);
     }
@@ -230,20 +235,30 @@ const InventoryScreen = () => {
 
 
 
+
+  const handleSelectCatalogItem = (item) => {
+    if (itemSelectionMode === 'buy') {
+      setSelectedItemForBuy(item);
+      setIsBuyItemModalVisible(true);
+      return;
+    }
+    handleAddItem(item, 1);
+  };
+
+  const handleConfirmBuy = (quantity, unitPrice) => {
+    const finalCost = quantity * unitPrice;
+    setCaps((prev) => prev - finalCost);
+    handleAddItem({ ...selectedItemForBuy, price: unitPrice, cost: unitPrice }, quantity);
+    setIsBuyItemModalVisible(false);
+    setSelectedItemForBuy(null);
+  };
+
   const parseProtectedAreas = (item) => {
     if (Array.isArray(item?.protectedAreas) && item.protectedAreas.length > 0) {
       return item.protectedAreas;
     }
 
-    const areaText = String(item?.protected_area || '').toLowerCase();
-    const areas = [];
-
-    if (areaText.includes('head') || areaText.includes('голова')) areas.push('Head');
-    if (areaText.includes('body') || areaText.includes('тело')) areas.push('Body');
-    if (areaText.includes('hand') || areaText.includes('рука') || areaText.includes('руки')) areas.push('Hand');
-    if (areaText.includes('leg') || areaText.includes('нога') || areaText.includes('ноги')) areas.push('Leg');
-
-    return areas;
+    return [];
   };
 
   const getSlotsForArea = (item) => {
@@ -299,7 +314,7 @@ const InventoryScreen = () => {
     const alreadyEquippedCount = equippedWeapons.filter(w => w && (w.stackKey || getStackKey(w)) === sourceStackKey).length;
 
     if (totalOwned <= alreadyEquippedCount) {
-        Alert.alert("Ошибка", "Нет доступных предметов для экипировки.");
+        Alert.alert(tInventory('screen.alerts.noItemsTitle'), tInventory('screen.alerts.noItemsMessage'));
         return;
     }
 
@@ -334,7 +349,7 @@ const InventoryScreen = () => {
                     ...replacedWeapon,
                     itemType: getItemType(replacedWeapon),
                     stackKey: replacedStackKey,
-                    quantity: 1,
+                    quantity,
                     uniqueId: undefined,
                 });
             }
@@ -361,17 +376,17 @@ const InventoryScreen = () => {
       // Используем confirm для веб-версии и Alert.alert для мобильной
       if (typeof window !== 'undefined' && window.confirm) {
         // Веб-версия - просто заменяем первое оружие
-        if (window.confirm("Заменить оружие 1?")) {
+        if (window.confirm(`${tInventory('screen.alerts.replaceWeaponTitle')} 1?`)) {
           equipAction(0);
         }
       } else {
         // Мобильная версия
         Alert.alert(
-          "Заменить оружие", "Какое оружие вы хотите заменить?",
+          tInventory('screen.alerts.replaceWeaponTitle'), tInventory('screen.alerts.replaceWeaponMessage'),
           [
-            { text: "Оружие 1", onPress: () => equipAction(0) },
-            { text: "Оружие 2", onPress: () => equipAction(1) },
-            { text: "Отмена", style: "cancel" }
+            { text: tInventory('screen.actions.weapon1'), onPress: () => equipAction(0) },
+            { text: tInventory('screen.actions.weapon2'), onPress: () => equipAction(1) },
+            { text: tInventory('screen.actions.cancel'), style: "cancel" }
           ]
         );
       }
@@ -397,7 +412,7 @@ const InventoryScreen = () => {
             } else {
               const weaponToAdd = {
                 ...newEquipped[slot],
-                quantity: 1,
+                quantity,
                 itemType: getItemType(newEquipped[slot]),
                 stackKey,
                 uniqueId: undefined,
@@ -431,7 +446,7 @@ const InventoryScreen = () => {
     }).length;
 
     if (ownedCount <= equippedCount) {
-      Alert.alert("Ошибка", "Нет доступных предметов для экипировки.");
+      Alert.alert(tInventory('screen.alerts.noItemsTitle'), tInventory('screen.alerts.noItemsMessage'));
       return;
     }
 
@@ -501,16 +516,16 @@ const InventoryScreen = () => {
 
       if (instancesToUnequip.size > 0) {
           if (typeof window !== 'undefined' && window.confirm) {
-              if (window.confirm("Надетые предметы будут сняты, чтобы освободить место. Продолжить?")) {
+              if (window.confirm(tInventory('screen.alerts.replaceEquipmentConfirm'))) {
                   performEquip();
               }
           } else {
               Alert.alert(
-                  "Замена экипировки",
-                  "Надетые предметы будут сняты, чтобы освободить место. Продолжить?",
+                  tInventory('screen.alerts.replaceEquipmentTitle'),
+                  tInventory('screen.alerts.replaceEquipmentConfirm'),
                   [
-                      { text: "Отмена", style: "cancel" },
-                      { text: "Да", onPress: performEquip },
+                      { text: tInventory('screen.actions.cancel'), style: "cancel" },
+                      { text: tInventory('screen.actions.yes'), onPress: performEquip },
                   ]
               );
           }
@@ -533,23 +548,23 @@ const InventoryScreen = () => {
 
     const leftSlot = singleLimbSlots[0];
     const rightSlot = singleLimbSlots[1];
-    const leftLabel = leftSlot === 'leftArm' ? 'Левый наруч' : 'Левый понож';
-    const rightLabel = rightSlot === 'rightArm' ? 'Правый наруч' : 'Правый понож';
+    const leftLabel = leftSlot === 'leftArm' ? tInventory('screen.labels.leftArm') : tInventory('screen.labels.leftLeg');
+    const rightLabel = rightSlot === 'rightArm' ? tInventory('screen.labels.rightArm') : tInventory('screen.labels.rightLeg');
 
     if (typeof window !== 'undefined' && window.prompt) {
-      const answer = window.prompt(`Оба слота заняты. Что заменить? Введите 1 (${leftLabel}) или 2 (${rightLabel}).`, '1');
+      const answer = window.prompt(formatInventoryText(tInventory('screen.alerts.bothSlotsBusyPrompt'), { leftLabel, rightLabel }), '1');
       if (answer === '1') executeEquip([leftSlot]);
       if (answer === '2') executeEquip([rightSlot]);
       return;
     }
 
     Alert.alert(
-      "Замена экипировки",
-      "Оба слота заняты. Какой предмет заменить?",
+      tInventory('screen.alerts.replaceEquipmentTitle'),
+      tInventory('screen.alerts.bothSlotsBusy'),
       [
         { text: leftLabel, onPress: () => executeEquip([leftSlot]) },
         { text: rightLabel, onPress: () => executeEquip([rightSlot]) },
-        { text: "Отмена", style: "cancel" },
+        { text: tInventory('screen.actions.cancel'), style: "cancel" },
       ]
     );
   };
@@ -578,8 +593,6 @@ const InventoryScreen = () => {
     if (!equipment?.items) return [];
 
     const equippedItemsList = [];
-    const processedItemNames = new Set(); 
-
     (equippedWeapons || []).forEach((w, i) => {
         if (w) {
             // Убеждаемся, что у экипированного оружия есть itemType
@@ -596,7 +609,7 @@ const InventoryScreen = () => {
               ...displayWeapon,
               itemType: getItemType(w),
               isEquipped: true, 
-              quantity: 1, 
+              quantity, 
               slot: i, 
               stackKey: w.stackKey || getStackKey(w),
               uniqueId: w.uniqueId || `weapon-${getItemName(w)}-${i}`
@@ -623,7 +636,7 @@ const InventoryScreen = () => {
             stackKey,
             equipInstanceId: item.equipInstanceId,
             isEquipped: true,
-            quantity: 1,
+            quantity,
             uniqueId: item.equipInstanceId || `${type}-${getItemName(item)}-${stackKey}`
         });
     });
@@ -675,8 +688,8 @@ const InventoryScreen = () => {
   const renderTableHeader = () => {
     return (
       <View style={styles.tableHeader}>
-        <Text style={[styles.headerText, { flex: 0.7 }]}>ПРЕДМЕТ</Text>
-        <Text style={[styles.headerText, { flex: 0.3, textAlign: 'center' }]}>ДЕЙСТВИЕ</Text>
+        <Text style={[styles.headerText, { flex: 0.7 }]}>{tInventory('screen.labels.item')}</Text>
+        <Text style={[styles.headerText, { flex: 0.3, textAlign: 'center' }]}>{tInventory('screen.labels.action')}</Text>
       </View>
     );
   };
@@ -692,7 +705,7 @@ const InventoryScreen = () => {
     const modifiedItem = getModifiedItem(itemWithType);
     const displayItem = modifiedItem || item;
     
-    const itemName = getItemName(displayItem) || 'Неизвестный предмет';
+    const itemName = getItemName(displayItem) || tInventory('screen.labels.unknownItem');
     const itemIcon = getItemTypeIcon(item.itemType);
     const isEquippable = item.itemType === 'weapon' || item.itemType === 'armor' || item.itemType === 'clothing';
     const isConsumable = item.itemType === 'chem' || item.itemType === 'chems' || item.itemType === 'drinks';
@@ -714,11 +727,9 @@ const InventoryScreen = () => {
     };
     
     const price = parseFloat(
-      displayItem.Cost !== undefined
-        ? displayItem.Cost
-        : (displayItem.Цена !== undefined ? displayItem.Цена : (displayItem.price ?? displayItem.cost))
+      displayItem.cost ?? displayItem.price
     ) || 0;
-    const weightRaw = displayItem.Weight !== undefined ? displayItem.Weight : (displayItem.Вес !== undefined ? displayItem.Вес : displayItem.weight);
+    const weightRaw = displayItem.weight;
     const weight = parseFloat(String(weightRaw).replace(',', '.')) || 0;
 
     return (
@@ -734,7 +745,7 @@ const InventoryScreen = () => {
               <TouchableOpacity 
                   style={[styles.actionButton, item.isEquipped ? styles.unequipButton : {}]} 
                   onPress={handleActionPress}>
-                  <Text style={styles.actionButtonText}>{item.isEquipped ? '↓ Снять' : '↑ Надеть'}</Text>
+                  <Text style={styles.actionButtonText}>{item.isEquipped ? tInventory('screen.actions.unequip') : tInventory('screen.actions.equip')}</Text>
               </TouchableOpacity>
           )}
 
@@ -742,28 +753,45 @@ const InventoryScreen = () => {
               <TouchableOpacity 
                   style={[styles.actionButton, styles.applyButton]} 
                   onPress={() => handleApplyConsumable(item)}>
-                  <Text style={styles.actionButtonText}>Применить</Text>
+                  <Text style={styles.actionButtonText}>{tInventory('screen.actions.apply')}</Text>
               </TouchableOpacity>
           )}
           {!item.isEquipped && (
               <TouchableOpacity style={[styles.actionButton, styles.sellButton]} onPress={() => handleSellItem(item)}>
-                  <Text style={styles.actionButtonText}>Продать</Text>
+                  <Text style={styles.actionButtonText}>{tInventory('screen.actions.sell')}</Text>
               </TouchableOpacity>
           )}
         </View>
         <View style={styles.itemSubRow}>
-          <Text style={styles.itemSubText}>Кол-во: {item.isEquipped ? 1 : item.quantity} шт.</Text>
-          <Text style={styles.itemSubText}>Цена: {item.isEquipped ? price : (price * item.quantity)}</Text>
-          <Text style={styles.itemSubText}>Вес: {item.isEquipped ? Number(weight.toFixed(3)) : Number((weight * item.quantity).toFixed(3))}</Text>
+          <Text style={styles.itemSubText}>{tInventory('screen.labels.quantity')}: {item.isEquipped ? 1 : item.quantity} {tInventory('screen.labels.pieces')}</Text>
+          <Text style={styles.itemSubText}>{tInventory('screen.labels.price')}: {item.isEquipped ? price : (price * item.quantity)}</Text>
+          <Text style={styles.itemSubText}>{tInventory('screen.labels.weight')}: {item.isEquipped ? Number(weight.toFixed(3)) : Number((weight * item.quantity).toFixed(3))}</Text>
         </View>
       </View>
     );
   };
 
   const renderFooter = () => (
-    <TouchableOpacity style={styles.addButtonRow} onPress={() => setAddItemModalVisible(true)}>
-      <Text style={styles.addButtonText}>+</Text>
-    </TouchableOpacity>
+    <View style={styles.footerActions}>
+      <TouchableOpacity
+        style={styles.secondaryActionButton}
+        onPress={() => {
+          setItemSelectionMode('loot');
+          setAddItemModalVisible(true);
+        }}
+      >
+        <Text style={styles.secondaryActionButtonText}>{tInventory('screen.actions.addLoot')}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.secondaryActionButton}
+        onPress={() => {
+          setItemSelectionMode('buy');
+          setAddItemModalVisible(true);
+        }}
+      >
+        <Text style={styles.secondaryActionButtonText}>{tInventory('screen.actions.buyItems')}</Text>
+      </TouchableOpacity>
+    </View>
   );
 
   const totalWeight = useMemo(() => {
@@ -780,7 +808,7 @@ const InventoryScreen = () => {
         const modifiedItem = getModifiedItem(itemWithType);
         const displayItem = modifiedItem || item;
         
-        const weightRaw = displayItem.Weight !== undefined ? displayItem.Weight : (displayItem.Вес !== undefined ? displayItem.Вес : displayItem.weight);
+        const weightRaw = displayItem.weight;
         const weight = parseFloat(String(weightRaw).replace(',', '.')) || 0;
         return acc + (weight * item.quantity);
       }, 0);
@@ -797,7 +825,7 @@ const InventoryScreen = () => {
         const modifiedWeapon = getModifiedItem(weaponWithType);
         const displayWeapon = modifiedWeapon || weapon;
         
-        const weightRaw = displayWeapon.Weight !== undefined ? displayWeapon.Weight : (displayWeapon.Вес !== undefined ? displayWeapon.Вес : displayWeapon.weight);
+        const weightRaw = displayWeapon.weight;
         const weight = parseFloat(String(weightRaw).replace(',', '.')) || 0;
         total += weight;
       }
@@ -806,12 +834,12 @@ const InventoryScreen = () => {
     // Вес экипированной брони и одежды
     Object.values(equippedArmor).forEach(slotData => {
       if (slotData.armor) {
-        const weightRaw = slotData.armor.Weight !== undefined ? slotData.armor.Weight : (slotData.armor.Вес !== undefined ? slotData.armor.Вес : slotData.armor.weight);
+        const weightRaw = slotData.armor.weight;
         const weight = parseFloat(String(weightRaw).replace(',', '.')) || 0;
         total += weight;
       }
       if (slotData.clothing) {
-        const weightRaw = slotData.clothing.Weight !== undefined ? slotData.clothing.Weight : (slotData.clothing.Вес !== undefined ? slotData.clothing.Вес : slotData.clothing.weight);
+        const weightRaw = slotData.clothing.weight;
         const weight = parseFloat(String(weightRaw).replace(',', '.')) || 0;
         total += weight;
       }
@@ -835,9 +863,7 @@ const InventoryScreen = () => {
         const displayItem = modifiedItem || item;
         
         const price = parseFloat(
-          displayItem.Cost !== undefined
-            ? displayItem.Cost
-            : (displayItem.Цена !== undefined ? displayItem.Цена : (displayItem.price ?? displayItem.cost))
+          displayItem.cost ?? displayItem.price
         ) || 0;
         return acc + (price * item.quantity);
       }, 0);
@@ -854,7 +880,7 @@ const InventoryScreen = () => {
         const modifiedWeapon = getModifiedItem(weaponWithType);
         const displayWeapon = modifiedWeapon || weapon;
         
-        const price = parseFloat(displayWeapon.Cost !== undefined ? displayWeapon.Cost : (displayWeapon.Цена !== undefined ? displayWeapon.Цена : displayWeapon.price)) || 0;
+        const price = parseFloat(displayWeapon.cost ?? displayWeapon.price) || 0;
         total += price;
       }
     });
@@ -862,11 +888,11 @@ const InventoryScreen = () => {
     // Цена экипированной брони и одежды
     Object.values(equippedArmor).forEach(slotData => {
       if (slotData.armor) {
-        const price = parseFloat(slotData.armor.Cost !== undefined ? slotData.armor.Cost : (slotData.armor.Цена !== undefined ? slotData.armor.Цена : slotData.armor.price)) || 0;
+        const price = parseFloat(slotData.armor.cost ?? slotData.armor.price) || 0;
         total += price;
       }
       if (slotData.clothing) {
-        const price = parseFloat(slotData.clothing.Cost !== undefined ? slotData.clothing.Cost : (slotData.clothing.Цена !== undefined ? slotData.clothing.Цена : slotData.clothing.price)) || 0;
+        const price = parseFloat(slotData.clothing.cost ?? slotData.clothing.price) || 0;
         total += price;
       }
     });
@@ -894,21 +920,15 @@ const InventoryScreen = () => {
               renderItem={renderItem}
               keyExtractor={(item, index) => item.uniqueId || `${getItemName(item)}-${index}`}
               style={styles.list}
-              ListEmptyComponent={<Text style={styles.emptyListText}>Инвентарь пуст</Text>}
+              ListEmptyComponent={<Text style={styles.emptyListText}>{tInventory('screen.labels.inventoryEmpty')}</Text>}
               ListFooterComponent={renderFooter}
             />
           </View>
           <View style={styles.summaryContainer}>
-            <Text style={styles.summaryText}>Общий вес: {totalWeight}</Text>
-            <Text style={styles.summaryText}>Общая цена: {totalPrice}</Text>
+            <Text style={styles.summaryText}>{tInventory('screen.labels.totalWeight')}: {totalWeight}</Text>
+            <Text style={styles.summaryText}>{tInventory('screen.labels.totalPrice')}: {totalPrice}</Text>
           </View>
         </View>
-        <AddWeaponModal
-          visible={isAddWeaponModalVisible}
-          onClose={() => setIsAddWeaponModalVisible(false)}
-          weapons={[]}
-          onSelectWeapon={handleAddItem}
-        />
         <CapsModal
           visible={isCapsModalVisible}
           onClose={() => setIsCapsModalVisible(false)}
@@ -924,7 +944,18 @@ const InventoryScreen = () => {
         <AddItemModal
           visible={isAddItemModalVisible}
           onClose={() => setAddItemModalVisible(false)}
-          onSelectItem={handleAddItem}
+          onSelectItem={handleSelectCatalogItem}
+          rootTitleKey={itemSelectionMode === 'buy' ? 'modals.addItemModal.buyTitle' : 'modals.addItemModal.title'}
+        />
+        <BuyItemModal
+          visible={isBuyItemModalVisible}
+          onClose={() => {
+            setIsBuyItemModalVisible(false);
+            setSelectedItemForBuy(null);
+          }}
+          item={selectedItemForBuy}
+          caps={caps}
+          onConfirmBuy={handleConfirmBuy}
         />
 
       </SafeAreaView>
@@ -1087,19 +1118,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#000',
   },
-  addButtonRow: {
-    backgroundColor: 'rgba(0, 255, 0, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-    borderStyle: 'dashed',
+  footerActions: {
+    marginTop: 12,
+    gap: 10,
+    paddingBottom: 8,
   },
-  addButtonText: {
-    fontSize: 24,
-    color: '#000',
-    fontWeight: 'bold',
+  secondaryActionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#333',
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  secondaryActionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
   }
 });
 

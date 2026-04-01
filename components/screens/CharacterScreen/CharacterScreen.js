@@ -697,6 +697,8 @@ export default function CharacterScreen() {
 
     const oldForcedSkills = oldTrait?.modifiers?.forcedSkills || [];
     const newForcedSkills = newTrait?.modifiers?.forcedSkills || [];
+    const oldSelectedExtraSkills = oldTrait?.modifiers?.selectedExtraSkills || [];
+    const newSelectedExtraSkills = newTrait?.modifiers?.selectedExtraSkills || [];
 
     // Обновляем список обязательных навыков
     setForcedSelectedSkills((currentForced) => {
@@ -717,15 +719,15 @@ export default function CharacterScreen() {
     // Обновляем экстра навыки (forced skills теперь идут сюда)
     setExtraTaggedSkills((currentExtra) => {
       const withoutOld = currentExtra.filter(
-        (skill) => !oldForcedSkills.includes(skill),
+        (skill) => !oldForcedSkills.includes(skill) && !oldSelectedExtraSkills.includes(skill),
       );
-      return [...new Set([...withoutOld, ...newForcedSkills])];
+      return [...new Set([...withoutOld, ...newForcedSkills, ...newSelectedExtraSkills])];
     });
 
     setSkills((currentSkills) => {
       let tempSkills = [...currentSkills];
       // Отменяем +2 от старых обязательных навыков
-      oldForcedSkills.forEach((skillName) => {
+      [...oldForcedSkills, ...oldSelectedExtraSkills].forEach((skillName) => {
         const index = tempSkills.findIndex((s) => s.name === skillName);
         if (index > -1) {
           tempSkills[index] = {
@@ -735,7 +737,7 @@ export default function CharacterScreen() {
         }
       });
       // Применяем +2 к новым об��зательным навыкам (если их значение < 2)
-      newForcedSkills.forEach((skillName) => {
+      [...newForcedSkills, ...newSelectedExtraSkills].forEach((skillName) => {
         const index = tempSkills.findIndex((s) => s.name === skillName);
         if (index > -1 && tempSkills[index].value < 2) {
           tempSkills[index] = { ...tempSkills[index], value: 2 };

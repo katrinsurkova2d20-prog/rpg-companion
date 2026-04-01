@@ -1,6 +1,6 @@
 import { getWeaponById, getWeaponModById, getAmmoById, getItemByName } from '../../../db/Database';
-import { resolveRandomLoot } from '../CharacterScreen/logic/RandomLootLogic';
-import { evaluateFormula } from '../CharacterScreen/logic/Calculator';
+import { resolveRandomLootByRoll } from '../CharacterScreen/logic/RandomLootLogic';
+import { evaluateRollConfig } from '../CharacterScreen/logic/Calculator';
 import { getEquipmentCatalog } from '../../../i18n/equipmentCatalog';
 
 const CURRENCY_NAMES = {
@@ -22,7 +22,7 @@ const resolveRollQuantity = (quantity = {}) => {
   const base = toNumber(quantity.base);
   if (quantity.rollType === 'rollCD' && quantity.rollValue) {
     const op = quantity.op === '-' ? '-' : '+';
-    return evaluateFormula(`${base}${op}${toNumber(quantity.rollValue)}fn{CD}`);
+    return evaluateRollConfig({ base, rollType: 'rollCD', rollValue: toNumber(quantity.rollValue), op });
   }
   return base;
 };
@@ -145,12 +145,12 @@ export async function resolveNonWeaponItem(item) {
   if (item.type === 'rollTable') {
     const count = resolveTableRollCount(item.roll);
     const tableId = ROLL_TABLE_TAG[item.tableId] || item.tableId;
-    const resolved = await resolveRandomLoot(`${count}d20<${tableId}>`);
-    if (Array.isArray(resolved)) {
-      return { ...resolved[0], _extraItems: resolved.slice(1), itemType: 'loot' };
+    const resolvedItems = await resolveRandomLootByRoll(tableId, count);
+    if (resolvedItems.length > 1) {
+      return { ...resolvedItems[0], _extraItems: resolvedItems.slice(1), itemType: 'loot' };
     }
-    if (resolved) {
-      return { ...resolved, itemType: 'loot' };
+    if (resolvedItems.length === 1) {
+      return { ...resolvedItems[0], itemType: 'loot' };
     }
     return { ...item, name: `${count}d20<${tableId}>`, itemType: 'loot' };
   }

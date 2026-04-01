@@ -15,7 +15,7 @@ const VaultDwellerModal = ({ visible, onSelect, onClose, skills }) => {
 
   const handleSelectSkill = (skill) => {
     onSelect(trait.name, { 
-      skill: skill,
+      selectedExtraSkills: [skill],
       effects: trait.effects 
     });
   };

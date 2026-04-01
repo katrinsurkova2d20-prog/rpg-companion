@@ -37,71 +37,6 @@ const ORIGIN_DESCRIPTIONS = {
   savage: 'Племенные жители пустошей',
 };
 
-const KIT_CATEGORY_BY_ITEM_TYPE = {
-  weapon: 'weapons',
-  armor: 'armor',
-  clothing: 'clothing',
-};
-
-const toFormulaString = (quantity = {}) => {
-  const { base = 0, rollType, rollValue = 0, op = '+' } = quantity;
-  if (!rollType || !rollValue) {
-    return `${base}`;
-  }
-
-  if (rollType === 'rollCD') {
-    return `${base}${op}${rollValue}fn{CD}`;
-  }
-
-  return `${base}`;
-};
-
-const mapFixedItem = (item) => {
-  if (item.type === 'rollTable') {
-    const count = item.roll?.count || 1;
-    return {
-      type: 'fixed',
-      name: `${count}d20<${item.tableId}>`,
-      itemType: 'loot',
-    };
-  }
-
-  return {
-    type: 'fixed',
-    ...item,
-    ...(item.ammo ? { ammunition: `${toFormulaString(item.ammo.quantity)}<ammo>` } : {}),
-  };
-};
-
-const mapChoiceOption = (option) => {
-  if (option.group) {
-    return { group: option.group.map(mapFixedItem) };
-  }
-  return mapFixedItem(option);
-};
-
-const mapKitItemsToLegacyCategories = (kitGroup) => {
-  const prepared = {
-    name: kitGroup.name,
-    weapons: [],
-    armor: [],
-    clothing: [],
-    miscellaneous: [],
-  };
-
-  (kitGroup.items || []).forEach((entry) => {
-    const normalizedEntry = entry.type === 'choice'
-      ? { type: 'choice', options: (entry.items || []).map(mapChoiceOption) }
-      : mapFixedItem(entry);
-
-    const entryType = normalizedEntry.itemType || entry.itemType;
-    const targetCategory = KIT_CATEGORY_BY_ITEM_TYPE[entryType] || 'miscellaneous';
-    prepared[targetCategory].push(normalizedEntry);
-  });
-
-  return prepared;
-};
-
 const equipmentKitGroups = equipmentKitsData.equipmentKitGroups || {};
 
 export const ORIGINS = (equipmentKitsData.origins || []).map((origin) => ({
@@ -109,11 +44,8 @@ export const ORIGINS = (equipmentKitsData.origins || []).map((origin) => ({
   name: origin.name,
   description: ORIGIN_DESCRIPTIONS[origin.id],
   image: ORIGIN_IMAGES[origin.id],
-  ...(origin.id === 'robobrain'
-    ? { immunity: { radiation: true, poison: true } }
-    : {}),
+  ...(origin.id === 'robobrain' ? { immunity: { radiation: true, poison: true } } : {}),
   equipmentKits: (origin.equipmentKits || [])
-    .map((kitId) => equipmentKitGroups[kitId])
-    .filter(Boolean)
-    .map(mapKitItemsToLegacyCategories),
+    .map((kitId) => ({ id: kitId, ...(equipmentKitGroups[kitId] || {}) }))
+    .filter((kit) => Array.isArray(kit.items)),
 }));

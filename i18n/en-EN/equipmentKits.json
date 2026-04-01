@@ -1,0 +1,1465 @@
+{
+  "origins": [
+    {
+      "id": "brotherhood",
+      "name": "Братство Стали",
+      "equipmentKits": ["brotherhood_initiate", "brotherhood_scribe"]
+    },
+    {
+      "id": "ncr",
+      "name": "Житель НКР",
+      "equipmentKits": ["ncr_infantry", "ncr_caravaneer", "ncr_marksman"]
+    },
+    {
+      "id": "minuteman",
+      "name": "Минитмен",
+      "equipmentKits": ["minuteman_shooter", "minuteman_skirmisher"]
+    },
+    {
+      "id": "childOfAtom",
+      "name": "Дитя Атома",
+      "equipmentKits": ["atom_missionary", "atom_zealot"]
+    },
+    {
+      "id": "vaultDweller",
+      "name": "Обитатель убежища",
+      "equipmentKits": ["vault_security", "vault_resident"]
+    },
+    {
+      "id": "ghoul",
+      "name": "Гуль",
+      "equipmentKits": ["wastelander_mercenary", "wastelander_settler", "wastelander_wanderer", "wastelander_raider", "wastelander_trader"]
+    },
+    {
+      "id": "survivor",
+      "name": "Выживший",
+      "equipmentKits": ["wastelander_mercenary", "wastelander_settler", "wastelander_wanderer", "wastelander_raider", "wastelander_trader"]
+    },
+    {
+      "id": "superMutant",
+      "name": "Супермутант",
+      "equipmentKits": ["supermutant_bruiser", "supermutant_skirmisher"]
+    },
+    {
+      "id": "brotherhoodOutcast",
+      "name": "Изгой Братства Стали",
+      "equipmentKits": ["outcast_former_knight", "outcast_former_scribe"]
+    },
+    {
+      "id": "robobrain",
+      "name": "Робомозг",
+      "equipmentKits": ["robobrain_hypnotron"]
+    },
+    {
+      "id": "securitron",
+      "name": "Секьюритрон",
+      "equipmentKits": ["default_caps_only"]
+    },
+    {
+      "id": "assaultron",
+      "name": "Штурмотрон",
+      "equipmentKits": ["default_caps_only"]
+    },
+    {
+      "id": "misterHandy",
+      "name": "Мистер Помощник",
+      "equipmentKits": ["default_caps_only"]
+    },
+    {
+      "id": "protectron",
+      "name": "Протектрон",
+      "equipmentKits": ["default_caps_only"]
+    },
+    {
+      "id": "shadow",
+      "name": "Тень",
+      "equipmentKits": ["default_caps_only"]
+    },
+    {
+      "id": "synth",
+      "name": "Синт",
+      "equipmentKits": ["default_caps_only"]
+    },
+    {
+      "id": "savage",
+      "name": "Дикарь",
+      "equipmentKits": ["default_caps_only"]
+    }
+  ],
+  "equipmentKitGroups": {
+    "brotherhood_initiate": {
+      "name": "Комплект Посвященного",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_bos_uniform",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "clothingId": "headwear_bos_hood",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_029",
+          "itemType": "weapon"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_018",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_019",
+                "quantity": {
+                  "base": 5,
+                  "rollType": "rollCD",
+                  "rollValue": 5,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_002",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_013",
+                "quantity": {
+                  "base": 5,
+                  "rollType": "rollCD",
+                  "rollValue": 5,
+                  "op": "+"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_holotags",
+          "itemType": "misc"
+        }
+      ]
+    },
+    "brotherhood_scribe": {
+      "name": "Комплект Писца",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_bos_scribe_armor",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "clothingId": "headwear_bos_scribe_hat",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_029",
+          "itemType": "weapon"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_018",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_019",
+                "quantity": {
+                  "base": 3,
+                  "rollType": "rollCD",
+                  "rollValue": 3,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_002",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_013",
+                "quantity": {
+                  "base": 3,
+                  "rollType": "rollCD",
+                  "rollValue": 3,
+                  "op": "+"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_holotags",
+          "itemType": "misc"
+        }
+      ]
+    },
+    "ncr_infantry": {
+      "name": "Пехотинец НКР",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_military_fatigues",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "clothingId": "headwear_military_helmet",
+          "itemType": "clothing"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_005",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_017",
+                "quantity": {
+                  "base": 4,
+                  "rollType": "rollCD",
+                  "rollValue": 4,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_009",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_016",
+                "quantity": {
+                  "base": 3,
+                  "rollType": "rollCD",
+                  "rollValue": 3,
+                  "op": "+"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_002",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_013",
+                "quantity": {
+                  "base": 4,
+                  "rollType": "rollCD",
+                  "rollValue": 4,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_029",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "rollTable",
+          "tableId": "food",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemId": "food_purified_water",
+          "itemType": "food"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency_ncr",
+          "quantity": {
+            "base": 5,
+            "rollType": "rollCD",
+            "rollValue": 5,
+            "op": "+"
+          }
+        }
+      ]
+    },
+    "ncr_caravaneer": {
+      "name": "Багровый караванщик",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_sturdy_clothes",
+          "itemType": "clothing"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "armorId": "armor_leather_chest_001",
+              "itemType": "armor"
+            },
+            {
+              "group": [
+                {
+                  "type": "fixed",
+                  "armorId": "armor_leather_hand_001",
+                  "itemType": "armor"
+                },
+                {
+                  "type": "fixed",
+                  "armorId": "armor_leather_leg_001",
+                  "itemType": "armor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_010",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_016",
+            "quantity": {
+              "base": 3,
+              "rollType": "rollCD",
+              "rollValue": 3,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_029",
+              "itemType": "weapon"
+            },
+            {
+              "group": [
+                {
+                  "type": "fixed",
+                  "weaponId": "weapon_048",
+                  "itemType": "weapon"
+                },
+                {
+                  "type": "fixed",
+                  "weaponId": "weapon_048",
+                  "itemType": "weapon"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_pack_brahmin",
+          "itemType": "misc"
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "food",
+          "roll": {
+            "rollType": "D20",
+            "count": 3,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "brewery",
+          "roll": {
+            "rollType": "D20",
+            "count": 2,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_playing_cards",
+          "itemType": "misc"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency_ncr",
+          "quantity": {
+            "base": 2,
+            "rollType": "D20",
+            "rollValue": 20,
+            "op": "multiply"
+          }
+        }
+      ]
+    },
+    "ncr_marksman": {
+      "name": "Меткий стрелок НКР",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_military_fatigues",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "clothingId": "headwear_military_helmet",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_007",
+          "itemType": "weapon",
+          "modIds": ["mod_005", "mod_035"],
+          "ammo": {
+            "ammoId": "ammo_014",
+            "quantity": {
+              "base": 3,
+              "rollType": "rollCD",
+              "rollValue": 3,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "fixed",
+          "itemId": "chem_022",
+          "itemType": "chem"
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_us_special_ops_manual",
+          "itemType": "misc"
+        }
+      ]
+    },
+    "minuteman_shooter": {
+      "name": "Стрелок Минитмен",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_casual_clothes",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "clothingId": "headwear_casual_hat",
+          "itemType": "clothing"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "armorId": "armor_leather_chest_001",
+              "itemType": "armor"
+            },
+            {
+              "armorId": "armor_leather_hand_001",
+              "itemType": "armor"
+            }
+          ]
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_017",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_019",
+                "quantity": {
+                  "base": 7,
+                  "rollType": "rollCD",
+                  "rollValue": 7,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_007",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_014",
+                "quantity": {
+                  "base": 3,
+                  "rollType": "rollCD",
+                  "rollValue": 3,
+                  "op": "+"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "rollTable",
+          "tableId": "food",
+          "roll": {
+            "rollType": "D20",
+            "count": 4,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 5
+        }
+      ]
+    },
+    "minuteman_skirmisher": {
+      "name": "Застрельщик Минитмен",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_casual_clothes",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "clothingId": "headwear_military_helmet",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "armorId": "armor_metal_chest_001",
+          "itemType": "armor"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_010",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_016",
+                "quantity": {
+                  "base": 3,
+                  "rollType": "rollCD",
+                  "rollValue": 3,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_008",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_017",
+                "quantity": {
+                  "base": 4,
+                  "rollType": "rollCD",
+                  "rollValue": 4,
+                  "op": "+"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "rollTable",
+          "tableId": "chem",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 5
+        }
+      ]
+    },
+    "atom_missionary": {
+      "name": "Миссионер Атома",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_sturdy_clothes",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_045",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_020",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_020",
+            "quantity": {
+              "base": 2,
+              "rollType": "rollCD",
+              "rollValue": 2,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "fixed",
+          "itemId": "chem_005",
+          "itemType": "chem"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 10
+        },
+        {
+          "type": "rollTable",
+          "tableId": "food",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        }
+      ]
+    },
+    "atom_zealot": {
+      "name": "Зилот Атома",
+      "items": [
+        {
+          "type": "choice",
+          "items": [
+            {
+              "clothingId": "clothing_sturdy_clothes",
+              "itemType": "clothing"
+            },
+            {
+              "clothingId": "clothing_nomad_outfit",
+              "itemType": "clothing"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "clothingId": "headwear_gas_mask",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_030",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_020",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_020",
+            "quantity": {
+              "base": 2,
+              "rollType": "rollCD",
+              "rollValue": 2,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "food",
+          "roll": {
+            "rollType": "D20",
+            "count": 2,
+            "mode": "separate"
+          }
+        }
+      ]
+    },
+    "vault_security": {
+      "name": "Охранник Убежища",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_vault_jumpsuit",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "armorId": "armor_vault_chest_001",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "armorId": "armor_vault_head_001",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_041",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_002",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_013",
+            "quantity": {
+              "base": 4,
+              "rollType": "rollCD",
+              "rollValue": 4,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "fixed",
+          "itemId": "chem_005",
+          "itemType": "chem"
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_pipboy",
+          "itemType": "misc"
+        }
+      ]
+    },
+    "vault_resident": {
+      "name": "Житель Убежища",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_vault_jumpsuit",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_033",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_002",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_013",
+            "quantity": {
+              "base": 3,
+              "rollType": "rollCD",
+              "rollValue": 3,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "fixed",
+          "itemId": "chem_005",
+          "itemType": "chem",
+          "quantity": 2
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_pipboy",
+          "itemType": "misc"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 10
+        }
+      ]
+    },
+    "wastelander_mercenary": {
+      "name": "Наемник Пустоши",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_sturdy_clothes",
+          "itemType": "clothing"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "armorId": "armor_leather_chest_001",
+              "itemType": "armor"
+            },
+            {
+              "group": [
+                {
+                  "type": "fixed",
+                  "armorId": "armor_leather_hand_001",
+                  "itemType": "armor"
+                },
+                {
+                  "type": "fixed",
+                  "armorId": "armor_leather_leg_001",
+                  "itemType": "armor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_034",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_044",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_002",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_013",
+                "quantity": {
+                  "base": 5,
+                  "rollType": "rollCD",
+                  "rollValue": 5,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_001",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_023",
+                "quantity": {
+                  "base": 5,
+                  "rollType": "rollCD",
+                  "rollValue": 5,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_007",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_014",
+                "quantity": {
+                  "base": 5,
+                  "rollType": "rollCD",
+                  "rollValue": 5,
+                  "op": "+"
+                }
+              }
+            },
+            {
+              "weaponId": "weapon_012",
+              "itemType": "weapon",
+              "ammo": {
+                "ammoId": "ammo_012",
+                "quantity": {
+                  "base": 5,
+                  "rollType": "rollCD",
+                  "rollValue": 5,
+                  "op": "+"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_settlement_job_posting",
+          "itemType": "misc"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 15
+        }
+      ]
+    },
+    "wastelander_settler": {
+      "name": "Поселенец Пустоши",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_sturdy_clothes",
+          "itemType": "clothing"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_033",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_038",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_040",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_048",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_012",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_012",
+            "quantity": {
+              "base": 3,
+              "rollType": "rollCD",
+              "rollValue": 3,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "food",
+          "roll": {
+            "rollType": "D20",
+            "count": 2,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 45
+        }
+      ]
+    },
+    "wastelander_wanderer": {
+      "name": "Путешественник Пустоши",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_nomad_outfit",
+          "itemType": "clothing"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_033",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_038",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_040",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_048",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_012",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_012",
+            "quantity": {
+              "base": 4,
+              "rollType": "rollCD",
+              "rollValue": 4,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "itemId": "chem_019",
+              "itemType": "chem"
+            },
+            {
+              "itemId": "chem_008",
+              "itemType": "chem"
+            }
+          ]
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 30
+        }
+      ]
+    },
+    "wastelander_raider": {
+      "name": "Рейдер Пустоши",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_harness",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "armorId": "armor_raider_chest_001",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "armorId": "armor_raider_hand_001",
+          "itemType": "armor"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_037",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_039",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_044",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_012",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_012",
+            "quantity": {
+              "base": 5,
+              "rollType": "rollCD",
+              "rollValue": 5,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "itemId": "chem_019",
+              "itemType": "chem"
+            },
+            {
+              "itemId": "chem_008",
+              "itemType": "chem"
+            }
+          ]
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_055",
+              "itemType": "weapon"
+            },
+            {
+              "itemId": "chem_005",
+              "itemType": "chem"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 15
+        }
+      ]
+    },
+    "wastelander_trader": {
+      "name": "Торговец Пустоши",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_sturdy_clothes",
+          "itemType": "clothing"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "armorId": "armor_leather_chest_001",
+              "itemType": "armor"
+            },
+            {
+              "group": [
+                {
+                  "type": "fixed",
+                  "armorId": "armor_leather_hand_001",
+                  "itemType": "armor"
+                },
+                {
+                  "type": "fixed",
+                  "armorId": "armor_leather_leg_001",
+                  "itemType": "armor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_012",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_012",
+            "quantity": {
+              "base": 4,
+              "rollType": "rollCD",
+              "rollValue": 4,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "tables",
+          "roll": {
+            "rollType": "D20",
+            "count": 3,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_pack_brahmin",
+          "itemType": "misc"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 50
+        }
+      ]
+    },
+    "supermutant_bruiser": {
+      "name": "Громила",
+      "items": [
+        {
+          "type": "fixed",
+          "armorId": "armor_raider_chest_001",
+          "itemType": "armor"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "armorId": "armor_raider_hand_001",
+              "itemType": "armor"
+            },
+            {
+              "armorId": "armor_raider_leg_001",
+              "itemType": "armor"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_012",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_012",
+            "quantity": {
+              "base": 3,
+              "rollType": "rollCD",
+              "rollValue": 3,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "weapon_034",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "weapon_030",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 5
+        }
+      ]
+    },
+    "supermutant_skirmisher": {
+      "name": "Застрельщик Супермутантов",
+      "items": [
+        {
+          "type": "fixed",
+          "armorId": "armor_raider_chest_001",
+          "itemType": "armor"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "armorId": "armor_raider_hand_001",
+              "itemType": "armor"
+            },
+            {
+              "armorId": "armor_raider_leg_001",
+              "itemType": "armor"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_011",
+          "itemType": "weapon",
+          "modIds": ["mod_005"],
+          "ammo": {
+            "ammoId": "ammo_014",
+            "quantity": {
+              "base": 4,
+              "rollType": "rollCD",
+              "rollValue": 4,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_036",
+          "itemType": "weapon"
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 5
+        }
+      ]
+    },
+    "outcast_former_knight": {
+      "name": "Бывший рыцарь",
+      "items": [
+        {
+          "type": "fixed",
+          "clothingId": "clothing_bos_uniform",
+          "itemType": "clothing"
+        },
+        {
+          "type": "fixed",
+          "itemId": "food_purified_water",
+          "itemType": "food"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_017",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_019",
+            "quantity": {
+              "base": 4,
+              "rollType": "rollCD",
+              "rollValue": 6,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "outcast",
+          "roll": {
+            "rollType": "D20",
+            "count": 2,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 10
+        }
+      ]
+    },
+    "outcast_former_scribe": {
+      "name": "Бывший писец",
+      "items": [
+        {
+          "type": "fixed",
+          "armorId": "armor_bos_scribe_worn",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "weapon_018",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_019",
+            "quantity": {
+              "base": 4,
+              "rollType": "rollCD",
+              "rollValue": 4,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "fixed",
+          "itemId": "misc_multitool",
+          "itemType": "misc"
+        },
+        {
+          "type": "rollTable",
+          "tableId": "outcast",
+          "roll": {
+            "rollType": "D20",
+            "count": 3,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 15
+        }
+      ]
+    },
+    "robobrain_hypnotron": {
+      "name": "Гипнотрон",
+      "items": [
+        {
+          "type": "fixed",
+          "weaponId": "weapon_067",
+          "itemType": "weapon",
+          "ammo": {
+            "ammoId": "ammo_020",
+            "quantity": {
+              "base": 5,
+              "rollType": "rollCD",
+              "rollValue": 5,
+              "op": "+"
+            }
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "food",
+          "roll": {
+            "rollType": "D20",
+            "count": 2,
+            "mode": "separate"
+          }
+        },
+        {
+          "type": "rollTable",
+          "tableId": "trinklet",
+          "roll": {
+            "rollType": "D20",
+            "count": 1,
+            "mode": "separate"
+          }
+        }
+      ]
+    },
+    "default_caps_only": {
+      "name": "Стартовый капитал",
+      "items": [
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 100
+        }
+      ]
+    }
+  }
+}

@@ -26,6 +26,7 @@
   "actions": {
     "cancel": "Cancel",
     "yes": "Yes",
+    "weapon": "Weapon",
     "weapon1": "Weapon 1",
     "weapon2": "Weapon 2",
     "self": "Self",

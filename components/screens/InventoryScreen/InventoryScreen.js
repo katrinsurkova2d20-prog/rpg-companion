@@ -373,19 +373,37 @@ const InventoryScreen = () => {
     if (freeSlotIndex !== -1) {
         equipAction(freeSlotIndex);
     } else {
-      // Используем confirm для веб-версии и Alert.alert для мобильной
-      if (typeof window !== 'undefined' && window.confirm) {
-        // Веб-версия - просто заменяем первое оружие
-        if (window.confirm(`${tInventory('screen.alerts.replaceWeaponTitle')} 1?`)) {
-          equipAction(0);
+      const equippedOptions = equippedWeapons
+        .map((weapon, index) => ({
+          index,
+          name: getItemName(weapon) || `${tInventory('screen.actions.weapon')} ${index + 1}`,
+        }))
+        .filter(({ name }) => Boolean(name));
+
+      const optionsText = equippedOptions
+        .map(({ index, name }) => `${index + 1}. ${name}`)
+        .join('\n');
+      const replaceMessage = optionsText
+        ? `${tInventory('screen.alerts.replaceWeaponMessage')}\n\n${optionsText}`
+        : tInventory('screen.alerts.replaceWeaponMessage');
+
+      if (typeof window !== 'undefined' && window.prompt) {
+        const answer = window.prompt(replaceMessage, '1');
+        const selectedIndex = Number(answer) - 1;
+        if (Number.isInteger(selectedIndex) && selectedIndex >= 0 && selectedIndex < equippedWeapons.length) {
+          equipAction(selectedIndex);
         }
       } else {
-        // Мобильная версия
+        const replaceButtons = equippedOptions.map(({ index, name }) => ({
+          text: name,
+          onPress: () => equipAction(index),
+        }));
+
         Alert.alert(
-          tInventory('screen.alerts.replaceWeaponTitle'), tInventory('screen.alerts.replaceWeaponMessage'),
+          tInventory('screen.alerts.replaceWeaponTitle'),
+          replaceMessage,
           [
-            { text: tInventory('screen.actions.weapon1'), onPress: () => equipAction(0) },
-            { text: tInventory('screen.actions.weapon2'), onPress: () => equipAction(1) },
+            ...replaceButtons,
             { text: tInventory('screen.actions.cancel'), style: "cancel" }
           ]
         );

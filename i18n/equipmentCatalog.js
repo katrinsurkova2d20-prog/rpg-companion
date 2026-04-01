@@ -28,7 +28,13 @@ import enDrinks from './en-EN/drinks.json';
 import enMisc from './en-EN/miscellaneous.json';
 import enAmmoData from './en-EN/ammoData.json';
 
-import { flattenArmorCatalog, groupArmorForPicker, normalizeClothesCatalog, buildArmorIndex } from './equipmentNormalizer';
+import {
+  flattenArmorCatalog,
+  groupArmorForPicker,
+  normalizeClothesCatalog,
+  buildArmorIndex,
+  normalizeWeaponsCatalog,
+} from './equipmentNormalizer';
 import { getCurrentLocale, normalizeLocale } from './locale';
 
 const EQUIPMENT_BY_LOCALE = {
@@ -91,9 +97,11 @@ export const getEquipmentCatalog = (locale = getCurrentLocale()) => {
   const baseCatalog = EQUIPMENT_BY_LOCALE[normalized] || EQUIPMENT_BY_LOCALE['ru-RU'];
   const armorPickerGroups = groupArmorForPicker(baseCatalog.armor);
   const normalizedClothes = normalizeClothesCatalog(baseCatalog.clothes);
+  const normalizedWeapons = normalizeWeaponsCatalog(baseCatalog.weapons);
 
   return {
     ...baseCatalog,
+    weapons: normalizedWeapons,
     armorRaw: baseCatalog.armor,
     armor: { armor: armorPickerGroups },
     armorList: flattenArmorCatalog(baseCatalog.armor),

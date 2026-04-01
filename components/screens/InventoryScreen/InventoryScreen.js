@@ -772,26 +772,43 @@ const InventoryScreen = () => {
   };
 
   const renderFooter = () => (
+<<<<<<< codex/upgrade-inventory-to-full-i18n-support-mj7y24
     <View style={styles.footerActionsRow}>
       <TouchableOpacity
         style={styles.addActionCell}
+=======
+    <View style={styles.footerActions}>
+      <TouchableOpacity
+        style={styles.secondaryActionButton}
+>>>>>>> main
         onPress={() => {
           setItemSelectionMode('loot');
           setAddItemModalVisible(true);
         }}
       >
+<<<<<<< codex/upgrade-inventory-to-full-i18n-support-mj7y24
         <Text style={styles.addActionIcon}>+</Text>
         <Text style={styles.addActionLabel}>{tInventory('screen.actions.addLoot')}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.addActionCell}
+=======
+        <Text style={styles.secondaryActionButtonText}>{tInventory('screen.actions.addLoot')}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.secondaryActionButton}
+>>>>>>> main
         onPress={() => {
           setItemSelectionMode('buy');
           setAddItemModalVisible(true);
         }}
       >
+<<<<<<< codex/upgrade-inventory-to-full-i18n-support-mj7y24
         <Text style={styles.addActionIcon}>+</Text>
         <Text style={styles.addActionLabel}>{tInventory('screen.actions.buyItems')}</Text>
+=======
+        <Text style={styles.secondaryActionButtonText}>{tInventory('screen.actions.buyItems')}</Text>
+>>>>>>> main
       </TouchableOpacity>
     </View>
   );
@@ -1120,6 +1137,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#000',
   },
+<<<<<<< codex/upgrade-inventory-to-full-i18n-support-mj7y24
   footerActionsRow: {
     marginTop: 12,
     flexDirection: 'row',
@@ -1148,6 +1166,24 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: '600',
     textAlign: 'center',
+=======
+  footerActions: {
+    marginTop: 12,
+    gap: 10,
+    paddingBottom: 8,
+  },
+  secondaryActionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#333',
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  secondaryActionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+>>>>>>> main
   }
 });
 

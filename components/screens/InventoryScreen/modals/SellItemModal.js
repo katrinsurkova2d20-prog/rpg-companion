@@ -85,8 +85,13 @@ const SellItemModal = ({ visible, onClose, item, onConfirmSale }) => {
 };
 
 const styles = StyleSheet.create({
+<<<<<<< codex/upgrade-inventory-to-full-i18n-support-mj7y24
   modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)', paddingHorizontal: 16 },
   modalContent: { width: '100%', maxWidth: 560, backgroundColor: '#fff', borderRadius: 10, padding: 20, alignItems: 'center' },
+=======
+  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)' },
+  modalContent: { width: '90%', backgroundColor: '#fff', borderRadius: 10, padding: 20, alignItems: 'center' },
+>>>>>>> main
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
   controlContainer: { width: '100%', marginBottom: 15, alignItems: 'center' },
   label: { fontSize: 16, color: '#666', marginBottom: 8 },

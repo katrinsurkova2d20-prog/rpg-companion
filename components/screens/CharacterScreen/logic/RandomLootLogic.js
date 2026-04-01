@@ -1,4 +1,4 @@
-import { evaluateFormula, evaluateFormulaMulti } from './Calculator.js';
+import { evaluateFormula, evaluateFormulaMulti, rollDie } from './Calculator.js';
 import trinkets from '../../../../assets/RandomLoot/trinkets.json';
 import food from '../../../../assets/RandomLoot/food.json';
 import brewery from '../../../../assets/RandomLoot/brewery.json';
@@ -125,4 +125,20 @@ export async function resolveRandomLoot(lootFormula) {
     // Одиночный бросок
     const rollResult = evaluateFormula(quantityFormula);
     return resolveItemFromTable(rollResult, tag, lootTable);
+}
+
+
+export async function resolveRandomLootByRoll(tag, count = 1) {
+    const normalizedTag = String(tag || '').toLowerCase();
+    const lootTable = lootTables[normalizedTag];
+    if (!lootTable) return [];
+
+    const totalRolls = Math.max(0, parseInt(count, 10) || 0);
+    const items = [];
+    for (let i = 0; i < totalRolls; i++) {
+        const rollResult = rollDie(20);
+        const item = await resolveItemFromTable(rollResult, normalizedTag, lootTable);
+        if (item) items.push(item);
+    }
+    return items;
 }

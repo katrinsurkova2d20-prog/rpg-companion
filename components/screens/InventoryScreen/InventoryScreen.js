@@ -8,6 +8,7 @@ import BuyItemModal from './modals/BuyItemModal';
 import { calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
 import { formatInventoryText, tInventory } from './logic/inventoryI18n';
 import { useLocale } from '../../../i18n/locale';
+import { getEquipmentCatalog } from '../../../i18n/equipmentCatalog';
 
 const CapsSection = ({ caps, onAdd, onSubtract }) => (
   <View style={styles.capsContainer}>
@@ -43,9 +44,10 @@ const InventoryScreen = () => {
   const [isBuyItemModalVisible, setIsBuyItemModalVisible] = useState(false);
   const [selectedItemForBuy, setSelectedItemForBuy] = useState(null);
 
-  useLocale();
+  const locale = useLocale();
+  const equipmentCatalog = useMemo(() => getEquipmentCatalog(locale), [locale]);
 
-  const getItemName = (item) => item?.name || '';
+  const getItemName = (item) => item?.name || item?.Name || '';
   const getItemType = (item) => {
     if (item?.itemType) return item.itemType;
     if (item?.effectType || item?.durationInScenes || item?.duration || item?.positiveEffect) return 'chem';
@@ -81,6 +83,86 @@ const InventoryScreen = () => {
     if (itemType === 'drinks') return '🥤';
     if (itemType === 'ammo') return '🔹';
     return '📦';
+  };
+  const resolveLocalizedItem = (item) => {
+    if (!item || !item.id) return item;
+    const itemType = getItemType(item);
+
+    if (itemType === 'weapon') {
+      const base = (equipmentCatalog?.weapons || []).find((entry) => entry.id === item.id);
+      if (!base) return item;
+      return {
+        ...base,
+        ...item,
+        name: base.name || base.Name || item.name || item.Name,
+        Name: base.Name || base.name || item.Name || item.name,
+      };
+    }
+
+    if (itemType === 'armor') {
+      const base = equipmentCatalog?.armorIndex?.byId?.get(item.id);
+      if (!base) return item;
+      return {
+        ...base,
+        ...item,
+        name: base.name || base.Name || item.name || item.Name,
+        Name: base.Name || base.name || item.Name || item.name,
+      };
+    }
+
+    if (itemType === 'clothing' || itemType === 'outfit') {
+      const allClothes = (equipmentCatalog?.clothes?.clothes || []).flatMap((group) => group.items || []);
+      const base = allClothes.find((entry) => entry.id === item.id);
+      if (!base) return item;
+      return {
+        ...base,
+        ...item,
+        name: base.name || base.Name || item.name || item.Name,
+        Name: base.Name || base.name || item.Name || item.name,
+      };
+    }
+
+    if (itemType === 'chem' || itemType === 'chems') {
+      const base = (equipmentCatalog?.chems || []).find((entry) => entry.id === item.id);
+      if (!base) return item;
+      return {
+        ...base,
+        ...item,
+        name: base.name || base.Name || item.name || item.Name,
+        Name: base.Name || base.name || item.Name || item.name,
+      };
+    }
+
+    if (itemType === 'drinks') {
+      const base = (equipmentCatalog?.drinks || []).find((entry) => entry.id === item.id);
+      if (!base) return item;
+      return {
+        ...base,
+        ...item,
+        name: base.name || base.Name || item.name || item.Name,
+        Name: base.Name || base.name || item.Name || item.name,
+      };
+    }
+
+    if (itemType === 'ammo') {
+      const base = (equipmentCatalog?.ammoData || []).find((entry) => entry.id === item.id);
+      if (!base) return item;
+      return {
+        ...base,
+        ...item,
+        name: base.name || base.Name || item.name || item.Name,
+        Name: base.Name || base.name || item.Name || item.name,
+      };
+    }
+
+    const base = (equipmentCatalog?.miscellaneous || []).find((entry) => entry.id === item.id);
+    if (!base) return item;
+    return {
+      ...base,
+      ...item,
+      name: base.name || base.Name || item.name || item.Name,
+      Name: base.Name || base.name || item.Name || item.name,
+    };
   };
 
 
@@ -723,7 +805,8 @@ const InventoryScreen = () => {
     const modifiedItem = getModifiedItem(itemWithType);
     const displayItem = modifiedItem || item;
     
-    const itemName = getItemName(displayItem) || tInventory('screen.labels.unknownItem');
+    const localizedDisplayItem = resolveLocalizedItem(displayItem);
+    const itemName = getItemName(localizedDisplayItem) || tInventory('screen.labels.unknownItem');
     const itemIcon = getItemTypeIcon(item.itemType);
     const isEquippable = item.itemType === 'weapon' || item.itemType === 'armor' || item.itemType === 'clothing';
     const isConsumable = item.itemType === 'chem' || item.itemType === 'chems' || item.itemType === 'drinks';

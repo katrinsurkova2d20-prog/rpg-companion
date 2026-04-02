@@ -15,6 +15,14 @@ import { useCharacter } from '../../CharacterContext';
 import { ORIGINS } from '../CharacterScreen/logic/originsData';
 import { setCurrentLocale, useLocale } from '../../../i18n/locale';
 import { tHomeScreen } from './logic/homeScreenI18n';
+import * as db from '../../../db';
+import {
+  createCharacterExportPayload,
+  parseCharacterImportPayload,
+  downloadCharacterPayloadWeb,
+  pickCharacterFileWeb,
+  IMPORT_ERRORS,
+} from './logic/characterTransfer';
 
 const getOriginImage = (originName) => {
   if (!originName) return null;
@@ -24,14 +32,14 @@ const getOriginImage = (originName) => {
 
 const NUM_COLS = 3;
 
-const CreateCell = ({ onPress }) => (
+const ActionCell = ({ icon, label, onPress }) => (
   <TouchableOpacity style={styles.createCell} onPress={onPress} activeOpacity={0.7}>
-    <Text style={styles.createPlus}>{tHomeScreen("createButton.plus", "+")}</Text>
-    <Text style={styles.createLabel}>{tHomeScreen("createButton.text", "Создать\nперсонажа")}</Text>
+    <Text style={styles.createPlus}>{icon}</Text>
+    <Text style={styles.createLabel}>{label}</Text>
   </TouchableOpacity>
 );
 
-const CharacterCell = ({ character, onPress, onDelete }) => {
+const CharacterCell = ({ character, onPress, onDelete, onDownload }) => {
   const originImage = getOriginImage(character.originName);
   return (
     <TouchableOpacity
@@ -57,6 +65,17 @@ const CharacterCell = ({ character, onPress, onDelete }) => {
         hitSlop={{ top: 6, right: 6, bottom: 6, left: 6 }}
       >
         <Text style={styles.deleteIcon}>🗑</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.downloadButton}
+        onPress={(event) => {
+          event?.stopPropagation?.();
+          onDownload();
+        }}
+        hitSlop={{ top: 6, right: 6, bottom: 6, left: 6 }}
+      >
+        <Text style={styles.downloadIcon}>⭳</Text>
       </TouchableOpacity>
       <Text style={styles.characterName} numberOfLines={2}>{character.name}</Text>
       {character.level ? (
@@ -140,8 +159,95 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
+
+  const handleDownload = async (character) => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') {
+      Alert.alert(
+        tHomeScreen('title', 'Менеджер персонажей'),
+        tHomeScreen('download.unsupported', 'Загрузка/сохранение файлов поддерживается только в web-версии.')
+      );
+      return;
+    }
+
+    const row = await db.loadCharacterById(character.id);
+    if (!row) {
+      Alert.alert(tHomeScreen('title', 'Менеджер персонажей'), tHomeScreen('download.errors.notFound', 'Персонаж не найден.'));
+      return;
+    }
+
+    const payload = createCharacterExportPayload(row);
+    downloadCharacterPayloadWeb(payload, row.name);
+  };
+
+  const handleUpload = async () => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') {
+      Alert.alert(
+        tHomeScreen('title', 'Менеджер персонажей'),
+        tHomeScreen('upload.unsupported', 'Загрузка файлов поддерживается только в web-версии.')
+      );
+      return;
+    }
+
+    const rawText = await pickCharacterFileWeb();
+    if (!rawText) return;
+
+    const parsed = parseCharacterImportPayload(rawText);
+    if (parsed.error) {
+      Alert.alert(
+        tHomeScreen('title', 'Менеджер персонажей'),
+        tHomeScreen(IMPORT_ERRORS[parsed.error], tHomeScreen('upload.errors.default', 'Не удалось импортировать персонажа.'))
+      );
+      return;
+    }
+
+    const importedCharacter = parsed.character;
+    const existing = characters.find((item) => item.name === importedCharacter.name);
+
+    const persistImport = async () => {
+      const id = existing?.id || importedCharacter.id || `char_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+      await db.saveCharacter(
+        id,
+        importedCharacter.name,
+        importedCharacter.level ?? 1,
+        importedCharacter.originName ?? null,
+        importedCharacter.data
+      );
+      await loadList();
+    };
+
+    if (!existing) {
+      await persistImport();
+      return;
+    }
+
+    const overwriteMessage = tHomeScreen('upload.overwriteConfirm', 'Персонаж с таким именем уже существует. Перезаписать его?');
+
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const confirmed = window.confirm(overwriteMessage);
+      if (confirmed) {
+        await persistImport();
+      }
+      return;
+    }
+
+    Alert.alert(
+      tHomeScreen('title', 'Менеджер персонажей'),
+      overwriteMessage,
+      [
+        { text: tHomeScreen('buttons.no', 'Нет') || 'Нет', style: 'cancel' },
+        {
+          text: tHomeScreen('buttons.yes', 'Да') || 'Да',
+          style: 'destructive',
+          onPress: persistImport,
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const allItems = [
     { type: 'create' },
+    { type: 'upload' },
     ...characters.map(c => ({ type: 'character', ...c })),
   ];
 
@@ -193,7 +299,24 @@ export default function HomeScreen({ navigation }) {
             <View key={rowIndex} style={styles.row}>
               {row.map((item) => {
                 if (item.type === 'create') {
-                  return <CreateCell key="create" onPress={handleCreate} />;
+                  return (
+                    <ActionCell
+                      key="create"
+                      icon={tHomeScreen('createButton.plus', '+')}
+                      label={tHomeScreen('createButton.text', 'Создать\nперсонажа')}
+                      onPress={handleCreate}
+                    />
+                  );
+                }
+                if (item.type === 'upload') {
+                  return (
+                    <ActionCell
+                      key="upload"
+                      icon={tHomeScreen('upload.icon', '⇪')}
+                      label={tHomeScreen('upload.button', 'Загрузить\nперсонажа')}
+                      onPress={handleUpload}
+                    />
+                  );
                 }
                 if (item.type === 'empty') {
                   return <EmptyCell key={item.id} id={item.id} />;
@@ -204,6 +327,7 @@ export default function HomeScreen({ navigation }) {
                     character={item}
                     onPress={() => handleOpen(item.id)}
                     onDelete={() => handleDelete(item)}
+                    onDownload={() => handleDownload(item)}
                   />
                 );
               })}
@@ -347,6 +471,27 @@ const styles = StyleSheet.create({
   },
   deleteIcon: {
     fontSize: 15,
+    lineHeight: 18,
+  },
+  downloadButton: {
+    position: 'absolute',
+    right: 5,
+    bottom: 5,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+  },
+  downloadIcon: {
+    fontSize: 16,
     lineHeight: 18,
   },
   characterImage: {

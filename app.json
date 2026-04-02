@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "popytkano5",
-    "slug": "snack-05c79c99-fb4f-4a22-8411-4c5e21874990",
+    "name": "Fallout 2d20 Companion App",
+    "slug": "fallout2d20companionapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,14 +13,16 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fallout2d20companionapp.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.fallout2d20companionapp.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,6 +30,7 @@
     "plugins": [
       "expo-asset",
       "expo-sqlite"
-    ]
+    ],
+    "scheme": "fallout2d20companionapp"
   }
 }

@@ -265,7 +265,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.titleContainer}>
+      <View style={styles.languageRow}>
         <View style={styles.languageContainer}>
           {languageOptions.map((lang, index) => {
             const isFirst = index === 0;
@@ -289,6 +289,8 @@ export default function HomeScreen({ navigation }) {
             );
           })}
         </View>
+      </View>
+      <View style={styles.titleContainer}>
         <Text style={styles.title}>{tHomeScreen("title", "Менеджер персонажей")}</Text>
         <Text style={styles.subtitle}>{tHomeScreen("subtitle", "Ролевая игра Fallout (2d20)")}</Text>
       </View>
@@ -349,7 +351,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   titleContainer: {
-    position: 'relative',
     paddingVertical: 14,
     paddingHorizontal: 16,
     backgroundColor: 'rgba(0,0,0,0.75)',
@@ -369,11 +370,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 2,
   },
+  languageRow: {
+    paddingTop: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 6,
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    borderBottomWidth: 1,
+    borderBottomColor: '#d4af37',
+    alignItems: 'flex-end',
+  },
   languageContainer: {
-    position: 'absolute',
-    right: 8,
-    top: 8,
-    zIndex: 20,
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: '#6b7280',

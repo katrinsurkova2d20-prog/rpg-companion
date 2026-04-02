@@ -1121,7 +1121,7 @@ export default function CharacterScreen() {
               />
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>ОЧКИ УДАЧИ</Text>
+                  <Text style={styles.sectionTitle}>{tCharacterScreen("labels.luckPoints", "Очки удачи").toUpperCase()}</Text>
                 </View>
                 <LuckPointsRow
                   luckPoints={luckPoints}

@@ -37,50 +37,6 @@ const resolveLocalizedItem = (catalog, targetItem, isClothingMode) => {
   };
 };
 
-const buildClothingUniqueMods = (item) => {
-  if (!item?.id) return [];
-
-  const itemName = item.name || item.Name || '—';
-  const protectedAreas = parseProtectedAreas(item);
-
-  return [
-    {
-      id: `clothing_unique_${item.id}_reinforced`,
-      modCategory: `clothingUnique:${item.id}`,
-      name: `${tWeaponsAndArmorScreen('modals.clothingReinforced')} · ${itemName}`,
-      protectedAreas,
-      complexity: 1,
-      requiredPerk: '',
-      requiredSkill: 'Repair',
-      costModifier: { op: '+', value: 5 },
-      weightModifier: { op: '+', value: 1 },
-      statModifiers: {
-        physicalDamageRating: { op: '+', value: 1 },
-        energyDamageRating: { op: '+', value: 1 },
-        radiationDamageRating: { op: '+', value: 0 },
-      },
-      specialEffects: [],
-    },
-    {
-      id: `clothing_unique_${item.id}_insulated`,
-      modCategory: `clothingUnique:${item.id}`,
-      name: `${tWeaponsAndArmorScreen('modals.clothingInsulated')} · ${itemName}`,
-      protectedAreas,
-      complexity: 2,
-      requiredPerk: '',
-      requiredSkill: 'Repair',
-      costModifier: { op: '+', value: 7 },
-      weightModifier: { op: '+', value: 1 },
-      statModifiers: {
-        physicalDamageRating: { op: '+', value: 0 },
-        energyDamageRating: { op: '+', value: 1 },
-        radiationDamageRating: { op: '+', value: 1 },
-      },
-      specialEffects: [],
-    },
-  ];
-};
-
 const CollapsibleSection = ({ title, children, isExpanded, onToggle }) => (
   <View style={styles.collapsibleSection}>
     <TouchableOpacity onPress={onToggle} style={styles.sectionHeader}>
@@ -134,9 +90,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
     const allowedUniq = new Set(categoryCfg?.allowedUniqueModCategories || []);
 
     if (isClothingMode) {
-      const clothingUniqueMods = buildClothingUniqueMods(localizedTargetItem);
-      const filteredClothingMods = clothingUniqueMods.filter((m) => hasIntersection(m.protectedAreas || [], area));
-      return { standardMods: filteredClothingMods, uniqueMods: [] };
+      return { standardMods: [], uniqueMods: [] };
     }
 
     const standardMods = (catalog.armorMods || []).filter((m) =>
@@ -212,12 +166,14 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
                 isExpanded={expandedCategories.standard}
                 onToggle={() => handleToggleCategory('standard')}
               >
-                <TouchableOpacity
-                  style={[styles.modificationItem, !selectedStd && styles.selectedModification]}
-                  onPress={() => setSelectedStd(null)}
-                >
-                  <Text style={styles.modificationName}>{selectedStd ? tWeaponsAndArmorScreen('modals.removeStandard') : tWeaponsAndArmorScreen('modals.noStandard')}</Text>
-                </TouchableOpacity>
+                {!isClothingMode && (
+                  <TouchableOpacity
+                    style={[styles.modificationItem, !selectedStd && styles.selectedModification]}
+                    onPress={() => setSelectedStd(null)}
+                  >
+                    <Text style={styles.modificationName}>{selectedStd ? tWeaponsAndArmorScreen('modals.removeStandard') : tWeaponsAndArmorScreen('modals.noStandard')}</Text>
+                  </TouchableOpacity>
+                )}
                 {standardMods.map((m) => (
                   <ModRow key={m.id} mod={m} selected={selectedStd === m.id} onPress={() => setSelectedStd(m.id)} />
                 ))}

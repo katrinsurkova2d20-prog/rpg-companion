@@ -20,6 +20,8 @@ import ArmorModificationModal from './ArmorModificationModal';
 
 const HealthCounter = ({ max, isEnabled }) => {
   const { currentHealth, setCurrentHealth } = useCharacter();
+  const canDecrease = isEnabled && currentHealth > 0;
+  const canIncrease = isEnabled && currentHealth < max;
 
   const handleAdjustHealth = (amount) => {
     if (!isEnabled) return;
@@ -30,11 +32,18 @@ const HealthCounter = ({ max, isEnabled }) => {
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <TouchableOpacity
+        onPress={() => handleAdjustHealth(-1)}
+        disabled={!canDecrease}
+        style={[styles.counterButton, !canDecrease && { opacity: 0.5 }]}
+      >
+        <Text style={styles.counterButtonText}>-</Text>
+      </TouchableOpacity>
       <Text style={[styles.counterValue, { minWidth: 50, textAlign: 'center' }]}>{healthText}</Text>
       <TouchableOpacity
         onPress={() => handleAdjustHealth(1)}
-        disabled={!isEnabled}
-        style={[styles.counterButton, !isEnabled && { opacity: 0.5 }]}
+        disabled={!canIncrease}
+        style={[styles.counterButton, !canIncrease && { opacity: 0.5 }]}
       >
         <Text style={styles.counterButtonText}>+</Text>
       </TouchableOpacity>

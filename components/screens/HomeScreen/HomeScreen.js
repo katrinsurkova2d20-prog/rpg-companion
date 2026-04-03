@@ -10,7 +10,10 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
+  Modal,
+  Linking,
 } from 'react-native';
+import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCharacter } from '../../CharacterContext';
 import { ORIGINS } from '../CharacterScreen/logic/originsData';
@@ -24,6 +27,7 @@ import {
   pickCharacterFileWeb,
   IMPORT_ERRORS,
 } from './logic/characterTransfer';
+import { openCloudFolderInDrive, syncAllCharactersWithCloud } from '../../cloudSync/googleDriveSync';
 
 const getOriginImage = (originName) => {
   if (!originName) return null;
@@ -93,6 +97,9 @@ export default function HomeScreen({ navigation }) {
   const { getCharactersList, loadCharacter, resetCharacter, deleteCharacter } = useCharacter();
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [aboutVisible, setAboutVisible] = useState(false);
+  const [communityVisible, setCommunityVisible] = useState(false);
   const languageOptions = [
     { code: 'ru-RU', label: tHomeScreen('language.russian', 'Русский'), flag: '🇷🇺' },
     { code: 'en-EN', label: tHomeScreen('language.english', 'English'), flag: '🇬🇧' },
@@ -246,6 +253,53 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
+  const handleCloudSync = async () => {
+    setMenuVisible(false);
+    if (Platform.OS !== 'web') {
+      Alert.alert(
+        tHomeScreen('title', 'Менеджер персонажей'),
+        tHomeScreen('cloudSync.unsupported', 'Синхронизация с облаком доступна только в web-версии.')
+      );
+      return;
+    }
+
+    try {
+      const result = await syncAllCharactersWithCloud({
+        confirmDownload: async (items) => {
+          const message = tHomeScreen(
+            'cloudSync.remoteIsNewer',
+            `В облаке найдены более новые версии (${items.length}). Загрузить их?`
+          );
+          return window.confirm(message);
+        },
+      });
+      await loadList();
+      await openCloudFolderInDrive();
+      Alert.alert(
+        tHomeScreen('title', 'Менеджер персонажей'),
+        tHomeScreen(
+          'cloudSync.success',
+          `Синхронизация завершена. Выгружено: ${result.uploaded}, загружено: ${result.downloaded}.`
+        )
+      );
+    } catch (e) {
+      Alert.alert(
+        tHomeScreen('title', 'Менеджер персонажей'),
+        tHomeScreen('cloudSync.error', `Ошибка синхронизации: ${e?.message || e}`)
+      );
+    }
+  };
+
+  const openExternalLink = async (url) => {
+    try {
+      await Linking.openURL(url);
+    } catch {
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.open(url, '_blank', 'noopener');
+      }
+    }
+  };
+
   const allItems = [
     { type: 'create' },
     { type: 'upload' },
@@ -266,6 +320,11 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.languageRow}>
+        <View style={styles.menuCell}>
+          <Pressable style={styles.menuButton} onPress={() => setMenuVisible(true)}>
+            <MaterialCommunityIcons name="menu" size={22} color="#f0e68c" />
+          </Pressable>
+        </View>
         <View style={styles.languageContainer}>
           {languageOptions.map((lang, index) => {
             const isFirst = index === 0;
@@ -341,6 +400,72 @@ export default function HomeScreen({ navigation }) {
           ))
         )}
       </ScrollView>
+
+      <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={() => setMenuVisible(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setMenuVisible(false)}>
+          <Pressable style={styles.menuPanel} onPress={() => {}}>
+            <TouchableOpacity style={styles.menuItem} onPress={handleCloudSync}>
+              <FontAwesome5 name="google-drive" size={18} color="#d4af37" />
+              <Text style={styles.menuText}>{tHomeScreen('menu.sync', 'Синхронизация с облаком')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); setAboutVisible(true); }}>
+              <MaterialCommunityIcons name="information-outline" size={20} color="#d4af37" />
+              <Text style={styles.menuText}>{tHomeScreen('menu.about', 'О приложении')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); setCommunityVisible(true); }}>
+              <FontAwesome5 name="telegram-plane" size={18} color="#d4af37" />
+              <Text style={styles.menuText}>{tHomeScreen('menu.community', 'Сообщество')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {
+              setMenuVisible(false);
+              Alert.alert(
+                tHomeScreen('menu.buyCoffee', 'Купить автору кофе'),
+                tHomeScreen('menu.buyCoffeeDescription', 'Поддержка автора появится в следующих обновлениях.')
+              );
+            }}>
+              <MaterialCommunityIcons name="coffee-outline" size={20} color="#d4af37" />
+              <Text style={styles.menuText}>{tHomeScreen('menu.buyCoffee', 'Купить автору кофе')}</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <Modal visible={aboutVisible} transparent animationType="slide" onRequestClose={() => setAboutVisible(false)}>
+        <View style={styles.modalBackdropCenter}>
+          <View style={styles.infoModal}>
+            <Text style={styles.infoTitle}>{tHomeScreen('menu.about', 'О приложении')}</Text>
+            <Text style={styles.infoText}>
+              {tHomeScreen(
+                'about.description',
+                'Fallout 2d20 Companion — менеджер персонажей для настольной ролевой игры: создание, хранение, редактирование, импорт/экспорт и облачная синхронизация.'
+              )}
+            </Text>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setAboutVisible(false)}>
+              <Text style={styles.modalCloseButtonText}>{tHomeScreen('buttons.ok', 'Ок')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={communityVisible} transparent animationType="slide" onRequestClose={() => setCommunityVisible(false)}>
+        <View style={styles.modalBackdropCenter}>
+          <View style={styles.infoModal}>
+            <Text style={styles.infoTitle}>{tHomeScreen('menu.community', 'Сообщество')}</Text>
+            <TouchableOpacity onPress={() => openExternalLink('https://fallout-2d20.ru')}>
+              <Text style={styles.linkText}>fallout-2d20.ru</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => openExternalLink('https://t.me/fallout_2d20_russia')}>
+              <Text style={styles.linkText}>https://t.me/fallout_2d20_russia</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => openExternalLink('https://vk.com/ttrp_fallout2d20/')}>
+              <Text style={styles.linkText}>https://vk.com/ttrp_fallout2d20/</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setCommunityVisible(false)}>
+              <Text style={styles.modalCloseButtonText}>{tHomeScreen('buttons.ok', 'Ок')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -377,7 +502,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.75)',
     borderBottomWidth: 1,
     borderBottomColor: '#d4af37',
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  menuCell: {
+    width: 44,
+    marginRight: 8,
+  },
+  menuButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6b7280',
+    backgroundColor: 'rgba(17,24,39,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   languageContainer: {
     flexDirection: 'row',
@@ -545,5 +686,77 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 5,
     aspectRatio: 0.75,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    paddingTop: 58,
+    paddingLeft: 16,
+  },
+  menuPanel: {
+    width: 280,
+    backgroundColor: '#111827',
+    borderWidth: 1,
+    borderColor: '#d4af37',
+    borderRadius: 10,
+    paddingVertical: 8,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  menuText: {
+    color: '#f9fafb',
+    fontSize: 15,
+  },
+  modalBackdropCenter: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  infoModal: {
+    width: '100%',
+    maxWidth: 440,
+    backgroundColor: '#111827',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#d4af37',
+    padding: 16,
+  },
+  infoTitle: {
+    color: '#f0e68c',
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+  infoText: {
+    color: '#e5e7eb',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  linkText: {
+    color: '#93c5fd',
+    fontSize: 14,
+    marginBottom: 10,
+    textDecorationLine: 'underline',
+  },
+  modalCloseButton: {
+    marginTop: 12,
+    alignSelf: 'flex-end',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#d4af37',
+  },
+  modalCloseButtonText: {
+    color: '#111827',
+    fontWeight: '700',
   },
 });

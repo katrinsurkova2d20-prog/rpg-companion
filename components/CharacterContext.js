@@ -14,6 +14,7 @@ import { ORIGINS } from './screens/CharacterScreen/logic/originsData';
 import { getAttributeValue } from './screens/CharacterScreen/logic/attributeKeyUtils';
 import { meetsPerkRequirements, getPerkUnmetReasons, annotatePerks } from './screens/CharacterScreen/logic/perksLogic';
 import { applyConsumableToEffects, advanceEffectsByScene, pruneExpiredTimedEffects, SCENE_RULES } from '../assets/scripts/sceneEffects';
+import { syncCharacterToCloudIfEnabled } from './cloudSync/googleDriveSync';
 
 const CharacterContext = createContext();
 
@@ -158,6 +159,7 @@ export const CharacterProvider = ({ children }) => {
           snapshot.origin?.name || null,
           serialized
         );
+        await syncCharacterToCloudIfEnabled(characterIdRef.current);
       } catch (e) {
       }
     }, 500);
@@ -189,6 +191,7 @@ export const CharacterProvider = ({ children }) => {
         snapshot.origin?.name || null,
         serialized
       );
+      await syncCharacterToCloudIfEnabled(id);
 
       setIsSaved(true);
       isSavedRef.current = true;

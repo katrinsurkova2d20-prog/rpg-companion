@@ -36,6 +36,23 @@
   },
   "buttons": {
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "ok": "Ok"
+  },
+  "menu": {
+    "sync": "Cloud sync",
+    "about": "About app",
+    "community": "Community",
+    "buyCoffee": "Buy author a coffee",
+    "buyCoffeeDescription": "Author support links will be added in future updates."
+  },
+  "about": {
+    "description": "Fallout 2d20 Companion is a character manager for tabletop RPG: create, store, edit, import/export, and sync through cloud."
+  },
+  "cloudSync": {
+    "unsupported": "Cloud sync is available only in web version.",
+    "remoteIsNewer": "Newer character saves were found in cloud. Download them locally?",
+    "success": "Sync completed.",
+    "error": "Cloud sync failed."
   }
 }

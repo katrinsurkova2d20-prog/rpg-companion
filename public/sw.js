@@ -1,5 +1,5 @@
-const CACHE_NAME = 'rpg-companion-v2';
-const APP_SHELL = ['/', '/manifest.json', '/logo192.png', '/logo512.png'];
+const CACHE_NAME = 'rpg-companion-v3';
+const APP_SHELL = ['/', '/index.html', '/manifest.json', '/assets/images/icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).catch(() => undefined));
@@ -15,6 +15,8 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
@@ -30,7 +32,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           return response;
         })
-        .catch(() => caches.match('/'));
+        .catch(() => caches.match('/index.html'));
     })
   );
 });

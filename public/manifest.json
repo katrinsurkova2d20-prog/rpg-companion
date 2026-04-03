@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Fallout 2d20 Companion App",
   "short_name": "RPG Companion",
   "description": "Companion app for Fallout 2d20 RPG sessions.",
@@ -8,6 +9,7 @@
   "orientation": "portrait",
   "background_color": "#0f0f0f",
   "theme_color": "#1b1b1b",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/assets/images/icon.png",

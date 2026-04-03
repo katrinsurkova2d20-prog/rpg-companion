@@ -25,7 +25,14 @@
       "package": "com.fallout2d20companionapp.app"
     },
     "web": {
-      "favicon": "./assets/images/favicon.png"
+      "bundler": "metro",
+      "favicon": "./assets/images/favicon.png",
+      "name": "Fallout 2d20 Companion App",
+      "shortName": "RPG Companion",
+      "themeColor": "#1b1b1b",
+      "backgroundColor": "#0f0f0f",
+      "display": "standalone",
+      "orientation": "portrait"
     },
     "plugins": [
       "expo-asset",

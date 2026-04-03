@@ -1,5 +1,5 @@
-const CACHE_NAME = 'rpg-companion-v3';
-const APP_SHELL = ['/', '/index.html', '/manifest.json', '/assets/images/icon.png'];
+const CACHE_NAME = 'rpg-companion-v4';
+const APP_SHELL = ['/', '/index.html', '/manifest.json', '/pwa-icon-192.svg', '/pwa-icon-512.svg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).catch(() => undefined));

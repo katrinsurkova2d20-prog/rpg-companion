@@ -2,7 +2,7 @@
   "name": "Fallout 2d20 Companion App",
   "short_name": "RPG Companion",
   "description": "Companion app for Fallout 2d20 RPG sessions.",
-  "start_url": "/",
+  "start_url": ".",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -11,15 +11,15 @@
   "icons": [
     {
       "src": "/assets/images/icon.png",
-      "sizes": "1024x1024",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "/assets/images/icon.png",
-      "sizes": "1024x1024",
+      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }

@@ -7,18 +7,21 @@ export const traitConfig = {
   modalType: 'choice'
 };
 
-const SurvivorModal = ({ visible, onSelect, onClose }) => {
+const SurvivorModal = ({
+  visible,
+  onSelect,
+  onClose,
+  modalTitle = 'Черта происхождения «Выживший»',
+  originLabel = 'Выживший',
+}) => {
   const [selectionMode, setSelectionMode] = useState(null);
   const [survivorTrait, setSurvivorTrait] = useState(null);
   const [ncrTrait, setNcrTrait] = useState(null);
   const [singleTraitPick, setSingleTraitPick] = useState(null);
-  const [goodSoulPicks, setGoodSoulPicks] = useState([]);
-  const [giftedAttributes, setGiftedAttributes] = useState([]);
 
   const survivorTraitNames = ['Образованный', 'Быстрый выстрел', 'Одаренный', 'Тяжёлая рука', 'Миниатюрный'];
   const ncrTraitNames = ['Добрая Душа', 'Пехотинец', 'Дом на пастбище', 'Техника спуска', 'Браминий барон'];
   const goodSoulGroup = ['Красноречие', 'Медицина', 'Ремонт', 'Наука', 'Бартер'];
-  const specialAttributes = ['STR', 'PER', 'END', 'CHA', 'INT', 'AGI', 'LCK'];
 
   const traitCatalog = useMemo(() => {
     const toTrait = (name) => ({ name, description: TRAITS[name]?.description || '' });
@@ -33,88 +36,55 @@ const SurvivorModal = ({ visible, onSelect, onClose }) => {
     setSurvivorTrait(null);
     setNcrTrait(null);
     setSingleTraitPick(null);
-    setGoodSoulPicks([]);
-    setGiftedAttributes([]);
   };
 
-  const toggleGoodSoulPick = (skill) => {
-    setGoodSoulPicks((prev) => {
-      if (prev.includes(skill)) return prev.filter((s) => s !== skill);
-      if (prev.length >= 2) return prev;
-      return [...prev, skill];
-    });
-  };
-
-  const toggleGiftedAttribute = (attr) => {
-    setGiftedAttributes((prev) => {
-      if (prev.includes(attr)) return prev.filter((a) => a !== attr);
-      if (prev.length >= 2) return prev;
-      return [...prev, attr];
-    });
-  };
-
-  const buildTraitModifiers = (name) => {
-    const modifiers = {};
-
-    if (name === 'Добрая Душа') {
-      modifiers.forcedSkills = [...goodSoulPicks];
-      modifiers.goodSoulSelectedSkills = [...goodSoulPicks];
-      modifiers.goodSoulGroup = [...goodSoulGroup];
-    }
-
-    if (name === 'Одаренный') {
-      const attributes = giftedAttributes.reduce((acc, key) => ({ ...acc, [key]: 1 }), {});
-      modifiers.attributes = attributes;
-      modifiers.giftedAttributes = [...giftedAttributes];
-    }
-
-    return modifiers;
-  };
+  const isTwoSame = (mode) => mode === 'two_survivor' || mode === 'two_ncr' || mode === 'two_mixed';
 
   const canConfirm = () => {
     if (selectionMode === 'two_traits') {
-      if (!survivorTrait || !ncrTrait) return false;
-      if ((survivorTrait === 'Одаренный' || ncrTrait === 'Одаренный') && giftedAttributes.length !== 2) return false;
-      if ((survivorTrait === 'Добрая Душа' || ncrTrait === 'Добрая Душа') && goodSoulPicks.length !== 2) return false;
-      return true;
+      return !!survivorTrait && !!ncrTrait;
     }
-
+    if (selectionMode === 'two_survivor') {
+      return Array.isArray(survivorTrait) && survivorTrait.length === 2;
+    }
+    if (selectionMode === 'two_ncr') {
+      return Array.isArray(ncrTrait) && ncrTrait.length === 2;
+    }
     if (selectionMode === 'trait_and_perk') {
-      if (!singleTraitPick) return false;
-      if (singleTraitPick === 'Одаренный' && giftedAttributes.length !== 2) return false;
-      if (singleTraitPick === 'Добрая Душа' && goodSoulPicks.length !== 2) return false;
-      return true;
+      return !!singleTraitPick;
     }
-
     return false;
+  };
+
+  const togglePick = (list, name) => {
+    if (list.includes(name)) return list.filter((x) => x !== name);
+    if (list.length >= 2) return list;
+    return [...list, name];
   };
 
   const handleConfirm = () => {
     if (!canConfirm()) return;
 
-    const selectedNames = selectionMode === 'two_traits'
-      ? [survivorTrait, ncrTrait]
-      : [singleTraitPick];
+    let selectedNames = [];
+    if (selectionMode === 'two_traits') selectedNames = [survivorTrait, ncrTrait];
+    else if (selectionMode === 'two_survivor') selectedNames = [...survivorTrait];
+    else if (selectionMode === 'two_ncr') selectedNames = [...ncrTrait];
+    else if (selectionMode === 'trait_and_perk') selectedNames = [singleTraitPick];
 
     const mergedModifiers = selectedNames.reduce((acc, traitName) => {
       const baseModifiers = TRAITS[traitName]?.modifiers || {};
       return {
         ...acc,
         ...baseModifiers,
-        ...buildTraitModifiers(traitName),
         attributes: {
           ...(acc.attributes || {}),
           ...(baseModifiers.attributes || {}),
-          ...(buildTraitModifiers(traitName).attributes || {}),
         },
+        attributePointsBonus:
+          (acc.attributePointsBonus || 0) + (baseModifiers.attributePointsBonus || 0),
         forcedSkills: [
           ...(acc.forcedSkills || []),
           ...(baseModifiers.forcedSkills || []),
-          ...(buildTraitModifiers(traitName).forcedSkills || []),
-        ],
-        goodSoulSelectedSkills: [
-          ...(acc.goodSoulSelectedSkills || []),
-          ...(buildTraitModifiers(traitName).goodSoulSelectedSkills || []),
         ],
       };
     }, {});
@@ -123,9 +93,17 @@ const SurvivorModal = ({ visible, onSelect, onClose }) => {
       mergedModifiers.extraPerkSlots = (mergedModifiers.extraPerkSlots || 0) + 1;
     }
 
-    const traitTitle = selectionMode === 'two_traits'
-      ? `Выживший: ${survivorTrait} + ${ncrTrait}`
-      : `Выживший: ${singleTraitPick} + 1 перк`;
+    if (selectedNames.includes('Добрая Душа')) {
+      mergedModifiers.goodSoulPending = true;
+      mergedModifiers.goodSoulGroup = [...goodSoulGroup];
+    }
+
+    const traitTitle = (() => {
+      if (selectionMode === 'two_traits') return `${originLabel}: ${survivorTrait} + ${ncrTrait}`;
+      if (selectionMode === 'two_survivor') return `${originLabel}: ${survivorTrait[0]} + ${survivorTrait[1]}`;
+      if (selectionMode === 'two_ncr') return `${originLabel}: ${ncrTrait[0]} + ${ncrTrait[1]}`;
+      return `${originLabel}: ${singleTraitPick} + 1 перк`;
+    })();
 
     onSelect(traitTitle, {
       ...mergedModifiers,
@@ -136,6 +114,8 @@ const SurvivorModal = ({ visible, onSelect, onClose }) => {
     onClose();
   };
 
+  const isPicked = (traitName, list) => Array.isArray(list) && list.includes(traitName);
+
   return (
     <Modal
       animationType="fade"
@@ -145,13 +125,20 @@ const SurvivorModal = ({ visible, onSelect, onClose }) => {
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Черта происхождения «Выживший»</Text>
+          <Text style={styles.modalTitle}>{modalTitle}</Text>
           {!selectionMode && (
             <View style={{ width: '100%' }}>
-              <TouchableOpacity style={[styles.modalButton, styles.skillOption]} onPress={() => setSelectionMode('two_traits')}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.skillOption]}
+                onPress={() => { setSurvivorTrait([]); setNcrTrait([]); setSelectionMode('two_traits'); }}
+              >
                 <Text style={styles.buttonText}>2 черты</Text>
+                <Text style={styles.descriptionText}>Любая комбинация: 2 Выжившего, 2 НКР или 1+1</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalButton, styles.skillOption]} onPress={() => setSelectionMode('trait_and_perk')}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.skillOption]}
+                onPress={() => setSelectionMode('trait_and_perk')}
+              >
                 <Text style={styles.buttonText}>1 черта и 1 перк</Text>
               </TouchableOpacity>
             </View>
@@ -159,73 +146,84 @@ const SurvivorModal = ({ visible, onSelect, onClose }) => {
 
           {selectionMode && (
             <ScrollView style={{ width: '100%', maxHeight: 360 }}>
+              {selectionMode === 'two_traits' && (
+                <Text style={styles.hintText}>
+                  Выберите 2 черты в любой комбинации (из Выжившего, НКР или по одной).
+                </Text>
+              )}
               <Text style={styles.sectionTitle}>Список черт Выжившего</Text>
-              {traitCatalog.survivor.map((trait) => (
-                <TouchableOpacity
-                  key={`survivor-${trait.name}`}
-                  style={[
-                    styles.modalButton,
-                    styles.skillOption,
-                    ((selectionMode === 'two_traits' && survivorTrait === trait.name) || singleTraitPick === trait.name) && styles.selectedButton,
-                  ]}
-                  onPress={() => {
-                    if (selectionMode === 'two_traits') setSurvivorTrait(trait.name);
-                    else setSingleTraitPick(trait.name);
-                  }}
-                >
-                  <Text style={styles.buttonText}>{trait.name}</Text>
-                  <Text style={styles.descriptionText}>{trait.description}</Text>
-                </TouchableOpacity>
-              ))}
+              {traitCatalog.survivor.map((trait) => {
+                let isSelected = false;
+                if (selectionMode === 'two_traits') {
+                  isSelected = isPicked(trait.name, survivorTrait);
+                } else if (selectionMode === 'trait_and_perk') {
+                  isSelected = singleTraitPick === trait.name;
+                }
+                return (
+                  <TouchableOpacity
+                    key={`survivor-${trait.name}`}
+                    style={[
+                      styles.modalButton,
+                      styles.skillOption,
+                      isSelected && styles.selectedButton,
+                    ]}
+                    onPress={() => {
+                      if (selectionMode === 'two_traits') {
+                        const survList = Array.isArray(survivorTrait) ? survivorTrait : [];
+                        const ncrList = Array.isArray(ncrTrait) ? ncrTrait : [];
+                        const total = survList.length + ncrList.length;
+                        if (survList.includes(trait.name)) {
+                          setSurvivorTrait(survList.filter((n) => n !== trait.name));
+                        } else if (total < 2) {
+                          setSurvivorTrait([...survList, trait.name]);
+                        }
+                      } else {
+                        setSingleTraitPick(trait.name);
+                      }
+                    }}
+                  >
+                    <Text style={styles.buttonText}>{trait.name}</Text>
+                    <Text style={styles.descriptionText}>{trait.description}</Text>
+                  </TouchableOpacity>
+                );
+              })}
 
               <Text style={styles.sectionTitle}>Список черт НКР</Text>
-              {traitCatalog.ncr.map((trait) => (
-                <TouchableOpacity
-                  key={`ncr-${trait.name}`}
-                  style={[
-                    styles.modalButton,
-                    styles.skillOption,
-                    ((selectionMode === 'two_traits' && ncrTrait === trait.name) || singleTraitPick === trait.name) && styles.selectedButton,
-                  ]}
-                  onPress={() => {
-                    if (selectionMode === 'two_traits') setNcrTrait(trait.name);
-                    else setSingleTraitPick(trait.name);
-                  }}
-                >
-                  <Text style={styles.buttonText}>{trait.name}</Text>
-                  <Text style={styles.descriptionText}>{trait.description}</Text>
-                </TouchableOpacity>
-              ))}
-
-              {(survivorTrait === 'Добрая Душа' || ncrTrait === 'Добрая Душа' || singleTraitPick === 'Добрая Душа') && (
-                <View style={{ width: '100%' }}>
-                  <Text style={styles.sectionTitle}>Добрая Душа: выберите 2 навыка</Text>
-                  {goodSoulGroup.map((skill) => (
-                    <TouchableOpacity
-                      key={skill}
-                      style={[styles.modalButton, styles.skillOption, goodSoulPicks.includes(skill) && styles.selectedButton]}
-                      onPress={() => toggleGoodSoulPick(skill)}
-                    >
-                      <Text style={styles.buttonText}>{skill}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              {(survivorTrait === 'Одаренный' || ncrTrait === 'Одаренный' || singleTraitPick === 'Одаренный') && (
-                <View style={{ width: '100%' }}>
-                  <Text style={styles.sectionTitle}>Одаренный: выберите 2 атрибута S.P.E.C.I.A.L.</Text>
-                  {specialAttributes.map((attr) => (
-                    <TouchableOpacity
-                      key={attr}
-                      style={[styles.modalButton, styles.skillOption, giftedAttributes.includes(attr) && styles.selectedButton]}
-                      onPress={() => toggleGiftedAttribute(attr)}
-                    >
-                      <Text style={styles.buttonText}>{attr}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
+              {traitCatalog.ncr.map((trait) => {
+                let isSelected = false;
+                if (selectionMode === 'two_traits') {
+                  isSelected = isPicked(trait.name, ncrTrait);
+                } else if (selectionMode === 'trait_and_perk') {
+                  isSelected = singleTraitPick === trait.name;
+                }
+                return (
+                  <TouchableOpacity
+                    key={`ncr-${trait.name}`}
+                    style={[
+                      styles.modalButton,
+                      styles.skillOption,
+                      isSelected && styles.selectedButton,
+                    ]}
+                    onPress={() => {
+                      if (selectionMode === 'two_traits') {
+                        const survList = Array.isArray(survivorTrait) ? survivorTrait : [];
+                        const ncrList = Array.isArray(ncrTrait) ? ncrTrait : [];
+                        const total = survList.length + ncrList.length;
+                        if (ncrList.includes(trait.name)) {
+                          setNcrTrait(ncrList.filter((n) => n !== trait.name));
+                        } else if (total < 2) {
+                          setNcrTrait([...ncrList, trait.name]);
+                        }
+                      } else {
+                        setSingleTraitPick(trait.name);
+                      }
+                    }}
+                  >
+                    <Text style={styles.buttonText}>{trait.name}</Text>
+                    <Text style={styles.descriptionText}>{trait.description}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
           )}
           {selectionMode && (
@@ -299,6 +297,11 @@ const styles = StyleSheet.create({
       marginTop: 10,
       marginBottom: 6,
     },
+    hintText: {
+      color: '#333',
+      fontSize: 12,
+      marginBottom: 4,
+    },
     selectedButton: {
       borderWidth: 2,
       borderColor: '#FFFFFF',
@@ -316,4 +319,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SurvivorModal; 
+export default SurvivorModal;

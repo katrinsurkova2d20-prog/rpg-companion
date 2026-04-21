@@ -292,6 +292,8 @@ export default function CharacterScreen() {
 
   const [showResetWarning, setShowResetWarning] = useState(false);
   const [resetType, setResetType] = useState(null);
+  const [goodSoulPickerVisible, setGoodSoulPickerVisible] = useState(false);
+  const [goodSoulPicks, setGoodSoulPicks] = useState([]);
 
   // Состояние для временного распределения очков атрибутов от перков
   const [tempAttributes, setTempAttributes] = useState(null);
@@ -758,6 +760,48 @@ export default function CharacterScreen() {
     setTrait(newTrait);
     setIsTraitModalVisible(false);
 
+    // Если черта «Добрая Душа» — открываем отдельное окно выбора 2 навыков
+    if (newTrait?.modifiers?.goodSoulPending) {
+      setGoodSoulPicks([]);
+      setGoodSoulPickerVisible(true);
+    }
+  };
+
+  const goodSoulGroup = ['Красноречие', 'Медицина', 'Ремонт', 'Наука', 'Бартер'];
+
+  const toggleGoodSoulPick = (skill) => {
+    setGoodSoulPicks((prev) => {
+      if (prev.includes(skill)) return prev.filter((s) => s !== skill);
+      if (prev.length >= 2) return prev;
+      return [...prev, skill];
+    });
+  };
+
+  const handleConfirmGoodSoulSkills = () => {
+    if (goodSoulPicks.length !== 2) return;
+    const picks = [...goodSoulPicks];
+
+    setTrait((prev) => {
+      if (!prev) return prev;
+      const prevMods = prev.modifiers || {};
+      const newMods = {
+        ...prevMods,
+        goodSoulPending: false,
+        goodSoulSelectedSkills: picks,
+        goodSoulGroup: [...goodSoulGroup],
+        forcedSkills: [...new Set([...(prevMods.forcedSkills || []), ...picks])],
+        extraSkills: (prevMods.extraSkills || 0) + picks.length,
+      };
+      return { ...prev, modifiers: newMods };
+    });
+
+    setForcedSelectedSkills((prev) => [...new Set([...prev, ...picks])]);
+    setExtraTaggedSkills((prev) => [...new Set([...prev, ...picks])]);
+    setSkills((prev) =>
+      prev.map((s) => (picks.includes(s.name) && s.value < 2 ? { ...s, value: 2 } : s))
+    );
+    setGoodSoulPicks([]);
+    setGoodSoulPickerVisible(false);
   };
 
   // Обработчик нажатия на строку черты
@@ -1231,6 +1275,51 @@ export default function CharacterScreen() {
           onSelectKit={handleSelectKit}
           setCaps={setCaps}
         />
+
+        {/* Модальное окно для выбора 2 навыков «Доброй Души» */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={goodSoulPickerVisible}
+          onRequestClose={() => setGoodSoulPickerVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Добрая Душа: выберите 2 навыка</Text>
+              <Text style={{ marginBottom: 8, textAlign: 'center' }}>
+                Выберите два навыка из группы. Они будут отмечены как дополнительные.
+              </Text>
+              {goodSoulGroup.map((skill) => {
+                const isPicked = goodSoulPicks.includes(skill);
+                return (
+                  <TouchableOpacity
+                    key={skill}
+                    style={[
+                      { padding: 12, marginVertical: 4, borderRadius: 6, width: '100%', alignItems: 'center' },
+                      { backgroundColor: '#2196F3' },
+                      isPicked && { backgroundColor: '#1976D2', borderWidth: 2, borderColor: '#fff' },
+                    ]}
+                    onPress={() => toggleGoodSoulPick(skill)}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>{skill}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  styles.confirmButton,
+                  goodSoulPicks.length !== 2 && styles.disabledButton,
+                  { marginTop: 10 },
+                ]}
+                disabled={goodSoulPicks.length !== 2}
+                onPress={handleConfirmGoodSoulSkills}
+              >
+                <Text style={styles.buttonText}>Подтвердить</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {/* Модальное окно для выбора черты */}
         {TraitModalComponent && (

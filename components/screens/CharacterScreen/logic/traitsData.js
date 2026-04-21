@@ -117,7 +117,7 @@ export const TRAITS = {
     traits: [
       { name: 'Образованный', description: 'Вы получаете +2 к Интеллекту, но -1 к Удаче.', modifiers: { attributes: { 'INT': 2, 'LCK': -1 } } },
       { name: 'Быстрый выстрел', description: 'Вы получаете +1 к Ловкости, но -1 к Восприятию.', modifiers: { attributes: { 'AGI': 1, 'PER': -1 } } },
-      { name: 'Одаренный', description: 'Вы получаете +1 ко всем атрибутам, но теряете 5 очков навыков на каждом уровне.', effects: ['-5 очков навыков на уровень'], modifiers: { attributes: { 'STR': 1, 'AGI': 1, 'END': 1, 'INT': 1, 'PER': 1, 'CHA': 1, 'LCK': 1 } } },
+      { name: 'Одаренный', description: 'Вы получаете +1 ко всем атрибутам, но теряете 5 очков навыков на каждом уровне и -1 к максимуму очков удачи.', effects: ['-5 очков навыков на уровень', '-1 к максимуму очков удачи'], modifiers: { attributes: { 'STR': 1, 'AGI': 1, 'END': 1, 'INT': 1, 'PER': 1, 'CHA': 1, 'LCK': 1 }, luckMaxDelta: -1 } },
       { name: 'Тяжёлая рука', description: 'Вы получаете +2 к Силе, но -2 к Ловкости.', modifiers: { attributes: { 'STR': 2, 'AGI': -2 } } },
       { name: 'Миниатюрный', description: 'Вы получаете +1 к Ловкости, но ваш переносимый вес уменьшается.', effects: ['Уменьшенный переносимый вес'], modifiers: { attributes: { 'AGI': 1 } } }
     ]

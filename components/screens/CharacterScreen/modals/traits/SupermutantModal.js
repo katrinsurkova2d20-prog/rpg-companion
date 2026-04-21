@@ -1,4 +1,5 @@
 import React from 'react';
+import { renderTextWithIcons } from '../../../WeaponsAndArmorScreen/textUtils';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { TRAITS } from '../../logic/traitsData';
 
@@ -61,7 +62,7 @@ const SupermutantModal = ({ visible, onSelect, onClose, infoOnly = false }) => {
           <Text style={styles.modalTitle}>Супермутант</Text>
           <Text style={styles.traitName}>{trait.name}</Text>
           
-          <Text style={styles.modalText}>{trait.description}</Text>
+          {renderTextWithIcons(trait.description, styles.modalText)}
           
           <TouchableOpacity
             style={[styles.modalButton, styles.confirmButton]}

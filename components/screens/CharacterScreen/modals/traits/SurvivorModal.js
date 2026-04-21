@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { renderTextWithIcons } from '../../../WeaponsAndArmorScreen/textUtils';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, ScrollView } from 'react-native';
 import { TRAITS } from '../../logic/traitsData';
 
@@ -179,7 +180,7 @@ const SurvivorModal = ({
                     }}
                   >
                     <Text style={styles.buttonText}>{trait.name}</Text>
-                    <Text style={styles.descriptionText}>{trait.description}</Text>
+                    {renderTextWithIcons(trait.description, styles.descriptionText)}
                   </TouchableOpacity>
                 );
               })}
@@ -216,7 +217,7 @@ const SurvivorModal = ({
                     }}
                   >
                     <Text style={styles.buttonText}>{trait.name}</Text>
-                    <Text style={styles.descriptionText}>{trait.description}</Text>
+                    {renderTextWithIcons(trait.description, styles.descriptionText)}
                   </TouchableOpacity>
                 );
               })}

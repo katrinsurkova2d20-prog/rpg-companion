@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { renderTextWithIcons } from '../../../WeaponsAndArmorScreen/textUtils';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { TRAITS } from '../../logic/traitsData';
 
@@ -40,7 +41,7 @@ const MinutemanModal = ({ visible, onSelect, onClose }) => {
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Минитмен</Text>
           <Text style={styles.traitName}>{traitName}</Text>
-          <Text style={styles.modalText}>{trait.description}</Text>
+          {renderTextWithIcons(trait.description, styles.modalText)}
           
           {trait.forcedSkills?.map(skill => (
             <TouchableOpacity

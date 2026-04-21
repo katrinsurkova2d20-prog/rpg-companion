@@ -1,4 +1,5 @@
 import React from 'react';
+import { renderTextWithIcons } from '../../../WeaponsAndArmorScreen/textUtils';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 
 export const traitConfig = {
@@ -44,7 +45,7 @@ const RoboBrainModal = ({ visible, onSelect, onClose }) => {
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Робомозг</Text>
           <Text style={styles.traitName}>{trait.name}</Text>
-          <Text style={styles.modalText}>{trait.description}</Text>
+          {renderTextWithIcons(trait.description, styles.modalText)}
           <TouchableOpacity
             style={[styles.modalButton, styles.confirmButton]}
             onPress={handleConfirm}

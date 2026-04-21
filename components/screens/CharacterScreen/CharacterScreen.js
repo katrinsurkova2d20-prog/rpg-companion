@@ -1177,12 +1177,19 @@ export default function CharacterScreen() {
                 </View>
                 {attributesSaved && !skillsSaved && (() => {
                   const extraSkillsFromTrait = trait?.extraSkills || trait?.modifiers?.extraSkills || 0;
-                  const maxTagged = BASE_TAGGED_SKILLS + extraSkillsFromTrait;
                   const taggedCount = selectedSkills.length;
+                  const extraCount = extraTaggedSkills.length;
                   return (
-                    <Text style={styles.taggedSkillsHint}>
-                      {tCharacterScreen("labels.taggedSkills", "Отмечено навыков")}: {taggedCount}/{maxTagged}
-                    </Text>
+                    <>
+                      <Text style={styles.taggedSkillsHint}>
+                        {tCharacterScreen("labels.taggedSkills", "Отмечено навыков")}: {taggedCount}/{BASE_TAGGED_SKILLS}
+                      </Text>
+                      {extraSkillsFromTrait > 0 && (
+                        <Text style={styles.taggedSkillsHint}>
+                          {tCharacterScreen("labels.extraTaggedSkills", "Дополнительные навыки от черты")}: {extraCount}/{extraSkillsFromTrait}
+                        </Text>
+                      )}
+                    </>
                   );
                 })()}
                 <View style={styles.skillsHeader}>

@@ -136,6 +136,8 @@ const SkillRow = ({
   rowStyle,
   disabled,
   trait,
+  italic,
+  increaseDisabled,
 }) => {
   return (
     <View style={[styles.skillRow, rowStyle]}>
@@ -156,6 +158,7 @@ const SkillRow = ({
             styles.skillName,
             isSelected && styles.skillNameSelected,
             isForced && styles.skillNameForced,
+            italic && { fontStyle: 'italic' },
           ]}
         >
           {name}
@@ -167,6 +170,7 @@ const SkillRow = ({
           onIncrease={onIncrease}
           onDecrease={onDecrease}
           isMaxReached={isMaxReached}
+          increaseDisabled={increaseDisabled}
         />
       ) : (
         <Text style={styles.skillValue}>{value}</Text>
@@ -1186,35 +1190,46 @@ export default function CharacterScreen() {
                   <Text style={styles.skillsHeaderText}>{tCharacterScreen("labels.value", "Значение")}</Text>
                 </View>
 
-                {skills.map((skill, index) => {
-                  const isTagged =
-                    selectedSkills.includes(skill.name) ||
-                    extraTaggedSkills.includes(skill.name);
-                  const isForced =
-                    forcedSelectedSkills.includes(skill.name) && isTagged;
-                  const maxValue = level === 1 ? (isTagged ? 3 : 3) : 6;
-                  const isMaxReached = skill.value >= maxValue;
-                  const rowStyle =
-                    index % 2 === 0 ? styles.evenRow : styles.oddRow;
+                {(() => {
+                  const goodSoulGroupSkills = ['Красноречие', 'Медицина', 'Ремонт', 'Наука', 'Бартер'];
+                  const goodSoulSelected = trait?.modifiers?.goodSoulSelectedSkills || [];
+                  const isGoodSoulActive = Array.isArray(goodSoulSelected) && goodSoulSelected.length > 0;
+                  return skills.map((skill, index) => {
+                    const isTagged =
+                      selectedSkills.includes(skill.name) ||
+                      extraTaggedSkills.includes(skill.name);
+                    const isForced =
+                      forcedSelectedSkills.includes(skill.name) && isTagged;
+                    const isGoodSoulCapped =
+                      isGoodSoulActive &&
+                      goodSoulGroupSkills.includes(skill.name) &&
+                      !goodSoulSelected.includes(skill.name);
+                    const baseMax = level === 1 ? 3 : 6;
+                    const maxValue = isGoodSoulCapped ? Math.min(baseMax, 4) : baseMax;
+                    const isMaxReached = skill.value >= maxValue;
+                    const rowStyle =
+                      index % 2 === 0 ? styles.evenRow : styles.oddRow;
 
-                  return (
-                    <SkillRow
-                      key={index}
-                      name={getSkillDisplayName(skill.name)}
-                      value={skill.value}
-                      isSelected={isTagged}
-                      isMaxReached={isMaxReached}
-                      isForced={isForced}
-                      onToggle={() => handleToggleSkill(skill.name)}
-                      onIncrease={() => handleChangeSkillValue(index, 1)}
-                      onDecrease={() => handleChangeSkillValue(index, -1)}
-                      rowStyle={rowStyle}
-                      disabled={!canDistributeSkills && !showTraitSkillModal}
-                      trait={trait}
-                      increaseDisabled={skillPointsLeft <= 0}
-                    />
-                  );
-                })}
+                    return (
+                      <SkillRow
+                        key={index}
+                        name={getSkillDisplayName(skill.name)}
+                        value={skill.value}
+                        isSelected={isTagged}
+                        isMaxReached={isMaxReached}
+                        isForced={isForced}
+                        onToggle={() => handleToggleSkill(skill.name)}
+                        onIncrease={() => handleChangeSkillValue(index, 1)}
+                        onDecrease={() => handleChangeSkillValue(index, -1)}
+                        rowStyle={rowStyle}
+                        disabled={!canDistributeSkills && !showTraitSkillModal}
+                        trait={trait}
+                        italic={isGoodSoulCapped}
+                        increaseDisabled={skillPointsLeft <= 0}
+                      />
+                    );
+                  });
+                })()}
 
                 {attributesSaved && !skillsSaved && (
                   <View style={styles.buttonsContainer}>

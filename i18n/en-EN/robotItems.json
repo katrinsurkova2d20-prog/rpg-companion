@@ -1,0 +1,31 @@
+[
+  {
+    "id": "robot_item_repair_kit",
+    "name": "Ремкомплект для роботов",
+    "Name": "Ремкомплект для роботов",
+    "itemType": "misc",
+    "weight": 0,
+    "cost": 0,
+    "rarity": 0,
+    "robotOnly": true,
+    "healAmount": 6
+  },
+  {
+    "id": "robot_item_fertilizer_bag",
+    "name": "Мешок удобрений",
+    "Name": "Мешок удобрений",
+    "itemType": "misc",
+    "weight": 1,
+    "cost": 0,
+    "rarity": 0
+  },
+  {
+    "id": "food_mutafruit",
+    "name": "Мутафрукт",
+    "Name": "Мутафрукт",
+    "itemType": "food",
+    "weight": 0.5,
+    "cost": 0,
+    "rarity": 0
+  }
+]

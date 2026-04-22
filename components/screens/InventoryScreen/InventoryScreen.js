@@ -32,7 +32,8 @@ const InventoryScreen = () => {
     attributes, level,
     currentHealth, setCurrentHealth,
     applyConsumableTimedEffects,
-    getModifiedItem
+    getModifiedItem,
+    trait
   } = useCharacter();
   
   const [isCapsModalVisible, setIsCapsModalVisible] = useState(false);
@@ -84,6 +85,16 @@ const InventoryScreen = () => {
     if (itemType === 'ammo') return '🔹';
     return '📦';
   };
+
+  const isRobotCharacter = Boolean(trait?.modifiers?.isRobot);
+  const isRobotOnlyItem = (item) => Boolean(item?.robotOnly || String(item?.id || '').startsWith('robot_'));
+  const isPowerArmorItem = (item) => {
+    const category = String(item?.category || item?.armorCategoryKey || '').toLowerCase();
+    const name = String(getItemName(item) || '').toLowerCase();
+    return category.includes('power') || name.includes('силов');
+  };
+  const toWeight = (value) => parseFloat(String(value ?? 0).replace(',', '.')) || 0;
+
   const resolveLocalizedItem = (item) => {
     if (!item || !item.id) return item;
     const itemType = getItemType(item);
@@ -155,7 +166,7 @@ const InventoryScreen = () => {
       };
     }
 
-    const base = (equipmentCatalog?.miscellaneous || []).find((entry) => entry.id === item.id);
+    const base = (equipmentCatalog?.miscellaneous || []).find((entry) => entry.id === item.id) || (equipmentCatalog?.robotModules || []).find((entry) => entry.id === item.id) || (equipmentCatalog?.robotItems || []).find((entry) => entry.id === item.id);
     if (!base) return item;
     return {
       ...base,
@@ -184,6 +195,10 @@ const InventoryScreen = () => {
     const itemName = getItemName(consumableItem);
 
     const applyToSelf = () => {
+      if (isRobotCharacter) {
+        Alert.alert(tInventory('screen.alerts.robotCannotSelfUseTitle', 'Ограничение робота'), tInventory('screen.alerts.robotCannotSelfUseMessage', 'Роботы не могут применять еду, напитки и препараты на себя.'));
+        return;
+      }
       const timedResult = applyConsumableTimedEffects(consumableItem);
       if (consumableItem.healAmount) {
         const maxHealth = calculateMaxHealth(attributes, level);
@@ -389,6 +404,21 @@ const InventoryScreen = () => {
   const handleEquipWeapon = (weaponToEquip) => {
     const displayWeapon = weaponToEquip;
     
+    if (isRobotOnlyItem(displayWeapon) && !isRobotCharacter) {
+      Alert.alert(tInventory('screen.alerts.robotOnlyWeaponTitle', 'Ограничение экипировки'), tInventory('screen.alerts.robotOnlyWeaponMessage', 'Это оружие могут использовать только роботы.'));
+      return;
+    }
+    if (!isRobotOnlyItem(displayWeapon) && isRobotCharacter) {
+      const hasManipulatorEquipped = equippedWeapons.some((w) => Boolean(w?.builtinManipulator));
+      if (hasManipulatorEquipped) {
+        const candidateWeight = toWeight(displayWeapon.weight);
+        if (candidateWeight > 40) {
+          Alert.alert(tInventory('screen.alerts.manipulatorWeightTitle', 'Перегрузка манипулятора'), tInventory('screen.alerts.manipulatorWeightMessage', 'Это оружие превышает допустимый удерживаемый вес манипулятора (40 фунтов).'));
+          return;
+        }
+      }
+    }
+
     const sourceStackKey = weaponToEquip.stackKey || getStackKey(displayWeapon);
     
     // Проверяем количество этого конкретного предмета в инвентаре
@@ -532,6 +562,14 @@ const InventoryScreen = () => {
 
   const handleEquipArmor = (itemToEquip) => {
     const currentEquipped = equippedArmor;
+    if (isRobotCharacter && !isRobotOnlyItem(itemToEquip)) {
+      Alert.alert(tInventory('screen.alerts.robotArmorOnlyTitle', 'Ограничение экипировки'), tInventory('screen.alerts.robotArmorOnlyMessage', 'Роботы не могут экипировать типовую или силовую броню.'));
+      return;
+    }
+    if (isRobotCharacter && isPowerArmorItem(itemToEquip)) {
+      Alert.alert(tInventory('screen.alerts.robotArmorOnlyTitle', 'Ограничение экипировки'), tInventory('screen.alerts.robotArmorOnlyMessage', 'Роботы не могут экипировать типовую или силовую броню.'));
+      return;
+    }
     const canWearUnderArmor = itemToEquip.itemType === 'clothing' && (
       itemToEquip.allowsArmor === true || itemToEquip.clothingType === 'suit'
     );

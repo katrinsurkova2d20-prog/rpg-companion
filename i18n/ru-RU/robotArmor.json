@@ -1,0 +1,51 @@
+{
+  "armor": [
+    {
+      "type": "Броня роботов",
+      "items": [
+        {
+          "id": "robot_armor_standard_plating",
+          "name": "Стандартная обшивка",
+          "Name": "Стандартная обшивка",
+          "Название": "Стандартная обшивка",
+          "itemType": "armor",
+          "protectedAreas": [
+            "Head",
+            "Body",
+            "Hand",
+            "Leg"
+          ],
+          "physicalDamageRating": 1,
+          "energyDamageRating": 1,
+          "radiationDamageRating": 0,
+          "weight": 0,
+          "cost": 0,
+          "rarity": 0,
+          "robotOnly": true,
+          "robotArmorType": "standard"
+        },
+        {
+          "id": "robot_armor_mister_gutsy_plating",
+          "name": "Обшивка для Мистера Храбреца",
+          "Name": "Обшивка для Мистера Храбреца",
+          "Название": "Обшивка для Мистера Храбреца",
+          "itemType": "armor",
+          "protectedAreas": [
+            "Head",
+            "Body",
+            "Hand",
+            "Leg"
+          ],
+          "physicalDamageRating": 1,
+          "energyDamageRating": 1,
+          "radiationDamageRating": 0,
+          "weight": 0,
+          "cost": 0,
+          "rarity": 0,
+          "robotOnly": true,
+          "robotArmorType": "gutsy"
+        }
+      ]
+    }
+  ]
+}

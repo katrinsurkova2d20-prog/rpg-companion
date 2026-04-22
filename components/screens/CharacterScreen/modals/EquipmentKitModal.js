@@ -8,6 +8,7 @@ const CATEGORY_LABELS = {
   clothing: 'Одежда',
   chem: 'Химия',
   misc: 'Разное',
+  module: 'Модули',
   food: 'Провизия',
   loot: 'Прочее',
   currency: 'Валюта',
@@ -15,7 +16,7 @@ const CATEGORY_LABELS = {
   ammo: 'Патроны',
 };
 
-const CATEGORY_ORDER = ['armor', 'clothing', 'weapon', 'chem', 'food', 'ammo', 'misc', 'loot', 'currency', 'currency_ncr'];
+const CATEGORY_ORDER = ['armor', 'clothing', 'weapon', 'module', 'chem', 'food', 'ammo', 'misc', 'loot', 'currency', 'currency_ncr'];
 
 const toChoiceKey = (kitId, itemIndex) => `${kitId}-${itemIndex}`;
 const toGroupKey = (group = []) => `group-${group.map((item) => item?.itemId || item?.weaponId || item?.name).join('+')}`;
@@ -111,6 +112,21 @@ const summarizeItems = (items) => {
 
 const getDisplayName = (item) => item.displayName || item.Название || item.name || item.itemId || item.weaponId || 'Неизвестный предмет';
 const getItemCategory = (item) => item?.itemType || (item?.weaponId ? 'weapon' : 'misc');
+
+
+const formatQuantitySuffix = (item) => {
+  const qty = Number(item?.quantity || 0);
+  if (!qty || qty <= 1) return '';
+  if (item?.itemType === 'currency') return ` (${qty} крышек)`;
+  return ` (${qty} шт.)`;
+};
+
+const formatAmmoSuffix = (ammo) => {
+  if (!ammo) return '';
+  const qty = Number(ammo.quantity || 0);
+  const qtyText = qty > 0 ? `${qty} шт.` : '0 шт.';
+  return ` (${qtyText} ${ammo.name})`;
+};
 
 const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => {
   const [expandedKit, setExpandedKit] = useState(null);
@@ -249,8 +265,9 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
                                           >
                                             <View style={[styles.radio, selected && styles.radioSelected]} />
                                             <Text>{optionLabel}</Text>
+                                            <Text>{formatQuantitySuffix(option)}</Text>
                                             {option?.resolvedAmmunition && (
-                                              <Text style={styles.ammoText}> ({option.resolvedAmmunition.quantity}шт. {option.resolvedAmmunition.name})</Text>
+                                              <Text style={styles.ammoText}>{formatAmmoSuffix(option.resolvedAmmunition)}</Text>
                                             )}
                                           </TouchableOpacity>
                                         );
@@ -261,9 +278,9 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
 
                                 return (
                                   <View key={`fixed-${entry._entryIndex}`} style={styles.fixedItem}>
-                                    <Text>{getDisplayName(entry)}</Text>
+                                    <Text>{getDisplayName(entry)}{formatQuantitySuffix(entry)}</Text>
                                     {entry.resolvedAmmunition && (
-                                      <Text style={styles.ammoText}> ({entry.resolvedAmmunition.quantity}шт. {entry.resolvedAmmunition.name})</Text>
+                                      <Text style={styles.ammoText}>{formatAmmoSuffix(entry.resolvedAmmunition)}</Text>
                                     )}
                                   </View>
                                 );

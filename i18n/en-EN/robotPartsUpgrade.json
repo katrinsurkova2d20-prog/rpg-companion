@@ -1,0 +1,18 @@
+[
+  {
+    "id": "robot_body_mister_handy",
+    "name": "Mr. Handy body",
+    "slot": "body",
+    "partType": "body",
+    "itemType": "robotPart",
+    "robotBodyPlan": "misterHandy",
+    "requiresManipulatorForStandardWeapons": true,
+    "allowedRobotWeaponIds": [
+      "robot_weapon_manipulator",
+      "robot_weapon_circular_saw",
+      "robot_weapon_auto_10mm",
+      "robot_weapon_flamethrower",
+      "robot_weapon_laser_cutter"
+    ]
+  }
+]

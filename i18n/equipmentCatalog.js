@@ -16,6 +16,7 @@ import ruRobotWeapons from './ru-RU/robotWeapons.json';
 import ruRobotArmor from './ru-RU/robotArmor.json';
 import ruRobotModules from './ru-RU/robotModules.json';
 import ruRobotItems from './ru-RU/robotItems.json';
+import ruRobotPartsUpgrade from './ru-RU/robotPartsUpgrade.json';
 
 import enWeapons from './en-EN/weapons.json';
 import enWeaponMods from './en-EN/weapon_mods.json';
@@ -35,6 +36,7 @@ import enRobotWeapons from './en-EN/robotWeapons.json';
 import enRobotArmor from './en-EN/robotArmor.json';
 import enRobotModules from './en-EN/robotModules.json';
 import enRobotItems from './en-EN/robotItems.json';
+import enRobotPartsUpgrade from './en-EN/robotPartsUpgrade.json';
 
 import {
   flattenArmorCatalog,
@@ -65,6 +67,7 @@ const EQUIPMENT_BY_LOCALE = {
     robotArmor: ruRobotArmor,
     robotModules: ruRobotModules,
     robotItems: ruRobotItems,
+    robotPartsUpgrade: ruRobotPartsUpgrade,
   },
   'en-EN': {
     weapons: enWeapons,
@@ -85,6 +88,7 @@ const EQUIPMENT_BY_LOCALE = {
     robotArmor: enRobotArmor,
     robotModules: enRobotModules,
     robotItems: enRobotItems,
+    robotPartsUpgrade: enRobotPartsUpgrade,
   },
 };
 
@@ -133,5 +137,6 @@ export const getEquipmentCatalog = (locale = getCurrentLocale()) => {
     drinks: validateConsumablesContract(baseCatalog.drinks, ['drinks'], 'drinks'),
     robotModules: Array.isArray(baseCatalog.robotModules) ? baseCatalog.robotModules : [],
     robotItems: Array.isArray(baseCatalog.robotItems) ? baseCatalog.robotItems : [],
+    robotPartsUpgrade: Array.isArray(baseCatalog.robotPartsUpgrade) ? baseCatalog.robotPartsUpgrade : [],
   };
 };

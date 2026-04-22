@@ -20,6 +20,12 @@ function slugify(str) {
   return str.toLowerCase().replace(/[^a-zа-яё0-9]/gi, '_').replace(/_+/g, '_').slice(0, 40);
 }
 
+const ROBOT_WEAPON_BASE_MAP = {
+  robot_weapon_flamethrower: 'weapon_022',
+  robot_weapon_laser_cutter: 'weapon_018',
+  robot_weapon_auto_10mm: 'weapon_002',
+};
+
 async function clearTable(tableName) {
   await runQuery(`DELETE FROM ${tableName}`, []);
 }
@@ -59,7 +65,14 @@ async function seedWeapons(equipmentCatalog) {
 async function seedWeaponMods(equipmentCatalog) {
   const { weaponMods: weaponModsData } = equipmentCatalog;
   await clearTable('weapon_mods');
-  const statements = weaponModsData.map(m => ({
+  const statements = weaponModsData.map((m) => {
+    const baseIds = Array.isArray(m.applies_to_ids) ? m.applies_to_ids : [];
+    const robotAliases = Object.entries(ROBOT_WEAPON_BASE_MAP)
+      .filter(([, baseId]) => baseIds.includes(baseId))
+      .map(([robotId]) => robotId);
+    const appliesToIds = Array.from(new Set([...baseIds, ...robotAliases]));
+
+    return {
     sql: `INSERT OR REPLACE INTO weapon_mods
       (id, name, prefix, slot, complexity, perk_1, perk_2, skill, rarity, materials,
        cost, effects, effect_description, weight, applies_to_ids)
@@ -79,9 +92,10 @@ async function seedWeaponMods(equipmentCatalog) {
       safeStr(m.Effects),
       safeStr(m.EffectDescription),
       safeStr(m.Weight),
-      m.applies_to_ids ? JSON.stringify(m.applies_to_ids) : null,
+      appliesToIds.length ? JSON.stringify(appliesToIds) : null,
     ],
-  }));
+  };
+  });
   if (statements.length > 0) await runBatch(statements);
 }
 
@@ -89,7 +103,16 @@ async function seedWeaponModSlots(equipmentCatalog) {
   const { modsOverrides: modsOverridesData } = equipmentCatalog;
   await clearTable('weapon_mod_slots');
   const statements = [];
-  for (const [weaponId, slots] of Object.entries(modsOverridesData)) {
+  const robotSlotOverrides = {};
+
+  Object.entries(ROBOT_WEAPON_BASE_MAP).forEach(([robotWeaponId, baseWeaponId]) => {
+    if (modsOverridesData[baseWeaponId]) {
+      robotSlotOverrides[robotWeaponId] = modsOverridesData[baseWeaponId];
+    }
+  });
+
+  const mergedOverrides = { ...modsOverridesData, ...robotSlotOverrides };
+  for (const [weaponId, slots] of Object.entries(mergedOverrides)) {
     for (const [slot, modIds] of Object.entries(slots)) {
       for (const modId of modIds) {
         statements.push({

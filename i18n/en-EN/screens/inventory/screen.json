@@ -21,7 +21,15 @@
     "windowApplyConsumableQuestion": "Use {itemName} on yourself? Press Cancel to use it on another character.",
     "healMessage": "Restored {healAmount} health.",
     "appliedSelfMessage": "{itemName} was used on you.",
-    "appliedOtherMessage": "{itemName} was used on another character."
+    "appliedOtherMessage": "{itemName} was used on another character.",
+    "robotCannotSelfUseTitle": "Ограничение робота",
+    "robotCannotSelfUseMessage": "Роботы не могут применять еду, напитки и препараты на себя.",
+    "robotOnlyWeaponTitle": "Ограничение экипировки",
+    "robotOnlyWeaponMessage": "Это оружие могут использовать только роботы.",
+    "manipulatorWeightTitle": "Перегрузка манипулятора",
+    "manipulatorWeightMessage": "Это оружие превышает допустимый удерживаемый вес манипулятора (40 фунтов).",
+    "robotArmorOnlyTitle": "Ограничение экипировки",
+    "robotArmorOnlyMessage": "Роботы не могут экипировать типовую или силовую броню."
   },
   "actions": {
     "cancel": "Cancel",

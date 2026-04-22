@@ -111,6 +111,8 @@ const resolveItemById = (item) => {
       ...flattenGroupedItems(catalog?.miscellaneous),
       ...(catalog?.chems || []),
       ...(catalog?.drinks || []),
+      ...(catalog?.robotModules || []),
+      ...(catalog?.robotItems || []),
     ];
     const found = all.find((entry) => entry.id === item.itemId);
     if (found) {

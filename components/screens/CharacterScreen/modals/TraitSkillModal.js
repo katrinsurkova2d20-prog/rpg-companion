@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { tCharacterScreen } from '../logic/characterScreenI18n';
 
 const TraitSkillModal = ({ 
   visible, 
@@ -8,7 +9,7 @@ const TraitSkillModal = ({
   onCancel 
 }) => {
   // Показываем модальное окно только если черта существует И принадлежит Братству Стали
-  if (!trait || trait.origin !== 'Братство Стали') return null;
+  if (!trait || trait.origin !== tCharacterScreen('origins.brotherhoodOfSteel', 'Brotherhood of Steel')) return null;
 
   return (
     <Modal
@@ -19,7 +20,7 @@ const TraitSkillModal = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Выберите дополнительный навык</Text>
+          <Text style={styles.modalTitle}>{tCharacterScreen('modals.traitSkill.title', 'Select extra skill')}</Text>
           
           {trait.description && (
             <Text style={styles.modalText}>{trait.description}</Text>
@@ -39,7 +40,7 @@ const TraitSkillModal = ({
             style={[styles.modalButton, styles.cancelButton]}
             onPress={onCancel}
           >
-            <Text style={styles.buttonText}>Отмена</Text>
+            <Text style={styles.buttonText}>{tCharacterScreen('buttons.cancel', 'Cancel')}</Text>
           </TouchableOpacity>
         </View>
       </View>

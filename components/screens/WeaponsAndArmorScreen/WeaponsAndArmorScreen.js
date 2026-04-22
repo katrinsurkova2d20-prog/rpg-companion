@@ -162,6 +162,8 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
     const isNcrInfantryWeapon = displayWeapon && ncrInfantryWeaponIds.includes(displayWeapon.id ?? displayWeapon.weaponId);
 
     const damageWithNcr = hasTrait('Пехотинец') && isNcrInfantryWeapon ? baseDamage + 1 : baseDamage;
+    const hasSecondaryWeaponOverManipulator = Boolean(displayWeapon?.builtinManipulator) && (equippedWeapons || []).some((w) => w && !w.builtinManipulator);
+    const visibleDamage = hasSecondaryWeaponOverManipulator ? 0 : damageWithNcr;
 
     // Снижение базовой скорострельности на 1 при "Техника спуска" для стрелкового и энергооружия
     const equippedWeaponTypes = (equippedWeapons || [])
@@ -179,7 +181,7 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
     const stats = [
       { label: tWeaponsAndArmorScreen('weapon.fields.success'), value: `${successValue}` },
       { label: tWeaponsAndArmorScreen('weapon.fields.damageType'), value: damageType },
-      { label: tWeaponsAndArmorScreen('weapon.fields.damage'), value: `${damageWithNcr}` },
+      { label: tWeaponsAndArmorScreen('weapon.fields.damage'), value: `${visibleDamage}` },
       { label: tWeaponsAndArmorScreen('weapon.fields.effect'), value: effectsValue },
       { label: tWeaponsAndArmorScreen('weapon.fields.fireRate'), value: fireRateWithTrait },
       { label: tWeaponsAndArmorScreen('weapon.fields.range'), value: rangeValue },
@@ -280,7 +282,8 @@ const WeaponsAndArmorScreen = () => {
   const meleeBonus = calculateMeleeBonus(attributes, trait);
   const maxHealth = attributesSaved ? calculateMaxHealth(attributes, level) : 0;
   
-  const hasRadImmunity = effects.includes('Иммунитет к радиации');
+  const isMisterHandyRobot = Boolean(trait?.modifiers?.isRobot && trait?.modifiers?.robotBodyPlan === 'misterHandy');
+  const hasRadImmunity = isMisterHandyRobot || effects.includes('Иммунитет к радиации');
   const hasPoisonImmunity = effects.includes('Иммунитет к яду');
   const hasTimedEffects = (activeTimedEffects || []).length > 0;
   const equipmentCatalog = getEquipmentCatalog(locale);
@@ -355,8 +358,16 @@ const WeaponsAndArmorScreen = () => {
     const slotData = equippedArmor[slotKey];
     const armorItem = findLocalizedArmor(equipmentCatalog, slotData ? slotData.armor : null);
     const clothingItem = findLocalizedClothing(equipmentCatalog, slotData ? slotData.clothing : null);
+    const robotSlotTitles = isMisterHandyRobot ? {
+      head: 'Оптика',
+      body: 'Корпус',
+      leftArm: 'Рука 1',
+      rightArm: 'Рука 2',
+      leftLeg: 'Рука 3',
+      rightLeg: 'Двигатель',
+    } : null;
     const config = {
-      title: tWeaponsAndArmorScreen(`armor.slots.${slotKey}.title`),
+      title: robotSlotTitles?.[slotKey] || tWeaponsAndArmorScreen(`armor.slots.${slotKey}.title`),
       subtitle: tWeaponsAndArmorScreen(`armor.slots.${slotKey}.subtitle`),
     };
 

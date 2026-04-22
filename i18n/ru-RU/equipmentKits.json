@@ -3,87 +3,141 @@
     {
       "id": "brotherhood",
       "name": "Братство Стали",
-      "equipmentKits": ["brotherhood_initiate", "brotherhood_scribe"]
+      "equipmentKits": [
+        "brotherhood_initiate",
+        "brotherhood_scribe"
+      ]
     },
     {
       "id": "ncr",
       "name": "Житель НКР",
-      "equipmentKits": ["ncr_infantry", "ncr_caravaneer", "ncr_marksman"]
+      "equipmentKits": [
+        "ncr_infantry",
+        "ncr_caravaneer",
+        "ncr_marksman"
+      ]
     },
     {
       "id": "minuteman",
       "name": "Минитмен",
-      "equipmentKits": ["minuteman_shooter", "minuteman_skirmisher"]
+      "equipmentKits": [
+        "minuteman_shooter",
+        "minuteman_skirmisher"
+      ]
     },
     {
       "id": "childOfAtom",
       "name": "Дитя Атома",
-      "equipmentKits": ["atom_missionary", "atom_zealot"]
+      "equipmentKits": [
+        "atom_missionary",
+        "atom_zealot"
+      ]
     },
     {
       "id": "vaultDweller",
       "name": "Обитатель убежища",
-      "equipmentKits": ["vault_security", "vault_resident"]
+      "equipmentKits": [
+        "vault_security",
+        "vault_resident"
+      ]
     },
     {
       "id": "ghoul",
       "name": "Гуль",
-      "equipmentKits": ["wastelander_mercenary", "wastelander_settler", "wastelander_wanderer", "wastelander_raider", "wastelander_trader"]
+      "equipmentKits": [
+        "wastelander_mercenary",
+        "wastelander_settler",
+        "wastelander_wanderer",
+        "wastelander_raider",
+        "wastelander_trader"
+      ]
     },
     {
       "id": "survivor",
       "name": "Выживший",
-      "equipmentKits": ["wastelander_mercenary", "wastelander_settler", "wastelander_wanderer", "wastelander_raider", "wastelander_trader"]
+      "equipmentKits": [
+        "wastelander_mercenary",
+        "wastelander_settler",
+        "wastelander_wanderer",
+        "wastelander_raider",
+        "wastelander_trader"
+      ]
     },
     {
       "id": "superMutant",
       "name": "Супермутант",
-      "equipmentKits": ["supermutant_bruiser", "supermutant_skirmisher"]
+      "equipmentKits": [
+        "supermutant_bruiser",
+        "supermutant_skirmisher"
+      ]
     },
     {
       "id": "brotherhoodOutcast",
       "name": "Изгой Братства Стали",
-      "equipmentKits": ["outcast_former_knight", "outcast_former_scribe"]
+      "equipmentKits": [
+        "outcast_former_knight",
+        "outcast_former_scribe"
+      ]
     },
     {
       "id": "robobrain",
       "name": "Робомозг",
-      "equipmentKits": ["robobrain_hypnotron"]
+      "equipmentKits": [
+        "robobrain_hypnotron"
+      ]
     },
     {
       "id": "securitron",
       "name": "Секьюритрон",
-      "equipmentKits": ["default_caps_only"]
+      "equipmentKits": [
+        "default_caps_only"
+      ]
     },
     {
       "id": "assaultron",
       "name": "Штурмотрон",
-      "equipmentKits": ["default_caps_only"]
+      "equipmentKits": [
+        "default_caps_only"
+      ]
     },
     {
       "id": "misterHandy",
       "name": "Мистер Помощник",
-      "equipmentKits": ["default_caps_only"]
+      "equipmentKits": [
+        "mister_handy_assistant",
+        "mister_handy_brave",
+        "mister_handy_nanny",
+        "mister_handy_medic",
+        "mister_handy_farmer"
+      ]
     },
     {
       "id": "protectron",
       "name": "Протектрон",
-      "equipmentKits": ["default_caps_only"]
+      "equipmentKits": [
+        "default_caps_only"
+      ]
     },
     {
       "id": "shadow",
       "name": "Тень",
-      "equipmentKits": ["default_caps_only"]
+      "equipmentKits": [
+        "default_caps_only"
+      ]
     },
     {
       "id": "synth",
       "name": "Синт",
-      "equipmentKits": ["default_caps_only"]
+      "equipmentKits": [
+        "default_caps_only"
+      ]
     },
     {
       "id": "savage",
       "name": "Дикарь",
-      "equipmentKits": ["default_caps_only"]
+      "equipmentKits": [
+        "default_caps_only"
+      ]
     }
   ],
   "equipmentKitGroups": {
@@ -425,7 +479,10 @@
           "type": "fixed",
           "weaponId": "weapon_007",
           "itemType": "weapon",
-          "modIds": ["mod_005", "mod_035"],
+          "modIds": [
+            "mod_005",
+            "mod_035"
+          ],
           "ammo": {
             "ammoId": "ammo_014",
             "quantity": {
@@ -1296,7 +1353,9 @@
           "type": "fixed",
           "weaponId": "weapon_011",
           "itemType": "weapon",
-          "modIds": ["mod_005"],
+          "modIds": [
+            "mod_005"
+          ],
           "ammo": {
             "ammoId": "ammo_014",
             "quantity": {
@@ -1458,6 +1517,250 @@
           "type": "fixed",
           "itemType": "currency",
           "quantity": 100
+        }
+      ]
+    },
+    "mister_handy_assistant": {
+      "name": "Мистер Помощник",
+      "items": [
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_manipulator",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_flamethrower",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_circular_saw",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "armorId": "robot_armor_standard_plating",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "itemId": "robot_item_repair_kit",
+          "itemType": "misc"
+        },
+        {
+          "type": "fixed",
+          "itemId": "robot_module_boiler",
+          "itemType": "module"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 10
+        }
+      ]
+    },
+    "mister_handy_brave": {
+      "name": "Мистер Храбрец",
+      "items": [
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_auto_10mm",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_circular_saw",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_laser_cutter",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "armorId": "robot_armor_mister_gutsy_plating",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "itemId": "robot_module_recon_sensors",
+          "itemType": "module"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 10
+        }
+      ]
+    },
+    "mister_handy_nanny": {
+      "name": "Мисс Няня",
+      "items": [
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_manipulator",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_flamethrower",
+          "itemType": "weapon"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "robot_weapon_manipulator",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_laser_cutter",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_circular_saw",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_flamethrower",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_auto_10mm",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "armorId": "robot_armor_standard_plating",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "itemId": "robot_module_behavior_analysis",
+          "itemType": "module"
+        },
+        {
+          "type": "fixed",
+          "itemId": "robot_module_hazard_detection",
+          "itemType": "module"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 10
+        }
+      ]
+    },
+    "mister_handy_medic": {
+      "name": "Медбрат Помощник",
+      "items": [
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "robot_weapon_manipulator",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_circular_saw",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_circular_saw",
+          "itemType": "weapon"
+        },
+        {
+          "type": "choice",
+          "items": [
+            {
+              "weaponId": "robot_weapon_manipulator",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_laser_cutter",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_circular_saw",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_flamethrower",
+              "itemType": "weapon"
+            },
+            {
+              "weaponId": "robot_weapon_auto_10mm",
+              "itemType": "weapon"
+            }
+          ]
+        },
+        {
+          "type": "fixed",
+          "armorId": "robot_armor_standard_plating",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "itemId": "item_stimpak",
+          "itemType": "chem"
+        },
+        {
+          "type": "fixed",
+          "itemId": "robot_module_diagnostics",
+          "itemType": "module"
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 10
+        }
+      ]
+    },
+    "mister_handy_farmer": {
+      "name": "Мистер Фермер",
+      "items": [
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_manipulator",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_circular_saw",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "weaponId": "robot_weapon_laser_cutter",
+          "itemType": "weapon"
+        },
+        {
+          "type": "fixed",
+          "armorId": "robot_armor_standard_plating",
+          "itemType": "armor"
+        },
+        {
+          "type": "fixed",
+          "itemId": "robot_item_fertilizer_bag",
+          "itemType": "misc"
+        },
+        {
+          "type": "fixed",
+          "itemId": "food_mutafruit",
+          "itemType": "food",
+          "quantity": 2
+        },
+        {
+          "type": "fixed",
+          "itemType": "currency",
+          "quantity": 25
         }
       ]
     }

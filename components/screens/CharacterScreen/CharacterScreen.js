@@ -51,6 +51,8 @@ import { getTimedAttributeModifiers } from "../../../assets/scripts/sceneEffects
 
 // Определяем константу BASE_TAGGED_SKILLS для исправления ReferenceError
 const BASE_TAGGED_SKILLS = 3; // Максимальное количество основных навыков
+const GOOD_SOUL_SKILL_KEYS = ["SPEECH", "MEDICINE", "REPAIR", "SCIENCE", "BARTER"];
+const getGoodSoulSkillNames = () => GOOD_SOUL_SKILL_KEYS.map((key) => tCharacterScreen(`skillsCatalog.${key}`, key));
 
 const ImageSection = ({ origin }) => {
   const defaultImage = require("../../../assets/bg1.png");
@@ -74,22 +76,22 @@ const ResetConfirmationModal = ({ visible, onCancel, onConfirm }) => (
   >
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>{tCharacterScreen("warnings.attentionTitle", "Внимание!")}</Text>
+        <Text style={styles.modalTitle}>{tCharacterScreen("warnings.attentionTitle", "Attention!")}</Text>
         <Text style={styles.modalText}>
-          {tCharacterScreen("warnings.resetAllValues", "Все значения будут сброшены к изначальным параметрам.")}
+          {tCharacterScreen("warnings.resetAllValues", "All values will be reset to initial parameters.")}
         </Text>
         <View style={styles.modalButtons}>
           <TouchableOpacity
             style={[styles.modalButton, styles.cancelButton]}
             onPress={onCancel}
           >
-            <Text style={styles.buttonText}>{tCharacterScreen("buttons.cancel", "Отмена")}</Text>
+            <Text style={styles.buttonText}>{tCharacterScreen("buttons.cancel", "Cancel")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.modalButton, styles.confirmButton]}
             onPress={onConfirm}
           >
-            <Text style={styles.buttonText}>{tCharacterScreen("buttons.agree", "Согласен")}</Text>
+            <Text style={styles.buttonText}>{tCharacterScreen("buttons.agree", "Agree")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -108,7 +110,7 @@ const PressableRow = ({ title, value, onPress, disabled }) => (
     <Text
       style={[
         styles.pressableValue,
-        value === tCharacterScreen("placeholders.selectNone", "Не выбрано") &&
+        value === tCharacterScreen("placeholders.selectNone", "Not selected") &&
           styles.placeholderText,
       ]}
     >
@@ -136,6 +138,8 @@ const SkillRow = ({
   rowStyle,
   disabled,
   trait,
+  italic,
+  increaseDisabled,
 }) => {
   return (
     <View style={[styles.skillRow, rowStyle]}>
@@ -156,6 +160,7 @@ const SkillRow = ({
             styles.skillName,
             isSelected && styles.skillNameSelected,
             isForced && styles.skillNameForced,
+            italic && { fontStyle: 'italic' },
           ]}
         >
           {name}
@@ -167,6 +172,7 @@ const SkillRow = ({
           onIncrease={onIncrease}
           onDecrease={onDecrease}
           isMaxReached={isMaxReached}
+          increaseDisabled={increaseDisabled}
         />
       ) : (
         <Text style={styles.skillValue}>{value}</Text>
@@ -292,6 +298,8 @@ export default function CharacterScreen() {
 
   const [showResetWarning, setShowResetWarning] = useState(false);
   const [resetType, setResetType] = useState(null);
+  const [goodSoulPickerVisible, setGoodSoulPickerVisible] = useState(false);
+  const [goodSoulPicks, setGoodSoulPicks] = useState([]);
 
   // Состояние для временного распределения очков атрибутов от перков
   const [tempAttributes, setTempAttributes] = useState(null);
@@ -311,7 +319,7 @@ export default function CharacterScreen() {
   };
 
   const showError = (message) => {
-    showAlert("Ошибка", message);
+    showAlert(tCharacterScreen("alerts.errorTitle", "Error"), message);
   };
 
   // Активация режима распределения очков от перков
@@ -326,7 +334,7 @@ export default function CharacterScreen() {
   }, [availablePerkAttributePoints, attributesSaved, attributes]);
 
   useEffect(() => {
-    const newMaxLuck = getLuckPoints(attributes);
+    const newMaxLuck = getLuckPoints(attributes, trait);
     if (newMaxLuck !== maxLuckPoints) {
       setMaxLuckPoints(newMaxLuck);
       if (!attributesSaved) {
@@ -335,6 +343,7 @@ export default function CharacterScreen() {
     }
   }, [
     attributes,
+    trait,
     maxLuckPoints,
     attributesSaved,
     setMaxLuckPoints,
@@ -375,7 +384,7 @@ export default function CharacterScreen() {
 
   const handleSavePerkAttributes = () => {
     if (remainingPerkPoints > 0) {
-      showError("Вы должны распределить все доступные очки атрибутов.");
+      showError(tCharacterScreen("errors.distributeAllPerkAttributePoints", "You must distribute all available attribute points."));
       return;
     }
     commitAttributeChanges(tempAttributes, perkPointsToDistribute);
@@ -420,7 +429,7 @@ export default function CharacterScreen() {
 
   const handleToggleSkill = (skillName) => {
     if (!canDistributeSkills && !showTraitSkillModal) {
-      showAlert("Предупреждение", "Сначала распределите и сохраните атрибуты");
+      showAlert(tCharacterScreen("alerts.warningTitle", "Warning"), tCharacterScreen("errors.saveAttributesFirst", "Distribute and save attributes first."));
       return;
     }
 
@@ -435,7 +444,7 @@ export default function CharacterScreen() {
 
     // Cannot deselect forced skills
     if (isForcedSkill && isCurrentlySelected) {
-      showError("Нельзя снять выбор с обязательного навыка");
+      showError(tCharacterScreen("errors.cannotUnselectForcedSkill", "You cannot unselect a forced skill."));
       return;
     }
 
@@ -446,14 +455,10 @@ export default function CharacterScreen() {
     }
 
     // Good Soul special handling
-    const goodSoulGroup = [
-      "Красноречие",
-      "Медицина",
-      "Ремонт",
-      "Наука",
-      "Бартер",
-    ];
-    const isGoodSoul = trait?.name === "Добрая Душа";
+    const goodSoulGroup = getGoodSoulSkillNames();
+    const isGoodSoul =
+      Array.isArray(trait?.modifiers?.goodSoulSelectedSkills) &&
+      trait.modifiers.goodSoulSelectedSkills.length > 0;
     const goodSoulSelected = trait?.modifiers?.goodSoulSelectedSkills || [];
     const isBonusFromGoodSoul =
       isGoodSoul && goodSoulSelected.includes(skillName);
@@ -474,7 +479,7 @@ export default function CharacterScreen() {
       // Check skill max limit
       if (currentSkill.value + 2 > skillMax) {
         showError(
-          `Отметка этого навыка превысит максимальный ранг (${skillMax}). Сначала понизьте его значение.`,
+          tCharacterScreen("errors.skillTagExceedsMaxRank", "Tagging this skill will exceed max rank ({skillMax}). Lower it first.").replace("{skillMax}", String(skillMax)),
         );
         return;
       }
@@ -503,10 +508,10 @@ export default function CharacterScreen() {
       // No slots available
       else {
         const extraText = canSelectAsExtra
-          ? `\n\nДоступно дополнительных слотов: ${extraSkillsFromTrait - extraTaggedSkills.length}`
+          ? `\n\n${tCharacterScreen("labels.extraSlotsAvailable", "Extra slots available")}: ${extraSkillsFromTrait - extraTaggedSkills.length}`
           : "";
         showError(
-          `Можно выбрать максимум ${BASE_TAGGED_SKILLS} осно��ных навыка.${extraText}`,
+          tCharacterScreen("errors.maxBaseSkills", "You can choose a maximum of {count} base skills.{extraText}").replace("{count}", String(BASE_TAGGED_SKILLS)).replace("{extraText}", extraText),
         );
         return;
       }
@@ -517,11 +522,7 @@ export default function CharacterScreen() {
           if (i !== skillIndex) return s;
           let next = s.value + 2;
           // Good Soul group cap
-          if (
-            isGoodSoul &&
-            goodSoulGroup.includes(s.name) &&
-            !isBonusFromGoodSoul
-          ) {
+      if (isGoodSoul && goodSoulGroup.includes(s.name) && !isBonusFromGoodSoul) {
             next = Math.min(next, 4);
           }
           return { ...s, value: next };
@@ -550,12 +551,12 @@ export default function CharacterScreen() {
 
   const handleChangeSkillValue = (index, delta) => {
     if (!attributesSaved) {
-      showAlert("Сначала сохраните атрибуты");
+      showAlert(tCharacterScreen("errors.saveAttributesFirstSimple", "Save attributes first."));
       return;
     }
 
     if (delta > 0 && skillPointsLeft <= 0) {
-      showError("У вас не осталось очков навыков для распределения.");
+      showError(tCharacterScreen("errors.noSkillPointsLeft", "You have no skill points left to distribute."));
       return;
     }
 
@@ -567,14 +568,10 @@ export default function CharacterScreen() {
         extraTaggedSkills.includes(skill.name);
 
       // Ограничение от "Добрая Душа": навыки из группы capped 4, кроме двух бонусных
-      const goodSoulGroup = [
-        "Красноречие",
-        "Медицина",
-        "Ремонт",
-        "Наука",
-        "Бартер",
-      ];
-      const isGoodSoul = trait?.name === "Добрая Душа";
+      const goodSoulGroup = getGoodSoulSkillNames();
+      const isGoodSoul =
+        Array.isArray(trait?.modifiers?.goodSoulSelectedSkills) &&
+        trait.modifiers.goodSoulSelectedSkills.length > 0;
       const isInGroup = goodSoulGroup.includes(skill.name);
       const isBonus =
         isGoodSoul &&
@@ -637,20 +634,18 @@ export default function CharacterScreen() {
 
     if (Platform.OS === "web") {
       if (
-        window.confirm(
-          "Сменить происхождение? Все ваши атрибуты, навыки и черты будут сброшены. Вы уверены?",
-        )
+        window.confirm(`${tCharacterScreen("warnings.changeOriginTitle", "Change origin?")}\n\n${tCharacterScreen("warnings.changeOriginConfirm", "All your attributes, skills, and traits will be reset. Are you sure?")}`)
       ) {
         confirmAndReset();
       }
     } else {
       Alert.alert(
-        "Сменить происхождение?",
-        "Все ваши атрибуты, навыки и черты будут сброшены. Вы уверены?",
+        tCharacterScreen("warnings.changeOriginTitle", "Change origin?"),
+        tCharacterScreen("warnings.changeOriginConfirm", "All your attributes, skills, and traits will be reset. Are you sure?"),
         [
-          { text: "Отмена", style: "cancel" },
+          { text: tCharacterScreen("buttons.cancel", "Cancel"), style: "cancel" },
           {
-            text: "Да, сбросить",
+            text: tCharacterScreen("buttons.yesReset", "Yes, reset"),
             onPress: confirmAndReset,
             style: "destructive",
           },
@@ -697,6 +692,8 @@ export default function CharacterScreen() {
 
     const oldForcedSkills = oldTrait?.modifiers?.forcedSkills || [];
     const newForcedSkills = newTrait?.modifiers?.forcedSkills || [];
+    const oldSelectedExtraSkills = oldTrait?.modifiers?.selectedExtraSkills || [];
+    const newSelectedExtraSkills = newTrait?.modifiers?.selectedExtraSkills || [];
 
     // Обновляем список обязательных навыков
     setForcedSelectedSkills((currentForced) => {
@@ -717,15 +714,15 @@ export default function CharacterScreen() {
     // Обновляем экстра навыки (forced skills теперь идут сюда)
     setExtraTaggedSkills((currentExtra) => {
       const withoutOld = currentExtra.filter(
-        (skill) => !oldForcedSkills.includes(skill),
+        (skill) => !oldForcedSkills.includes(skill) && !oldSelectedExtraSkills.includes(skill),
       );
-      return [...new Set([...withoutOld, ...newForcedSkills])];
+      return [...new Set([...withoutOld, ...newForcedSkills, ...newSelectedExtraSkills])];
     });
 
     setSkills((currentSkills) => {
       let tempSkills = [...currentSkills];
       // Отменяем +2 от старых обязательных навыков
-      oldForcedSkills.forEach((skillName) => {
+      [...oldForcedSkills, ...oldSelectedExtraSkills].forEach((skillName) => {
         const index = tempSkills.findIndex((s) => s.name === skillName);
         if (index > -1) {
           tempSkills[index] = {
@@ -735,7 +732,7 @@ export default function CharacterScreen() {
         }
       });
       // Применяем +2 к новым об��зательным навыкам (если их значение < 2)
-      newForcedSkills.forEach((skillName) => {
+      [...newForcedSkills, ...newSelectedExtraSkills].forEach((skillName) => {
         const index = tempSkills.findIndex((s) => s.name === skillName);
         if (index > -1 && tempSkills[index].value < 2) {
           tempSkills[index] = { ...tempSkills[index], value: 2 };
@@ -756,41 +753,66 @@ export default function CharacterScreen() {
     setTrait(newTrait);
     setIsTraitModalVisible(false);
 
-    if (newTrait.name === "Одаренный") {
-      // Prompt user to choose two attributes
-      // For simplicity, assume a modal or something, but since it's not specified, placeholder
-      const chosenAttrs = ["STR", "INT"]; // Example
-      chosenAttrs.forEach((attr) => {
-        setAttributes((prev) =>
-          prev.map((a) => (a.name === attr ? { ...a, value: a.value + 1 } : a)),
-        );
-      });
-      setMaxLuckPoints((prev) => prev - 1);
+    // Если черта «Добрая Душа» — открываем отдельное окно выбора 2 навыков
+    if (newTrait?.modifiers?.goodSoulPending) {
+      setGoodSoulPicks([]);
+      setGoodSoulPickerVisible(true);
     }
+  };
 
-    // For Small Frame
-    if (newTrait.name === "Миниатюрный") {
-      const str = attributes.find((a) => a.name === "STR")?.value;
-      // setCarryWeight(150 + (5 * str)); // This line was not in the original file, so it's commented out.
-    }
+  const goodSoulGroup = getGoodSoulSkillNames();
+
+  const toggleGoodSoulPick = (skill) => {
+    setGoodSoulPicks((prev) => {
+      if (prev.includes(skill)) return prev.filter((s) => s !== skill);
+      if (prev.length >= 2) return prev;
+      return [...prev, skill];
+    });
+  };
+
+  const handleConfirmGoodSoulSkills = () => {
+    if (goodSoulPicks.length !== 2) return;
+    const picks = [...goodSoulPicks];
+
+    setTrait((prev) => {
+      if (!prev) return prev;
+      const prevMods = prev.modifiers || {};
+      const newMods = {
+        ...prevMods,
+        goodSoulPending: false,
+        goodSoulSelectedSkills: picks,
+        goodSoulGroup: [...goodSoulGroup],
+        forcedSkills: [...new Set([...(prevMods.forcedSkills || []), ...picks])],
+        extraSkills: (prevMods.extraSkills || 0) + picks.length,
+      };
+      return { ...prev, modifiers: newMods };
+    });
+
+    setForcedSelectedSkills((prev) => [...new Set([...prev, ...picks])]);
+    setExtraTaggedSkills((prev) => [...new Set([...prev, ...picks])]);
+    setSkills((prev) =>
+      prev.map((s) => (picks.includes(s.name) && s.value < 2 ? { ...s, value: 2 } : s))
+    );
+    setGoodSoulPicks([]);
+    setGoodSoulPickerVisible(false);
   };
 
   // Обработчик нажатия на строку черты
   const handleTraitPress = () => {
     if (!origin) {
-      showError(tCharacterScreen("warnings.selectOriginFirst", "Сначала выберите происхождение"));
+      showError(tCharacterScreen("warnings.selectOriginFirst", "Select origin first"));
       return;
     }
 
     // Блокируем, если черта уже выбрана и происхождение не предполагает нескольких черт
     if (trait && !isMultiTraitOrigin(origin.name)) {
-      showAlert("Информация", tCharacterScreen("warnings.traitAlreadySelected", "Черта для этого происхождения уже выбрана."));
+      showAlert(tCharacterScreen("alerts.infoTitle", "Info"), tCharacterScreen("warnings.traitAlreadySelected", "Trait for this origin is already selected."));
       return;
     }
 
     const availableTraits = getTraitsForOrigin(origin);
     if (availableTraits.length === 0) {
-      showAlert("Информация", tCharacterScreen("warnings.noTraitsForOrigin", "Для данного происхождения нет доступных черт"));
+      showAlert(tCharacterScreen("alerts.infoTitle", "Info"), tCharacterScreen("warnings.noTraitsForOrigin", "No traits available for this origin"));
       return;
     }
 
@@ -838,19 +860,19 @@ export default function CharacterScreen() {
 
   const handleSaveAttributes = () => {
     if (!origin) {
-      showError("Необходимо выбрать происхождение.");
+      showError(tCharacterScreen("errors.originRequired", "You must select an origin."));
       return;
     }
     if (!trait) {
-      showError("Необходимо выбрать черту.");
+      showError(tCharacterScreen("errors.traitRequired", "You must select a trait."));
       return;
     }
     if (!equipment) {
-      showError("Необходимо выбрать комплект снаряжения.");
+      showError(tCharacterScreen("errors.equipmentRequired", "You must select an equipment kit."));
       return;
     }
     if (remainingAttributePoints !== 0) {
-      showError("Потратьте все очки атрибутов перед сохранением.");
+      showError(tCharacterScreen("errors.spendAllAttributePoints", "Spend all attribute points before saving."));
       return;
     }
 
@@ -862,19 +884,19 @@ export default function CharacterScreen() {
 
   const handleSaveSkills = () => {
     if (!origin) {
-      showError("Необходимо выбрать происхождение.");
+      showError(tCharacterScreen("errors.originRequired", "You must select an origin."));
       return;
     }
     if (!trait) {
-      showError("Необходимо выбрать черту.");
+      showError(tCharacterScreen("errors.traitRequired", "You must select a trait."));
       return;
     }
     if (!equipment) {
-      showError("Необходимо выбрать комплект снаряжения.");
+      showError(tCharacterScreen("errors.equipmentRequired", "You must select an equipment kit."));
       return;
     }
     if (skillPointsLeft > 0) {
-      showError("Необходимо распределить все очки навыков.");
+      showError(tCharacterScreen("errors.spendAllSkillPoints", "You must distribute all skill points."));
       return;
     }
     // Проверяем, что выбрано правильное количество навыков
@@ -885,7 +907,7 @@ export default function CharacterScreen() {
     // Проверяем основные навыки (всегда должно быть ровно 3)
     if (selectedSkills.length !== BASE_TAGGED_SKILLS) {
       showError(
-        `Необходимо выбрать ровно ${BASE_TAGGED_SKILLS} основных навыка. Выбрано: ${selectedSkills.length}`,
+        tCharacterScreen("errors.exactBaseSkillsRequired", "You must select exactly {required} base skills. Selected: {selected}.").replace("{required}", String(BASE_TAGGED_SKILLS)).replace("{selected}", String(selectedSkills.length)),
       );
       return;
     }
@@ -896,14 +918,14 @@ export default function CharacterScreen() {
       extraTaggedSkills.length !== extraSkillsFromTrait
     ) {
       showError(
-        `Необходимо выбрать ${extraSkillsFromTrait} дополнительных навыка от черты. Выбрано: ${extraTaggedSkills.length}`,
+        tCharacterScreen("errors.exactExtraSkillsRequired", "You must select {required} extra trait skills. Selected: {selected}.").replace("{required}", String(extraSkillsFromTrait)).replace("{selected}", String(extraTaggedSkills.length)),
       );
       return;
     }
     const { isValid, maxRank } = validateSkills(skills, trait);
 
     if (!isValid) {
-      showAlert(`Ошибка: Максимальный ранг навыков - ${maxRank}`);
+      showAlert(tCharacterScreen("errors.maxSkillRank", "Error: maximum skill rank is {maxRank}").replace("{maxRank}", String(maxRank)));
       return;
     }
 
@@ -970,10 +992,10 @@ export default function CharacterScreen() {
           <View style={styles.header}>
             {/* Строка для ввода имени персонажа */}
             <View style={styles.nameInputRow}>
-              <Text style={styles.nameInputLabel}>{tCharacterScreen("labels.characterName", "Имя")}:</Text>
+              <Text style={styles.nameInputLabel}>{tCharacterScreen("labels.characterName", "Name")}:</Text>
               <TextInput
                 style={[styles.nameInput, !isSaved && styles.nameInputActive]}
-                placeholder={tCharacterScreen("placeholders.enterName", "Введите имя")}
+                placeholder={tCharacterScreen("placeholders.enterName", "Enter name")}
                 placeholderTextColor="#999"
                 value={characterName}
                 onChangeText={setCharacterName}
@@ -1002,7 +1024,7 @@ export default function CharacterScreen() {
                         : {},
                     ]}
                   >
-                    {tCharacterScreen("buttons.save", "Сохранить")}
+                    {tCharacterScreen("buttons.save", "Save")}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -1012,20 +1034,20 @@ export default function CharacterScreen() {
             {!isSaved && <View style={styles.disabledOverlay} />}
 
             <PressableRow
-              title={tCharacterScreen("labels.origin", "Происхождение")}
-              value={origin ? origin.name : tCharacterScreen("placeholders.selectNone", "Не выбрано")}
+              title={tCharacterScreen("labels.origin", "Origin")}
+              value={origin ? origin.name : tCharacterScreen("placeholders.selectNone", "Not selected")}
               onPress={() => setIsOriginModalVisible(true)}
               disabled={!isSaved}
             />
             <PressableRow
-              title={tCharacterScreen("labels.trait", "Черта")}
-              value={trait ? trait.name : tCharacterScreen("placeholders.selectNone", "Не выбрано")}
+              title={tCharacterScreen("labels.trait", "Trait")}
+              value={trait ? trait.name : tCharacterScreen("placeholders.selectNone", "Not selected")}
               onPress={handleTraitPress}
               disabled={!isSaved || (trait && !isMultiTraitOrigin(origin?.name))}
             />
             <PressableRow
-              title={tCharacterScreen("labels.equipmentKit", "Комплект снаряжения")}
-              value={equipment ? equipment.name : tCharacterScreen("placeholders.selectNone", "Не выбрано")}
+              title={tCharacterScreen("labels.equipmentKit", "Equipment kit")}
+              value={equipment ? equipment.name : tCharacterScreen("placeholders.selectNone", "Not selected")}
               disabled={!isSaved}
               onPress={() => {
                 if (origin && origin.equipmentKits) {
@@ -1034,7 +1056,7 @@ export default function CharacterScreen() {
                     if (Platform.OS === "web") {
                       if (
                         window.confirm(
-                          "Внимание! При выборе нового комплекта снаряжения весь текущий инвентарь будет сброшен. Продолжить?",
+                          tCharacterScreen("warnings.equipmentResetOnWeb", "Attention! Choosing a new equipment kit will reset current inventory. Continue?"),
                         )
                       ) {
                         // Сбрасываем инвентарь и надетые предметы
@@ -1053,12 +1075,12 @@ export default function CharacterScreen() {
                       }
                     } else {
                       Alert.alert(
-                          tCharacterScreen("warnings.attentionTitle", "Внимание!"),
-                          tCharacterScreen("warnings.equipmentResetConfirm", "Инвентарь и всё снаряжение будет сброшено. Продолжить?"),
+                          tCharacterScreen("warnings.attentionTitle", "Attention!"),
+                          tCharacterScreen("warnings.equipmentResetConfirm", "Inventory and all equipment will be reset. Continue?"),
                         [
-                          { text: tCharacterScreen("buttons.cancel", "Отмена"), style: "cancel" },
+                          { text: tCharacterScreen("buttons.cancel", "Cancel"), style: "cancel" },
                           {
-                            text: tCharacterScreen("buttons.continue", "Продолжить"),
+                            text: tCharacterScreen("buttons.continue", "Continue"),
                             onPress: () => {
                               // Сбрасываем инвентарь и надетые предметы
                               setEquippedWeapons([null, null]);
@@ -1083,14 +1105,14 @@ export default function CharacterScreen() {
                   }
                 } else {
                   showAlert(
-                    "Информация",
-                    tCharacterScreen("warnings.noEquipmentForOrigin", "Для данного происхождения нет комплектов снаряжения."),
+                    tCharacterScreen("alerts.infoTitle", "Info"),
+                    tCharacterScreen("warnings.noEquipmentForOrigin", "No equipment kits for this origin."),
                   );
                 }
               }}
             />
             <View style={[styles.levelContainer, !isSaved && styles.disabledLevelContainer]}>
-              <Text style={styles.levelLabel}>{tCharacterScreen("labels.level", "Уровень")}:</Text>
+              <Text style={styles.levelLabel}>{tCharacterScreen("labels.level", "Level")}:</Text>
               <CompactCounter
                 value={level}
                 onIncrease={() => isSaved && handleLevelChange(1)}
@@ -1119,7 +1141,7 @@ export default function CharacterScreen() {
               />
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>ОЧКИ УДАЧИ</Text>
+                  <Text style={styles.sectionTitle}>{tCharacterScreen("labels.luckPoints", "Luck points").toUpperCase()}</Text>
                 </View>
                 <LuckPointsRow
                   luckPoints={luckPoints}
@@ -1135,57 +1157,75 @@ export default function CharacterScreen() {
             <View style={styles.rightColumn}>
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>{tCharacterScreen("labels.skills", "Навыки").toUpperCase()}</Text>
+                  <Text style={styles.sectionTitle}>{tCharacterScreen("labels.skills", "Skills").toUpperCase()}</Text>
                   {attributesSaved && !skillsSaved && (
                     <Text style={styles.skillsCount}>
-                      {tCharacterScreen("labels.available", "Доступно")}: {skillPointsLeft} {tCharacterScreen("labels.pointsShort", "очков")}
+                      {tCharacterScreen("labels.available", "Available")}: {skillPointsLeft} {tCharacterScreen("labels.pointsShort", "points")}
                     </Text>
                   )}
                 </View>
                 {attributesSaved && !skillsSaved && (() => {
                   const extraSkillsFromTrait = trait?.extraSkills || trait?.modifiers?.extraSkills || 0;
-                  const maxTagged = BASE_TAGGED_SKILLS + extraSkillsFromTrait;
                   const taggedCount = selectedSkills.length;
+                  const extraCount = extraTaggedSkills.length;
                   return (
-                    <Text style={styles.taggedSkillsHint}>
-                      {tCharacterScreen("labels.taggedSkills", "Отмечено навыков")}: {taggedCount}/{maxTagged}
-                    </Text>
+                    <>
+                      <Text style={styles.taggedSkillsHint}>
+                        {tCharacterScreen("labels.taggedSkills", "Tagged skills")}: {taggedCount}/{BASE_TAGGED_SKILLS}
+                      </Text>
+                      {extraSkillsFromTrait > 0 && (
+                        <Text style={styles.taggedSkillsHint}>
+                          {tCharacterScreen("labels.extraTaggedSkills", "Extra trait skills")}: {extraCount}/{extraSkillsFromTrait}
+                        </Text>
+                      )}
+                    </>
                   );
                 })()}
                 <View style={styles.skillsHeader}>
-                  <Text style={styles.skillsHeaderText}>{tCharacterScreen("labels.skill", "Навык")}</Text>
-                  <Text style={styles.skillsHeaderText}>{tCharacterScreen("labels.value", "Значение")}</Text>
+                  <Text style={styles.skillsHeaderText}>{tCharacterScreen("labels.skill", "Skill")}</Text>
+                  <Text style={styles.skillsHeaderText}>{tCharacterScreen("labels.value", "Value")}</Text>
                 </View>
 
-                {skills.map((skill, index) => {
-                  const isTagged =
-                    selectedSkills.includes(skill.name) ||
-                    extraTaggedSkills.includes(skill.name);
-                  const isForced =
-                    forcedSelectedSkills.includes(skill.name) && isTagged;
-                  const maxValue = level === 1 ? (isTagged ? 3 : 3) : 6;
-                  const isMaxReached = skill.value >= maxValue;
-                  const rowStyle =
-                    index % 2 === 0 ? styles.evenRow : styles.oddRow;
+                {(() => {
+                  const goodSoulGroupSkills = getGoodSoulSkillNames();
+                  const goodSoulSelected = trait?.modifiers?.goodSoulSelectedSkills || [];
+                  const isGoodSoulActive = Array.isArray(goodSoulSelected) && goodSoulSelected.length > 0;
+                  return skills.map((skill, index) => {
+                    const isTagged =
+                      selectedSkills.includes(skill.name) ||
+                      extraTaggedSkills.includes(skill.name);
+                    const isForced =
+                      forcedSelectedSkills.includes(skill.name) && isTagged;
+                    const isGoodSoulCapped =
+                      isGoodSoulActive &&
+                      goodSoulGroupSkills.includes(skill.name) &&
+                      !goodSoulSelected.includes(skill.name);
+                    const baseMax = level === 1 ? 3 : 6;
+                    const maxValue = isGoodSoulCapped ? Math.min(baseMax, 4) : baseMax;
+                    const isMaxReached = skill.value >= maxValue;
+                    const rowStyle =
+                      index % 2 === 0 ? styles.evenRow : styles.oddRow;
 
-                  return (
-                    <SkillRow
-                      key={index}
-                      name={getSkillDisplayName(skill.name)}
-                      value={skill.value}
-                      isSelected={isTagged}
-                      isMaxReached={isMaxReached}
-                      isForced={isForced}
-                      onToggle={() => handleToggleSkill(skill.name)}
-                      onIncrease={() => handleChangeSkillValue(index, 1)}
-                      onDecrease={() => handleChangeSkillValue(index, -1)}
-                      rowStyle={rowStyle}
-                      disabled={!canDistributeSkills && !showTraitSkillModal}
-                      trait={trait}
-                      increaseDisabled={skillPointsLeft <= 0}
-                    />
-                  );
-                })}
+                    return (
+                      <SkillRow
+                        key={index}
+                        name={getSkillDisplayName(skill.name)}
+                        value={skill.value}
+                        isSelected={isTagged}
+                        isMaxReached={isMaxReached}
+                        isForced={isForced}
+                        onToggle={() => handleToggleSkill(skill.name)}
+                        onIncrease={() => handleChangeSkillValue(index, 1)}
+                        onDecrease={() => handleChangeSkillValue(index, -1)}
+                        rowStyle={rowStyle}
+                        disabled={!canDistributeSkills && !showTraitSkillModal}
+                        trait={trait}
+                        italic={isGoodSoulCapped}
+                        increaseDisabled={skillPointsLeft <= 0}
+                      />
+                    );
+                  });
+                })()}
 
                 {attributesSaved && !skillsSaved && (
                   <View style={styles.buttonsContainer}>
@@ -1193,13 +1233,13 @@ export default function CharacterScreen() {
                       style={[styles.button, styles.saveButton]}
                       onPress={handleSaveSkills}
                     >
-                      <Text style={styles.buttonText}>{tCharacterScreen("buttons.save", "Сохранить")}</Text>
+                      <Text style={styles.buttonText}>{tCharacterScreen("buttons.save", "Save")}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.button, styles.resetButton]}
                       onPress={handleResetSkills}
                     >
-                      <Text style={styles.buttonText}>{tCharacterScreen("buttons.reset", "Сбросить")}</Text>
+                      <Text style={styles.buttonText}>{tCharacterScreen("buttons.reset", "Reset")}</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -1221,7 +1261,7 @@ export default function CharacterScreen() {
             if (selectedOrigin) {
               confirmOriginSelection(selectedOrigin);
             } else {
-              showError(tCharacterScreen("warnings.selectOriginError", "Выберите происхождение"));
+              showError(tCharacterScreen("warnings.selectOriginError", "Select origin"));
             }
           }}
         />
@@ -1246,6 +1286,51 @@ export default function CharacterScreen() {
           onSelectKit={handleSelectKit}
           setCaps={setCaps}
         />
+
+        {/* Модальное окно для выбора 2 навыков «Доброй Души» */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={goodSoulPickerVisible}
+          onRequestClose={() => setGoodSoulPickerVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>{tCharacterScreen("modals.goodSoul.title", "Good Soul: choose 2 skills")}</Text>
+              <Text style={{ marginBottom: 8, textAlign: 'center' }}>
+                {tCharacterScreen("modals.goodSoul.description", "Choose two skills from the group. They will be marked as extra.")}
+              </Text>
+              {goodSoulGroup.map((skill) => {
+                const isPicked = goodSoulPicks.includes(skill);
+                return (
+                  <TouchableOpacity
+                    key={skill}
+                    style={[
+                      { padding: 12, marginVertical: 4, borderRadius: 6, width: '100%', alignItems: 'center' },
+                      { backgroundColor: '#2196F3' },
+                      isPicked && { backgroundColor: '#1976D2', borderWidth: 2, borderColor: '#fff' },
+                    ]}
+                    onPress={() => toggleGoodSoulPick(skill)}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>{skill}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  styles.confirmButton,
+                  goodSoulPicks.length !== 2 && styles.disabledButton,
+                  { marginTop: 10 },
+                ]}
+                disabled={goodSoulPicks.length !== 2}
+                onPress={handleConfirmGoodSoulSkills}
+              >
+                <Text style={styles.buttonText}>{tCharacterScreen("buttons.confirm", "Confirm")}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {/* Модальное окно для выбора черты */}
         {TraitModalComponent && (

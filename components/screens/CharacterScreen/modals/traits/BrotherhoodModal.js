@@ -1,5 +1,6 @@
 // components/modals/BrotherhoodModal.js
 import React, { useState } from 'react';
+import { renderTextWithIcons } from '../../../WeaponsAndArmorScreen/textUtils';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { TRAITS } from '../../logic/traitsData';
 
@@ -39,9 +40,7 @@ const BrotherhoodModal = ({ visible, onSelect, onClose }) => {
           <Text style={styles.modalTitle}>Братство Стали</Text>
           <Text style={styles.traitName}>{trait.name || traitName}</Text>
           
-          {trait.description && (
-            <Text style={styles.modalText}>{trait.description}</Text>
-          )}
+          {trait.description && renderTextWithIcons(trait.description, styles.modalText)}
 
           {trait.forcedSkills?.map(skill => (
             <TouchableOpacity

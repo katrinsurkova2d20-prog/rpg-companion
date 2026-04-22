@@ -39,8 +39,8 @@ export const applyArmorMods = (armorItem, catalog, opts = {}) => {
   const stdModId = armorItem[stdKey] || armorItem.appliedArmorMod?.id;
   const uniqModId = armorItem[uniqKey] || armorItem.appliedUniqueArmorMod?.id;
 
-  const allStd = Array.isArray(catalog?.armorMods) ? catalog.armorMods : [];
-  const allUniq = Array.isArray(catalog?.uniqArmorMods) ? catalog.uniqArmorMods : [];
+  const allStd = Array.isArray(opts.standardMods) ? opts.standardMods : (Array.isArray(catalog?.armorMods) ? catalog.armorMods : []);
+  const allUniq = Array.isArray(opts.uniqueMods) ? opts.uniqueMods : (Array.isArray(catalog?.uniqArmorMods) ? catalog.uniqArmorMods : []);
   const stdMod = stdModId ? allStd.find((m) => m.id === stdModId) : (armorItem.appliedArmorMod || null);
   const uniqMod = uniqModId ? allUniq.find((m) => m.id === uniqModId) : (armorItem.appliedUniqueArmorMod || null);
 

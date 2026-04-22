@@ -9,19 +9,37 @@
   },
   "armor": {
     "slots": {
-      "head": { "title": "Голова", "subtitle": "1-2" },
-      "leftArm": { "title": "Левая рука", "subtitle": "9-11" },
-      "rightArm": { "title": "Правая рука", "subtitle": "12-14" },
-      "body": { "title": "Тело", "subtitle": "3-8" },
-      "leftLeg": { "title": "Левая нога", "subtitle": "15-17" },
-      "rightLeg": { "title": "Правая нога", "subtitle": "18-20" }
+      "head": {
+        "title": "Голова",
+        "subtitle": "1-2"
+      },
+      "leftArm": {
+        "title": "Левая рука",
+        "subtitle": "9-11"
+      },
+      "rightArm": {
+        "title": "Правая рука",
+        "subtitle": "12-14"
+      },
+      "body": {
+        "title": "Тело",
+        "subtitle": "3-8"
+      },
+      "leftLeg": {
+        "title": "Левая нога",
+        "subtitle": "15-17"
+      },
+      "rightLeg": {
+        "title": "Правая нога",
+        "subtitle": "18-20"
+      }
     },
     "fields": {
       "physical": "Физ.Су",
       "energy": "Энрг.Су",
       "radiation": "Рад.Су",
-      "clothingModification": "Модификация одежды",
-      "armorModification": "Модификация брони"
+      "clothingModification": "Улучшить одежду",
+      "armorModification": "Улучшить броню"
     }
   },
   "weapon": {
@@ -44,8 +62,8 @@
   },
   "modals": {
     "requirements": "Требования",
-    "armorModification": "Модификация брони",
-    "clothingModification": "Модификация одежды",
+    "armorModification": "Улучшить броню",
+    "clothingModification": "Улучшить одежду",
     "availableModifications": "Доступные модификации",
     "standard": "Стандартные",
     "unique": "Уникальные",
@@ -59,6 +77,8 @@
     "cost": "Цена",
     "cancel": "Отмена",
     "apply": "Применить",
-    "improvements": "Улучшения"
+    "improvements": "Улучшения",
+    "clothingReinforced": "Усиленные швы",
+    "clothingInsulated": "Утеплённая подкладка"
   }
 }

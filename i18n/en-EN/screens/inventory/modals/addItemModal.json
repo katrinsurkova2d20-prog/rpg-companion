@@ -1,0 +1,37 @@
+{
+  "weaponTypeLabels": {
+    "light": "Small Guns",
+    "heavy": "Heavy Weapons",
+    "energy": "Energy Weapons",
+    "melee": "Melee",
+    "unarmed": "Unarmed",
+    "thrown": "Thrown",
+    "explosive": "Explosives",
+    "other": "Other"
+  },
+  "categories": {
+    "weapon": "Weapons",
+    "armor": "Armor",
+    "clothing": "Clothing",
+    "ammo": "Ammo",
+    "food": "Food",
+    "drinks": "Drinks",
+    "chems": "Chems",
+    "materials": "Materials",
+    "all": "All"
+  },
+  "itemTypes": {
+    "weapon": "🔫 Weapon",
+    "armor": "🛡️ Armor",
+    "clothing": "👕 Clothing",
+    "chem": "💊 Chem",
+    "drinks": "🥤 Drink",
+    "ammo": "🔹 Ammo"
+  },
+  "title": "Add item",
+  "back": "...Back",
+  "searchPlaceholder": "Search all items...",
+  "emptyCategory": "Category is empty",
+  "close": "Close",
+  "buyTitle": "Buy items"
+}

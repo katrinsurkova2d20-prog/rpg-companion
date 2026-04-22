@@ -74,6 +74,36 @@ export function rollCustomDice(diceString) {
   return total;
 }
 
+
+export function rollByType(rollType, rollValue = 1) {
+  const count = Math.max(0, parseInt(rollValue, 10) || 0);
+  if (count === 0) return 0;
+
+  if (rollType === 'rollCD') {
+    return rollMultipleCombatDice(count).total;
+  }
+
+  if (rollType === 'rollD20' || rollType === 'D20') {
+    let total = 0;
+    for (let i = 0; i < count; i++) total += rollDie(20);
+    return total;
+  }
+
+  return 0;
+}
+
+export function evaluateRollConfig(config = {}) {
+  const base = parseInt(config.base, 10) || 0;
+  const rollType = config.rollType;
+  const rollValue = config.rollValue;
+
+  if (!rollType || !rollValue) return base;
+
+  const rolled = rollByType(rollType, rollValue);
+  const op = config.op === '-' ? -1 : 1;
+  return base + op * rolled;
+}
+
 // ─── Formula Evaluator ────────────────────────────────────────────────────────
 
 /**

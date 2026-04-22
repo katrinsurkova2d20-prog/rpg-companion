@@ -11,6 +11,7 @@ import NcrCitizenModal, { traitConfig as ncrCitizenConfig } from './NcrCitizenMo
 import SurvivorModal, { traitConfig as survivorConfig } from './SurvivorModal';
 import OutcastBrotherhoodModal, { traitConfig as outcastConfig } from './OutcastBrotherhoodModal';
 import RoboBrainModal, { traitConfig as robobrainConfig } from './RoboBrainModal';
+import MisterHandyModal, { traitConfig as misterHandyConfig } from './MisterHandyModal';
 // другие импорты
 
 export const TRAIT_MODALS = {
@@ -26,6 +27,7 @@ export const TRAIT_MODALS = {
   [survivorConfig.originName]: SurvivorModal,
   [outcastConfig.originName]: OutcastBrotherhoodModal,
   [robobrainConfig.originName]: RoboBrainModal,
+  [misterHandyConfig.originName]: MisterHandyModal,
   // остальные
 };
 
@@ -42,6 +44,7 @@ export const TRAIT_CONFIGS = {
   [survivorConfig.originName]: survivorConfig,
   [outcastConfig.originName]: outcastConfig,
   [robobrainConfig.originName]: robobrainConfig,
+  [misterHandyConfig.originName]: misterHandyConfig,
   // остальные
 };
 

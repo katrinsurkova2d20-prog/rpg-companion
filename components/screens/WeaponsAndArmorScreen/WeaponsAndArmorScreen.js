@@ -20,6 +20,8 @@ import ArmorModificationModal from './ArmorModificationModal';
 
 const HealthCounter = ({ max, isEnabled }) => {
   const { currentHealth, setCurrentHealth } = useCharacter();
+  const canDecrease = isEnabled && currentHealth > 0;
+  const canIncrease = isEnabled && currentHealth < max;
 
   const handleAdjustHealth = (amount) => {
     if (!isEnabled) return;
@@ -30,11 +32,18 @@ const HealthCounter = ({ max, isEnabled }) => {
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <TouchableOpacity
+        onPress={() => handleAdjustHealth(-1)}
+        disabled={!canDecrease}
+        style={[styles.counterButton, !canDecrease && { opacity: 0.5 }]}
+      >
+        <Text style={styles.counterButtonText}>-</Text>
+      </TouchableOpacity>
       <Text style={[styles.counterValue, { minWidth: 50, textAlign: 'center' }]}>{healthText}</Text>
       <TouchableOpacity
         onPress={() => handleAdjustHealth(1)}
-        disabled={!isEnabled}
-        style={[styles.counterButton, !isEnabled && { opacity: 0.5 }]}
+        disabled={!canIncrease}
+        style={[styles.counterButton, !canIncrease && { opacity: 0.5 }]}
       >
         <Text style={styles.counterButtonText}>+</Text>
       </TouchableOpacity>
@@ -88,7 +97,7 @@ const ArmorPart = ({ title, subtitle, armorName, clothingName, stats }) => {
 };
 
 const WeaponCard = ({ weapon, onModifyWeapon }) => {
-    const { hasTrait, attributes, skills } = useCharacter();
+    const { hasTrait, attributes, skills, equippedWeapons } = useCharacter();
     if (!weapon) {
       return (
         <View style={localStyles.weaponCardContainer}>
@@ -153,17 +162,26 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
     const isNcrInfantryWeapon = displayWeapon && ncrInfantryWeaponIds.includes(displayWeapon.id ?? displayWeapon.weaponId);
 
     const damageWithNcr = hasTrait('Пехотинец') && isNcrInfantryWeapon ? baseDamage + 1 : baseDamage;
+    const hasSecondaryWeaponOverManipulator = Boolean(displayWeapon?.builtinManipulator) && (equippedWeapons || []).some((w) => w && !w.builtinManipulator);
+    const visibleDamage = hasSecondaryWeaponOverManipulator ? 0 : damageWithNcr;
 
     // Снижение базовой скорострельности на 1 при "Техника спуска" для стрелкового и энергооружия
+    const equippedWeaponTypes = (equippedWeapons || [])
+      .filter(Boolean)
+      .map((w) => w?.weapon_type);
+    const hasLightAndEnergyEquipped =
+      equippedWeaponTypes.includes('Light') && equippedWeaponTypes.includes('Energy');
     const isLightOrEnergy = (weapon?.itemType === 'weapon') && (
       weapon.weapon_type === 'Light' || weapon.weapon_type === 'Energy'
     );
-    const fireRateWithTrait = hasTrait('Техника спуска') && isLightOrEnergy ? Math.max(0, fireRateBase - 1) : fireRateBase;
+    const fireRateWithTrait = hasTrait('Техника спуска') && hasLightAndEnergyEquipped && isLightOrEnergy
+      ? Math.max(0, fireRateBase - 1)
+      : fireRateBase;
 
     const stats = [
       { label: tWeaponsAndArmorScreen('weapon.fields.success'), value: `${successValue}` },
       { label: tWeaponsAndArmorScreen('weapon.fields.damageType'), value: damageType },
-      { label: tWeaponsAndArmorScreen('weapon.fields.damage'), value: `${damageWithNcr}` },
+      { label: tWeaponsAndArmorScreen('weapon.fields.damage'), value: `${visibleDamage}` },
       { label: tWeaponsAndArmorScreen('weapon.fields.effect'), value: effectsValue },
       { label: tWeaponsAndArmorScreen('weapon.fields.fireRate'), value: fireRateWithTrait },
       { label: tWeaponsAndArmorScreen('weapon.fields.range'), value: rangeValue },
@@ -200,6 +218,47 @@ const WeaponCard = ({ weapon, onModifyWeapon }) => {
   };
 
 
+const findLocalizedWeapon = (catalog, weapon) => {
+  if (!weapon?.id) return weapon;
+  const base = (catalog?.weapons || []).find((entry) => entry.id === weapon.id);
+  if (!base) return weapon;
+  return {
+    ...base,
+    ...weapon,
+    name: base.name || base.Name || weapon.name || weapon.Name,
+    Name: base.Name || base.name || weapon.Name || weapon.name,
+    Название: base.Название || base.Name || base.name || weapon.Название || weapon.Name || weapon.name,
+  };
+};
+
+const findLocalizedArmor = (catalog, armorItem) => {
+  if (!armorItem?.id) return armorItem;
+  const base = catalog?.armorIndex?.byId?.get(armorItem.id);
+  if (!base) return armorItem;
+  return {
+    ...base,
+    ...armorItem,
+    name: base.name || base.Name || armorItem.name || armorItem.Name,
+    Name: base.Name || base.name || armorItem.Name || armorItem.name,
+    Название: base.Название || base.Name || base.name || armorItem.Название || armorItem.Name || armorItem.name,
+  };
+};
+
+const findLocalizedClothing = (catalog, clothingItem) => {
+  if (!clothingItem?.id) return clothingItem;
+  const allClothes = (catalog?.clothes?.clothes || []).flatMap((group) => group.items || []);
+  const base = allClothes.find((entry) => entry.id === clothingItem.id);
+  if (!base) return clothingItem;
+  return {
+    ...base,
+    ...clothingItem,
+    name: base.name || base.Name || clothingItem.name || clothingItem.Name,
+    Name: base.Name || base.name || clothingItem.Name || clothingItem.name,
+    Название: base.Название || base.Name || base.name || clothingItem.Название || clothingItem.Name || clothingItem.name,
+  };
+};
+
+
 // --- Main Component ---
 
 const WeaponsAndArmorScreen = () => {
@@ -213,19 +272,22 @@ const WeaponsAndArmorScreen = () => {
     saveModifiedItem,
     effects,
     activeTimedEffects,
-    attributesSaved
+    attributesSaved,
+    trait,
   } = useCharacter();
   const locale = useLocale();
 
   const initiative = calculateInitiative(attributes);
   const defense = calculateDefense(attributes);
-  const meleeBonus = calculateMeleeBonus(attributes);
+  const meleeBonus = calculateMeleeBonus(attributes, trait);
   const maxHealth = attributesSaved ? calculateMaxHealth(attributes, level) : 0;
   
-  const hasRadImmunity = effects.includes('Иммунитет к радиации');
+  const isMisterHandyRobot = Boolean(trait?.modifiers?.isRobot && trait?.modifiers?.robotBodyPlan === 'misterHandy');
+  const hasRadImmunity = isMisterHandyRobot || effects.includes('Иммунитет к радиации');
   const hasPoisonImmunity = effects.includes('Иммунитет к яду');
   const hasTimedEffects = (activeTimedEffects || []).length > 0;
   const equipmentCatalog = getEquipmentCatalog(locale);
+  const localizedEquippedWeapons = equippedWeapons.map((weapon) => findLocalizedWeapon(equipmentCatalog, weapon));
   
   // Состояние для модального окна модификаций
   const [modificationModalVisible, setModificationModalVisible] = useState(false);
@@ -294,10 +356,18 @@ const WeaponsAndArmorScreen = () => {
 
   const renderArmorPart = (slotKey) => {
     const slotData = equippedArmor[slotKey];
-    const armorItem = slotData ? slotData.armor : null;
-    const clothingItem = slotData ? slotData.clothing : null;
+    const armorItem = findLocalizedArmor(equipmentCatalog, slotData ? slotData.armor : null);
+    const clothingItem = findLocalizedClothing(equipmentCatalog, slotData ? slotData.clothing : null);
+    const robotSlotTitles = isMisterHandyRobot ? {
+      head: 'Оптика',
+      body: 'Корпус',
+      leftArm: 'Рука 1',
+      rightArm: 'Рука 2',
+      leftLeg: 'Рука 3',
+      rightLeg: 'Двигатель',
+    } : null;
     const config = {
-      title: tWeaponsAndArmorScreen(`armor.slots.${slotKey}.title`),
+      title: robotSlotTitles?.[slotKey] || tWeaponsAndArmorScreen(`armor.slots.${slotKey}.title`),
       subtitle: tWeaponsAndArmorScreen(`armor.slots.${slotKey}.subtitle`),
     };
 
@@ -390,7 +460,7 @@ const WeaponsAndArmorScreen = () => {
             {/* Оружие */}
             <View>
             <View style={localStyles.statsRow}>
-                {equippedWeapons.map((weapon, index) => (
+                {localizedEquippedWeapons.map((weapon, index) => (
                   <WeaponCard 
                     key={index} 
                     weapon={weapon} 
@@ -414,7 +484,11 @@ const WeaponsAndArmorScreen = () => {
       <ArmorModificationModal
         visible={armorModalVisible}
         onClose={() => { setArmorModalVisible(false); setSelectedArmorSlot(null); }}
-        targetItem={selectedArmorSlot ? equippedArmor?.[selectedArmorSlot]?.[armorModalMode === 'clothing' ? 'clothing' : 'armor'] : null}
+        targetItem={selectedArmorSlot
+          ? (armorModalMode === 'clothing'
+            ? findLocalizedClothing(equipmentCatalog, equippedArmor?.[selectedArmorSlot]?.clothing)
+            : findLocalizedArmor(equipmentCatalog, equippedArmor?.[selectedArmorSlot]?.armor))
+          : null}
         mode={armorModalMode}
         onApply={handleApplyArmorModification}
       />

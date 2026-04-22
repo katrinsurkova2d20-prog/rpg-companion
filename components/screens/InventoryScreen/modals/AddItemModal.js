@@ -1,72 +1,119 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, FlatList, SafeAreaView, TextInput } from 'react-native';
-import { getWeapons } from '../../../../db/Database';
 import { getEquipmentCatalog } from '../../../../i18n/equipmentCatalog';
+import { getWeaponById, getWeapons } from '../../../../db';
+import { tInventory } from '../logic/inventoryI18n';
+import { useLocale } from '../../../../i18n/locale';
 
-const WEAPON_TYPE_LABELS = {
-  'Light': 'Стрелковое',
-  'Small Guns': 'Стрелковое',
-  'Heavy': 'Тяжелое',
-  'Big Guns': 'Тяжелое',
-  'Energy': 'Энергетическое',
-  'Energy Weapons': 'Энергетическое',
-  'Melee': 'Ближний бой',
-  'Melee Weapons': 'Ближний бой',
-  'Unarmed': 'Рукопашная',
-  'Thrown': 'Метательное',
-  'Throwing': 'Метательное',
-  'Explosive': 'Взрывчатка',
-  'Explosives': 'Взрывчатка',
-};
 const CATEGORY_ICONS = {
-  'Оружие': '🔫',
-  'Броня': '🛡️',
-  'Одежда': '👕',
-  'Боеприпасы': '🔹',
-  'Еда': '🍖',
-  'Напитки': '🥤',
-  'Препараты': '💊',
-  'Материалы': '🧰',
+  weapon: '🔫',
+  armor: '🛡️',
+  clothing: '👕',
+  ammo: '🔹',
+  food: '🍖',
+  drinks: '🥤',
+  chems: '💊',
+  materials: '🧰',
 };
 
-const AddItemModal = ({ visible, onClose, onSelectItem }) => {
+const mapWeaponTypeToDbValue = {
+  light: 'Light',
+  heavy: 'Heavy',
+  energy: 'Energy',
+  melee: 'Melee',
+  unarmed: 'Unarmed',
+  thrown: 'Thrown',
+  explosive: 'Explosive',
+};
+
+const AddItemModal = ({ visible, onClose, onSelectItem, rootTitleKey = 'modals.addItemModal.title' }) => {
+  const locale = useLocale();
   const [currentPath, setCurrentPath] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [weaponsByType, setWeaponsByType] = useState({});
-  const getItemName = (item) => item?.Name || item?.name || item?.Название;
-
-  const staticData = useMemo(() => {
-    const equipmentCatalog = getEquipmentCatalog();
-
-    return {
-      'Броня': (equipmentCatalog.armor?.armor || []).reduce((acc, category) => {
-        acc[category.type] = category.items;
-        return acc;
-      }, {}),
-      'Одежда': (equipmentCatalog.clothes?.clothes || []).reduce((acc, category) => {
-        acc[category.type] = category.items;
-        return acc;
-      }, {}),
-      'Боеприпасы': { 'Все': Array.isArray(equipmentCatalog.ammoData) ? equipmentCatalog.ammoData : [] },
-      'Еда': {},
-      'Напитки': { 'Все': equipmentCatalog.drinks || [] },
-      'Препараты': { 'Все': equipmentCatalog.chems },
-      'Материалы': {},
-    };
-  }, []);
 
   useEffect(() => {
-    if (!visible) return;
-    getWeapons().then(weapons => {
-      const grouped = {};
-      (weapons || []).forEach(w => {
-        const label = WEAPON_TYPE_LABELS[w.weapon_type] || w.weapon_type || 'Прочее';
-        if (!grouped[label]) grouped[label] = [];
-        grouped[label].push({ ...w, itemType: 'weapon' });
-      });
-      setWeaponsByType(grouped);
-    });
-  }, [visible]);
+    let cancelled = false;
+
+    const loadWeaponsFromDb = async () => {
+      try {
+        const entries = await Promise.all(
+          Object.entries(mapWeaponTypeToDbValue).map(async ([groupKey, weaponType]) => {
+            // 1) Получаем список оружия по weapon_type
+            const weaponsByTypeList = await getWeapons(weaponType);
+            const weaponIds = weaponsByTypeList
+              .map((weapon) => weapon?.id)
+              .filter(Boolean);
+
+            // 2) Получаем каждую пушку по id
+            const weaponsById = await Promise.all(weaponIds.map((id) => getWeaponById(id)));
+            const normalizedWeapons = weaponsById
+              .filter(Boolean)
+              .map((weapon) => ({
+                ...weapon,
+                weaponType: weapon.weapon_type || weapon.weaponType,
+                itemType: 'weapon',
+                // 3) Для отображения используем name
+                name: weapon.name,
+              }))
+              .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
+            return [groupKey, normalizedWeapons];
+          })
+        );
+
+        if (cancelled) return;
+
+        const groupedWeapons = {};
+        entries.forEach(([groupKey, weapons]) => {
+          if (!weapons.length) return;
+          const label = tInventory(`modals.addItemModal.weaponTypeLabels.${groupKey}`);
+          groupedWeapons[label] = weapons;
+        });
+
+        setWeaponsByType(groupedWeapons);
+      } catch (error) {
+        if (!cancelled) {
+          setWeaponsByType({});
+        }
+      }
+    };
+
+    loadWeaponsFromDb();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
+  const staticData = useMemo(() => {
+    const equipmentCatalog = getEquipmentCatalog(locale);
+    return {
+      [tInventory('modals.addItemModal.categories.armor')]: (equipmentCatalog.armor?.armor || []).reduce((acc, category) => {
+        acc[category.type] = category.items;
+        return acc;
+      }, {}),
+      [tInventory('modals.addItemModal.categories.clothing')]: (equipmentCatalog.clothes?.clothes || []).reduce((acc, category) => {
+        acc[category.type] = category.items;
+        return acc;
+      }, {}),
+      [tInventory('modals.addItemModal.categories.ammo')]: {
+        [tInventory('modals.addItemModal.categories.all')]: Array.isArray(equipmentCatalog.ammoData) ? equipmentCatalog.ammoData : [],
+      },
+      [tInventory('modals.addItemModal.categories.food')]: {
+        [tInventory('modals.addItemModal.categories.all')]: [],
+      },
+      [tInventory('modals.addItemModal.categories.drinks')]: {
+        [tInventory('modals.addItemModal.categories.all')]: equipmentCatalog.drinks || [],
+      },
+      [tInventory('modals.addItemModal.categories.chems')]: {
+        [tInventory('modals.addItemModal.categories.all')]: equipmentCatalog.chems || [],
+      },
+      [tInventory('modals.addItemModal.categories.materials')]: {
+        [tInventory('modals.addItemModal.categories.all')]: [],
+      },
+    };
+  }, [locale]);
 
   useEffect(() => {
     if (visible) {
@@ -76,169 +123,99 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
   }, [visible]);
 
   const allData = useMemo(() => ({
-    'Оружие': weaponsByType,
+    [tInventory('modals.addItemModal.categories.weapon')]: weaponsByType,
     ...staticData,
-  }), [weaponsByType, staticData]);
+  }), [locale, weaponsByType, staticData]);
 
   const getTypeLabelAndIcon = (itemType) => {
-    if (itemType === 'weapon') return '🔫 Оружие';
-    if (itemType === 'armor') return '🛡️ Броня';
-    if (itemType === 'clothing' || itemType === 'outfit') return '👕 Одежда';
-    if (itemType === 'chem' || itemType === 'chems') return '💊 Препарат';
-    if (itemType === 'drinks') return '🥤 Напиток';
-    if (itemType === 'ammo') return '🔹 Боеприпасы';
+    if (itemType === 'weapon') return tInventory('modals.addItemModal.itemTypes.weapon');
+    if (itemType === 'armor') return tInventory('modals.addItemModal.itemTypes.armor');
+    if (itemType === 'clothing' || itemType === 'outfit') return tInventory('modals.addItemModal.itemTypes.clothing');
+    if (itemType === 'chem' || itemType === 'chems') return tInventory('modals.addItemModal.itemTypes.chem');
+    if (itemType === 'drinks') return tInventory('modals.addItemModal.itemTypes.drinks');
+    if (itemType === 'ammo') return tInventory('modals.addItemModal.itemTypes.ammo');
     return '';
   };
 
   const unwrapSingleAllCategory = (data) => {
     if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
     const keys = Object.keys(data);
-    if (keys.length === 1 && keys[0] === 'Все' && Array.isArray(data['Все'])) {
-      return data['Все'];
+    const allLabel = tInventory('modals.addItemModal.categories.all');
+    if (keys.length === 1 && keys[0] === allLabel && Array.isArray(data[allLabel])) {
+      return data[allLabel];
     }
     return data;
   };
 
   const handleSelect = (item) => {
-    const itemName = getItemName(item);
-    if (typeof item === 'object' && itemName) {
+    if (typeof item === 'object' && item?.name) {
       onSelectItem(item);
       onClose();
-    } else {
-      setCurrentPath([...currentPath, item]);
+      return;
     }
-  };
-
-  const goBack = () => {
-    setCurrentPath(currentPath.slice(0, -1));
+    setCurrentPath([...currentPath, item]);
   };
 
   const currentData = useMemo(() => {
     if (searchTerm) {
-      // Собираем все предметы из всех категорий
       const allItems = [];
-      
-      // Обрабатываем оружие
-      Object.values(allData['Оружие']).forEach(weaponArray => {
-        if (Array.isArray(weaponArray)) {
-          allItems.push(...weaponArray);
-        }
-      });
-      
-      // Обрабатываем броню
-      Object.values(allData['Броня']).forEach(armorArray => {
-        if (Array.isArray(armorArray)) {
-          allItems.push(...armorArray);
-        }
-      });
-      
-      // Обрабатываем одежду
-      Object.values(allData['Одежда']).forEach(clothesArray => {
-        if (Array.isArray(clothesArray)) {
-          allItems.push(...clothesArray);
-        }
-      });
-      
-      // Обрабатываем боеприпасы
-      if (allData['Боеприпасы']['Все']) {
-        allItems.push(...allData['Боеприпасы']['Все']);
-      }
-      
-      // Обрабатываем препараты
-      if (allData['Препараты']['Все']) {
-        allItems.push(...allData['Препараты']['Все']);
-      }
+      Object.values(allData[tInventory('modals.addItemModal.categories.weapon')] || {}).forEach((items) => Array.isArray(items) && allItems.push(...items));
+      Object.values(allData[tInventory('modals.addItemModal.categories.armor')] || {}).forEach((items) => Array.isArray(items) && allItems.push(...items));
+      Object.values(allData[tInventory('modals.addItemModal.categories.clothing')] || {}).forEach((items) => Array.isArray(items) && allItems.push(...items));
 
-      // Обрабатываем напитки
-      if (allData['Напитки']['Все']) {
-        allItems.push(...allData['Напитки']['Все']);
-      }
-      
-      // Фильтруем по поисковому запросу
-      const filteredItems = allItems.filter(item => {
-        if (!item) return false;
-        const itemName = getItemName(item);
-        return itemName && itemName.toLowerCase().includes(searchTerm.toLowerCase());
+      const allLabel = tInventory('modals.addItemModal.categories.all');
+      const categoryKeys = ['ammo', 'chems', 'drinks'].map((key) => tInventory(`modals.addItemModal.categories.${key}`));
+      categoryKeys.forEach((category) => {
+        if (allData[category]?.[allLabel]) {
+          allItems.push(...allData[category][allLabel]);
+        }
       });
-      
-      return { items: filteredItems };
+
+      return {
+        items: allItems.filter((item) => item?.name?.toLowerCase().includes(searchTerm.toLowerCase())),
+      };
     }
 
     let data = allData;
     for (const key of currentPath) {
-      if (!data || typeof data !== 'object') {
-        return { categories: [] };
-      }
+      if (!data || typeof data !== 'object') return { categories: [] };
       data = data[key];
     }
+
     data = unwrapSingleAllCategory(data);
-    
-    // Check if after navigating, the result is an array of items.
-    // This happens for categories like 'Кожаная броня'.
-    if (Array.isArray(data)) {
-        return { items: data };
-    }
-
-    // If it's an object, it could be a container for categories or items.
-    // This handles nested categories.
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
-        return { categories: Object.keys(data) };
-    }
-
-    // Fallback for empty or invalid paths
+    if (Array.isArray(data)) return { items: data };
+    if (data && typeof data === 'object') return { categories: Object.keys(data) };
     return { categories: [] };
-
-  }, [currentPath, searchTerm, allData]);
+  }, [locale, allData, currentPath, searchTerm]);
 
   const renderItem = ({ item }) => {
-    const itemName = getItemName(item);
-    const isItem = typeof item === 'object' && itemName;
-    
-    // Определяем тип предмета для отображения
-    const itemType = isItem ? getTypeLabelAndIcon(item.itemType) : '';
-    const categoryIcon = !isItem ? (CATEGORY_ICONS[item] || '📁') : '';
-    
+    const isItem = typeof item === 'object' && item?.name;
+    const itemTypeLabel = isItem ? getTypeLabelAndIcon(item.itemType) : '';
+
     return (
       <TouchableOpacity style={styles.itemContainer} onPress={() => handleSelect(item)}>
-        <Text style={styles.itemName}>{isItem ? itemName : item}</Text>
-        {!isItem && <Text style={styles.itemType}>{categoryIcon}</Text>}
-        {isItem && itemType && <Text style={styles.itemType}>{itemType}</Text>}
+        <Text style={styles.itemName}>{isItem ? item.name : item}</Text>
+        {!isItem && <Text style={styles.itemType}>{CATEGORY_ICONS[Object.keys(CATEGORY_ICONS).find((key) => tInventory(`modals.addItemModal.categories.${key}`) === item)] || '📁'}</Text>}
+        {isItem && Boolean(itemTypeLabel) && <Text style={styles.itemType}>{itemTypeLabel}</Text>}
       </TouchableOpacity>
     );
   };
-  
-  const ListHeader = () => (
-    <>
-      <Text style={styles.title}>{currentPath.length > 0 ? currentPath[currentPath.length - 1] : 'Добавить предмет'}</Text>
-      {currentPath.length > 0 && (
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backButtonText}>...Назад</Text>
-        </TouchableOpacity>
-      )}
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Поиск по всем предметам..."
-        value={searchTerm}
-        onChangeText={setSearchTerm}
-      />
-    </>
-  );
 
   return (
-    <Modal visible={visible} transparent={true} animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <SafeAreaView style={styles.modalContent}>
-          <Text style={styles.title}>{currentPath.length > 0 ? currentPath[currentPath.length - 1] : 'Добавить предмет'}</Text>
-          
+          <Text style={styles.title}>{currentPath.length > 0 ? currentPath[currentPath.length - 1] : tInventory(rootTitleKey)}</Text>
+
           {currentPath.length > 0 && !searchTerm && (
-            <TouchableOpacity style={styles.backButton} onPress={goBack}>
-              <Text style={styles.backButtonText}>...Назад</Text>
+            <TouchableOpacity style={styles.backButton} onPress={() => setCurrentPath(currentPath.slice(0, -1))}>
+              <Text style={styles.backButtonText}>{tInventory('modals.addItemModal.back')}</Text>
             </TouchableOpacity>
           )}
 
           <TextInput
             style={styles.searchInput}
-            placeholder="Поиск по всем предметам..."
+            placeholder={tInventory('modals.addItemModal.searchPlaceholder')}
             value={searchTerm}
             onChangeText={setSearchTerm}
           />
@@ -246,14 +223,11 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
           <FlatList
             data={currentData.items || currentData.categories}
             renderItem={renderItem}
-            keyExtractor={(item, index) => {
-                const key = typeof item === 'object' ? item.Name : item;
-                return `${key}-${index}`;
-            }}
-            ListEmptyComponent={<Text style={styles.emptyText}>Категория пуста</Text>}
+            keyExtractor={(item, index) => `${typeof item === 'object' ? item.name : item}-${index}`}
+            ListEmptyComponent={<Text style={styles.emptyText}>{tInventory('modals.addItemModal.emptyCategory')}</Text>}
           />
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Закрыть</Text>
+            <Text style={styles.closeButtonText}>{tInventory('modals.addItemModal.close')}</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </View>
@@ -262,70 +236,18 @@ const AddItemModal = ({ visible, onClose, onSelectItem }) => {
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      },
-      modalContent: {
-        width: '90%',
-        height: '80%',
-        backgroundColor: 'white',
-        borderRadius: 10,
-        padding: 20,
-      },
-      title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        textAlign: 'center',
-      },
-      searchInput: {
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginBottom: 15,
-      },
-          itemContainer: {
-      padding: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: '#eee',
-    },
-    itemName: {
-      fontSize: 16,
-      fontWeight: 'bold',
-    },
-    itemType: {
-      fontSize: 12,
-      color: '#666',
-      marginTop: 4,
-    },
-      backButton: {
-        marginBottom: 10,
-      },
-      backButtonText: {
-        fontSize: 16,
-        color: '#007AFF',
-      },
-      closeButton: {
-        backgroundColor: '#DC3545',
-        padding: 10,
-        borderRadius: 5,
-        marginTop: 20,
-        alignItems: 'center',
-      },
-      closeButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-      },
-      emptyText: {
-        textAlign: 'center',
-        marginTop: 20,
-        color: '#888'
-      }
+  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', paddingHorizontal: 16, paddingVertical: 24 },
+  modalContent: { width: '80%', height: '80%', backgroundColor: 'white', borderRadius: 10, paddingVertical: 20, paddingHorizontal: 24 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 12, textAlign: 'center', paddingHorizontal: 8 },
+  backButton: { alignSelf: 'flex-start', marginBottom: 8 },
+  backButtonText: { color: '#1A73E8', fontSize: 14 },
+  searchInput: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 10, marginBottom: 12 },
+  itemContainer: { paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#efefef', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  itemName: { fontSize: 16, flex: 1, paddingRight: 8 },
+  itemType: { fontSize: 14, color: '#444' },
+  emptyText: { textAlign: 'center', marginVertical: 20, color: '#777' },
+  closeButton: { backgroundColor: '#DC3545', padding: 10, borderRadius: 5, marginTop: 12, alignItems: 'center' },
+  closeButtonText: { color: 'white', fontWeight: 'bold' },
 });
 
-export default AddItemModal; 
+export default AddItemModal;

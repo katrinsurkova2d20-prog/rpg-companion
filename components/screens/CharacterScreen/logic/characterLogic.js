@@ -194,12 +194,16 @@ export const calculateDefense = (attributes) => {
   return agility >= 9 ? 2 : 1;
 };
 
-export const calculateMeleeBonus = (attributes) => {
+export const calculateMeleeBonus = (attributes, trait) => {
   const strength = getAttributeValue(attributes, "STR");
-  if (strength >= 11) return "+3 {CD}";
-  if (strength >= 9) return "+2 {CD}";
-  if (strength >= 7) return "+1 {CD}";
-  return "0";
+  let baseBonus = 0;
+  if (strength >= 11) baseBonus = 3;
+  else if (strength >= 9) baseBonus = 2;
+  else if (strength >= 7) baseBonus = 1;
+
+  const traitBonus = trait?.modifiers?.meleeBonusDelta || 0;
+  const totalBonus = baseBonus + traitBonus;
+  return totalBonus > 0 ? `+${totalBonus} {CD}` : "0";
 };
 
 export const calculateMaxHealth = (attributes, level = 1) => {
@@ -211,7 +215,8 @@ export const calculateMaxHealth = (attributes, level = 1) => {
 export const calculateCarryWeight = (attributes, trait) => {
   const strength = getAttributeValue(attributes, "STR");
   const baseCarryWeight = 150;
-  const strengthBonus = 10 * strength;
+  const strengthMultiplier = trait?.modifiers?.carryWeightStrengthMultiplier ?? 10;
+  const strengthBonus = strengthMultiplier * strength;
 
   // Черты могут модифицировать грузоподъемность
   const traitCarryWeightModifier = trait?.modifiers?.carryWeight || 0;

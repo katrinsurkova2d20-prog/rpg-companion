@@ -1,0 +1,59 @@
+[
+  {
+    "id": "robot_module_boiler",
+    "name": "Встроенный бойлер",
+    "Name": "Встроенный бойлер",
+    "Название": "Встроенный бойлер",
+    "itemType": "module",
+    "weight": 0,
+    "cost": 0,
+    "rarity": 0,
+    "robotOnly": true,
+    "grantsItemId": "drink_clean_water",
+    "grantsEveryHours": 24
+  },
+  {
+    "id": "robot_module_recon_sensors",
+    "name": "Разведывательные сенсоры",
+    "Name": "Разведывательные сенсоры",
+    "Название": "Разведывательные сенсоры",
+    "itemType": "module",
+    "weight": 0,
+    "cost": 0,
+    "rarity": 0,
+    "robotOnly": true
+  },
+  {
+    "id": "robot_module_behavior_analysis",
+    "name": "Модуль поведенческого анализа",
+    "Name": "Модуль поведенческого анализа",
+    "Название": "Модуль поведенческого анализа",
+    "itemType": "module",
+    "weight": 0,
+    "cost": 0,
+    "rarity": 0,
+    "robotOnly": true
+  },
+  {
+    "id": "robot_module_hazard_detection",
+    "name": "Модуль обнаружения опасности",
+    "Name": "Модуль обнаружения опасности",
+    "Название": "Модуль обнаружения опасности",
+    "itemType": "module",
+    "weight": 0,
+    "cost": 0,
+    "rarity": 0,
+    "robotOnly": true
+  },
+  {
+    "id": "robot_module_diagnostics",
+    "name": "Модуль диагностики",
+    "Name": "Модуль диагностики",
+    "Название": "Модуль диагностики",
+    "itemType": "module",
+    "weight": 0,
+    "cost": 0,
+    "rarity": 0,
+    "robotOnly": true
+  }
+]

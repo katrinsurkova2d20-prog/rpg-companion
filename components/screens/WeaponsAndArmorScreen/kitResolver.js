@@ -1,47 +1,145 @@
 import { getWeaponById, getWeaponModById, getAmmoById, getItemByName } from '../../../db/Database';
-import { resolveRandomLoot } from '../CharacterScreen/logic/RandomLootLogic';
-import { evaluateFormula } from '../CharacterScreen/logic/Calculator';
+import { resolveRandomLootByRoll } from '../CharacterScreen/logic/RandomLootLogic';
+import { evaluateRollConfig } from '../CharacterScreen/logic/Calculator';
 import { getEquipmentCatalog } from '../../../i18n/equipmentCatalog';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const CURRENCY_NAMES = {
+  currency: 'Крышки',
+  currency_ncr: 'Доллары НКР',
+};
 
-/**
- * Вычисляет количество патронов по формуле вида "6+3fn{CD}<ammo>" или "(6+(3<cd>))<ammo>"
- * и возвращает обогащённый объект патрона.
- */
-function resolveAmmoQuantity(formula, ammo) {
+const ROLL_TABLE_TAG = {
+  food: 'food',
+  trinklet: 'trinklet',
+  brewery: 'brewery',
+  chem: 'chem',
+  outcast: 'outcast',
+};
+
+const toNumber = (value) => Number.isFinite(value) ? value : Number(value) || 0;
+const safeDbCall = async (fn, ...args) => {
   try {
-    // Убираем тег <...> в конце перед вычислением
-    const cleanFormula = formula.replace(/<\w+>$/, '').trim();
-    const quantity = evaluateFormula(cleanFormula);
-    return {
-      name: ammo.name,
-      Название: ammo.name,
-      quantity,
-      type: 'ammo',
-      Цена: ammo.cost,
-      Редкость: ammo.rarity,
-    };
-  } catch (e) {
+    return await fn(...args);
+  } catch {
     return null;
   }
-}
+};
 
-// ─── 2.1 resolveWeaponItem ────────────────────────────────────────────────────
+const flattenGroupedItems = (source) => {
+  if (Array.isArray(source)) return source;
+  if (!source || typeof source !== 'object') return [];
+  return Object.values(source).flatMap((entry) => {
+    if (Array.isArray(entry)) {
+      return entry.flatMap((group) => (Array.isArray(group?.items) ? group.items : []));
+    }
+    if (Array.isArray(entry?.items)) return entry.items;
+    return [];
+  });
+};
 
-/**
- * Async. Принимает элемент комплекта с `weaponId`, разрешает оружие, моды и патроны
- * через базу данных. При любом null из БД — логирует предупреждение и возвращает
- * fallback без краша.
- */
+const resolveRollQuantity = (quantity = {}) => {
+  const base = toNumber(quantity.base);
+  if (quantity.rollType === 'rollCD' && quantity.rollValue) {
+    const op = quantity.op === '-' ? '-' : '+';
+    return evaluateRollConfig({ base, rollType: 'rollCD', rollValue: toNumber(quantity.rollValue), op });
+  }
+  return base;
+};
+
+const resolveTableRollCount = (roll = {}) => {
+  if (roll.rollType === 'D20' && roll.count) {
+    return toNumber(roll.count);
+  }
+  return 1;
+};
+
+const resolveAmmoObject = async (ammoSpec, weaponAmmoId) => {
+  if (!ammoSpec?.quantity) return null;
+  const ammoId = ammoSpec.ammoId || weaponAmmoId;
+  if (!ammoId) return null;
+
+  const ammo = await safeDbCall(getAmmoById, ammoId);
+  const catalog = getEquipmentCatalog();
+  const fallbackAmmo = (catalog?.ammoTypes || []).find((entry) => entry.id === ammoId);
+  const ammoData = ammo || fallbackAmmo;
+  if (!ammoData) return null;
+
+  const normalizedAmmoName = fallbackAmmo?.name || ammoData.name;
+  const quantity = resolveRollQuantity(ammoSpec.quantity);
+  return {
+    name: normalizedAmmoName,
+    Название: normalizedAmmoName,
+    quantity,
+    type: 'ammo',
+    itemType: 'ammo',
+    Цена: ammoData.cost,
+    Редкость: ammoData.rarity,
+  };
+};
+
+const resolveItemById = (item) => {
+  const catalog = getEquipmentCatalog();
+
+  if (item.armorId) {
+    const found = catalog?.armorIndex?.byId?.get(item.armorId);
+    if (found) {
+      return {
+        ...found,
+        ...item,
+        name: found.Name || found.name,
+        Название: found.Название || found.Name || found.name,
+        itemType: 'armor',
+      };
+    }
+  }
+
+  if (item.clothingId) {
+    const allClothes = (catalog?.clothes?.clothes || []).flatMap((group) => group.items || []);
+    const found = allClothes.find((entry) => entry.id === item.clothingId);
+    if (found) {
+      return {
+        ...found,
+        ...item,
+        name: found.Name || found.name,
+        Название: found.Название || found.Name || found.name,
+        itemType: 'clothing',
+      };
+    }
+  }
+
+  if (item.itemId) {
+    const all = [
+      ...flattenGroupedItems(catalog?.miscellaneous),
+      ...(catalog?.chems || []),
+      ...(catalog?.drinks || []),
+      ...(catalog?.robotModules || []),
+      ...(catalog?.robotItems || []),
+    ];
+    const found = all.find((entry) => entry.id === item.itemId);
+    if (found) {
+      return {
+        ...found,
+        ...item,
+        name: found.Name || found.name,
+        Название: found.Название || found.Name || found.name,
+        itemType: item.itemType || found.itemType || 'misc',
+      };
+    }
+  }
+
+  return null;
+};
+
 export async function resolveWeaponItem(item) {
-  const weapon = await getWeaponById(item.weaponId);
-
-  if (!weapon) {
+  const weapon = await safeDbCall(getWeaponById, item.weaponId);
+  const catalog = getEquipmentCatalog();
+  const fallbackWeapon = (catalog?.weapons || []).find((entry) => entry.id === item.weaponId);
+  const weaponData = weapon || fallbackWeapon;
+  if (!weaponData) {
     return {
       ...item,
-      displayName: item.weaponId,
       name: item.weaponId,
+      Название: item.weaponId,
       itemType: 'weapon',
       _weapon: null,
       _mods: [],
@@ -49,197 +147,104 @@ export async function resolveWeaponItem(item) {
     };
   }
 
-  // Разрешаем моды
   const mods = [];
   for (const modId of (item.modIds || [])) {
-    const mod = await getWeaponModById(modId);
-    if (mod) {
-      mods.push(mod);
-    } else {
-    }
+    const mod = await safeDbCall(getWeaponModById, modId);
+    if (mod) mods.push(mod);
   }
 
-  // Формируем displayName: prefix1 prefix2 BaseName
-  const prefixes = mods.map(m => m.prefix).filter(Boolean);
-  const displayName = [...prefixes, weapon.name].join(' ');
-
-  // Разрешаем патроны
-  let resolvedAmmunition = null;
-  if (item.ammunition && weapon.ammo_id) {
-    const ammo = await getAmmoById(weapon.ammo_id);
-    if (ammo) {
-      resolvedAmmunition = resolveAmmoQuantity(item.ammunition, ammo);
-    } else {
-    }
-  }
+  const prefixes = mods.map((mod) => mod.prefix).filter(Boolean);
+  const weaponName = weaponData.name || weaponData.Name || item.weaponId;
+  const displayName = [...prefixes, weaponName].join(' ');
+  const resolvedAmmunition = await resolveAmmoObject(item.ammo, weaponData.ammo_id || weaponData.Ammo);
 
   return {
     ...item,
-    _weapon: weapon,
+    _weapon: weaponData,
     _mods: mods,
     displayName,
     name: displayName,
+    Название: displayName,
     itemType: 'weapon',
     resolvedAmmunition,
   };
 }
 
-
-function resolveArmorOrClothingById(item) {
-  const catalog = getEquipmentCatalog();
-  if (item.armorId) {
-    const found = catalog?.armorIndex?.byId?.get(item.armorId);
-    if (found) {
-      return { ...found, ...item, name: found.Name || found.name, Название: found.Название || found.Name, itemType: 'armor' };
-    }
-  }
-  if (item.clothingId) {
-    const allClothes = (catalog?.clothes?.clothes || []).flatMap((g) => g.items || []);
-    const found = allClothes.find((c) => c.id === item.clothingId);
-    if (found) {
-      return { ...found, ...item, name: found.Name || found.name, Название: found.Название || found.Name, itemType: found.itemType || 'clothing' };
-    }
-  }
-  return null;
-}
-
-// ─── 2.2 resolveNonWeaponItem ─────────────────────────────────────────────────
-
-// Теги валют — результат вычисления формулы становится количеством
-const CURRENCY_TAGS = {
-  caps: { name: 'Крышки', itemType: 'currency' },
-  нкр:  { name: 'Доллары НКР', itemType: 'currency_ncr' },
-};
-
-/**
- * Async. Принимает элемент комплекта с `name`.
- *
- * Обрабатывает:
- *   - "[формула]<тег_лута>"  → resolveRandomLoot (один предмет или массив)
- *   - "[формула]<caps>"      → крышки с вычисленным количеством
- *   - "[формула]<нкр>"       → доллары НКР с вычисленным количеством
- *   - "N<caps>"              → фиксированные крышки (legacy)
- *   - Устаревший "N+Mfn{CD} label" → вычисляет количество
- *   - Иначе → поиск в БД
- */
 export async function resolveNonWeaponItem(item) {
-  const resolvedById = resolveArmorOrClothingById(item);
-  if (resolvedById) return resolvedById;
-  if (!item.name) return item;
-
-  // Формат [формула]<тег>
-  const tagMatch = item.name.match(/^(.*?)<(\w+)>$/i);
-  if (tagMatch) {
-    const formula = tagMatch[1].trim();
-    const tag = tagMatch[2].toLowerCase();
-
-    // Тег валюты — вычисляем количество
-    if (CURRENCY_TAGS[tag]) {
-      const { name, itemType } = CURRENCY_TAGS[tag];
-      const quantity = formula ? evaluateFormula(formula) : 1;
-      return { ...item, name, Название: name, quantity, itemType };
+  if (item.type === 'rollTable') {
+    const count = resolveTableRollCount(item.roll);
+    const tableId = ROLL_TABLE_TAG[item.tableId] || item.tableId;
+    const resolvedItems = await resolveRandomLootByRoll(tableId, count);
+    if (resolvedItems.length > 1) {
+      return { ...resolvedItems[0], _extraItems: resolvedItems.slice(1), itemType: 'loot' };
     }
-
-    // Тег лута — разрешаем через RandomLoot
-    try {
-      const resolved = await resolveRandomLoot(item.name);
-      if (resolved) {
-        // resolveRandomLoot может вернуть массив (d20,d20<food>)
-        if (Array.isArray(resolved)) {
-          // Возвращаем первый элемент — остальные обрабатываются в resolveKitItems
-          return { ...resolved[0], _extraItems: resolved.slice(1) };
-        }
-        return { ...resolved, quantity: resolved.quantity || 1 };
-      }
-    } catch (e) {
+    if (resolvedItems.length === 1) {
+      return { ...resolvedItems[0], itemType: 'loot' };
     }
-    return item;
+    return { ...item, name: `${count}d20<${tableId}>`, itemType: 'loot' };
   }
 
-  // Устаревший формат "N+Mfn{CD} label" или "NdM label" — обратная совместимость
-  const legacyCurrencyMatch = item.name.match(/^([\d+fn{CD}\s<>cd]+)\s+(.+)$/i);
-  if (legacyCurrencyMatch) {
-    const formulaPart = legacyCurrencyMatch[1].trim();
-    const label = legacyCurrencyMatch[2].trim();
-    try {
-      const quantity = evaluateFormula(formulaPart);
-      if (quantity > 0) {
-        return { ...item, name: label, Название: label, quantity, itemType: item.itemType || 'currency_ncr' };
-      }
-    } catch (_) { /* не формула — продолжаем */ }
+  const byId = resolveItemById(item);
+  if (byId) return byId;
+
+  if (item.itemType === 'currency' || item.itemType === 'currency_ncr') {
+    const name = CURRENCY_NAMES[item.itemType] || 'Валюта';
+    return {
+      ...item,
+      name,
+      Название: name,
+      quantity: toNumber(item.quantity || 0),
+    };
   }
 
-  // Поиск в БД
-  try {
-    const dbItem = await getItemByName(item.name);
+  if (item.name) {
+    const dbItem = await safeDbCall(getItemByName, item.name);
     if (dbItem) {
       return {
         ...item,
         ...dbItem,
+        name: dbItem.name,
         Название: dbItem.name,
         itemType: dbItem.item_type || item.itemType,
-        weight: dbItem.weight,
-        price: dbItem.price,
       };
     }
-    return { ...item, Название: item.name };
-  } catch (e) {
-    return { ...item, Название: item.name };
   }
+
+  return { ...item, name: item.name || item.itemId || 'Неизвестный предмет', Название: item.name || item.itemId || 'Неизвестный предмет' };
 }
 
-// ─── 2.3 resolveKitItems ──────────────────────────────────────────────────────
-
-/**
- * Async. Принимает объект комплекта снаряжения (kit) и разрешает все предметы
- * во всех категориях (weapons, armor, clothing, miscellaneous, chems и др.).
- *
- * Для каждого элемента:
- *   - если есть `weaponId` → resolveWeaponItem
- *   - иначе → resolveNonWeaponItem
- * Для `type: 'choice'` — разрешает каждый option аналогично.
- *
- * Возвращает новый объект комплекта с разрешёнными предметами.
- */
-export async function resolveKitItems(kit) {
-  // Категории, которые могут содержать предметы
-  const ITEM_CATEGORIES = ['weapons', 'armor', 'clothing', 'miscellaneous', 'chems'];
-
-  async function resolveItem(item) {
-    if (item.weaponId) {
-      return resolveWeaponItem(item);
-    }
-    return resolveNonWeaponItem(item);
-  }
-
-  async function resolveEntry(entry) {
-    if (entry.type === 'choice' && Array.isArray(entry.options)) {
-      const resolvedOptions = await Promise.all(entry.options.map(resolveItem));
-      return { ...entry, options: resolvedOptions };
-    }
-    // type: 'fixed' или без type
-    const resolved = await resolveItem(entry);
-    return resolved;
-  }
-
-  const resolvedKit = { ...kit };
-
-  for (const category of ITEM_CATEGORIES) {
-    if (Array.isArray(kit[category])) {
-      const entries = await Promise.all(kit[category].map(resolveEntry));
-      // Разворачиваем _extraItems (результат d20,d20<tag> — несколько предметов)
-      const flat = [];
-      for (const entry of entries) {
-        if (entry._extraItems) {
-          const { _extraItems, ...main } = entry;
-          flat.push(main, ..._extraItems);
-        } else {
-          flat.push(entry);
-        }
+async function resolveEntry(entry) {
+  if (entry.type === 'choice') {
+    const options = await Promise.all((entry.items || []).map(async (option) => {
+      if (option.group) {
+        const group = await Promise.all(option.group.map((groupItem) => (
+          groupItem.weaponId ? resolveWeaponItem(groupItem) : resolveNonWeaponItem(groupItem)
+        )));
+        return { ...option, group };
       }
-      resolvedKit[category] = flat;
+      return option.weaponId ? resolveWeaponItem(option) : resolveNonWeaponItem(option);
+    }));
+    return { ...entry, items: options };
+  }
+
+  return entry.weaponId ? resolveWeaponItem(entry) : resolveNonWeaponItem(entry);
+}
+
+export async function resolveKitItems(kit) {
+  const entries = await Promise.all((kit.items || []).map(resolveEntry));
+
+  const flatEntries = [];
+  for (const entry of entries) {
+    if (entry?._extraItems) {
+      const { _extraItems, ...main } = entry;
+      flatEntries.push(main, ..._extraItems);
+    } else {
+      flatEntries.push(entry);
     }
   }
 
-  return resolvedKit;
+  return {
+    ...kit,
+    items: flatEntries,
+  };
 }

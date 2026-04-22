@@ -10,23 +10,39 @@ import {
   calculateMeleeBonus,
   calculateCarryWeight
 } from './screens/CharacterScreen/logic/characterLogic';
+import { ORIGINS } from './screens/CharacterScreen/logic/originsData';
 import { getAttributeValue } from './screens/CharacterScreen/logic/attributeKeyUtils';
 import { meetsPerkRequirements, getPerkUnmetReasons, annotatePerks } from './screens/CharacterScreen/logic/perksLogic';
 import { applyConsumableToEffects, advanceEffectsByScene, pruneExpiredTimedEffects, SCENE_RULES } from '../assets/scripts/sceneEffects';
+import { syncCharacterToCloudIfEnabled } from './cloudSync/googleDriveSync';
 
 const CharacterContext = createContext();
 
 const generateId = () => `char_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+const resolveOrigin = (storedOrigin) => {
+  if (!storedOrigin) return null;
+
+  const identity = typeof storedOrigin === 'string'
+    ? storedOrigin
+    : (storedOrigin.id || storedOrigin.originId || storedOrigin.name);
+
+  return ORIGINS.find((origin) => (
+    origin.id === identity || origin.name === identity
+  )) || null;
+};
+
 const serializeState = (state) => ({
   ...state,
-  modifiedItems: state.modifiedItems instanceof Map 
+  origin: state.origin?.id ? { id: state.origin.id } : null,
+  modifiedItems: state.modifiedItems instanceof Map
     ? Array.from(state.modifiedItems.entries())
     : (Array.isArray(state.modifiedItems) ? state.modifiedItems : []),
 });
 
 const deserializeState = (data) => ({
   ...data,
+  origin: resolveOrigin(data.origin),
   modifiedItems: new Map(Array.isArray(data.modifiedItems) ? data.modifiedItems : []),
 });
 
@@ -143,6 +159,7 @@ export const CharacterProvider = ({ children }) => {
           snapshot.origin?.name || null,
           serialized
         );
+        await syncCharacterToCloudIfEnabled(characterIdRef.current);
       } catch (e) {
       }
     }, 500);
@@ -174,6 +191,7 @@ export const CharacterProvider = ({ children }) => {
         snapshot.origin?.name || null,
         serialized
       );
+      await syncCharacterToCloudIfEnabled(id);
 
       setIsSaved(true);
       isSavedRef.current = true;
@@ -317,11 +335,11 @@ export const CharacterProvider = ({ children }) => {
   const commitAttributeChanges = (newAttributes, pointsSpent) => {
     setAttributes(newAttributes);
     setAvailablePerkAttributePoints(prev => prev - pointsSpent);
-    const newLuck = getLuckPoints(newAttributes);
+    const newLuck = getLuckPoints(newAttributes, trait);
     setMaxLuckPoints(newLuck);
     setLuckPoints(prevLuck => Math.min(prevLuck, newLuck));
     setCarryWeight(calculateCarryWeight(newAttributes, trait));
-    setMeleeBonus(calculateMeleeBonus(newAttributes));
+    setMeleeBonus(calculateMeleeBonus(newAttributes, trait));
     setInitiative(calculateInitiative(newAttributes));
     setDefense(calculateDefense(newAttributes));
     const newMaxHealth = calculateMaxHealth(newAttributes, level);
@@ -408,7 +426,13 @@ export const CharacterProvider = ({ children }) => {
     meleeBonus,
     initiative,
     defense,
-    hasTrait: (traitName) => !!(trait && (trait.name === traitName)),
+    hasTrait: (traitName) => !!(
+      trait &&
+      (
+        trait.name === traitName ||
+        (Array.isArray(trait?.modifiers?.selectedTraitNames) && trait.modifiers.selectedTraitNames.includes(traitName))
+      )
+    ),
     getItemId,
     getModifiedItem,
     saveModifiedItem,

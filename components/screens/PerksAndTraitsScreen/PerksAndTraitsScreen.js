@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useCharacter } from '../../CharacterContext';
-import { getTraitDisplayDescription } from '../CharacterScreen/logic/traitsData';
+import { getTraitDisplayDescription, TRAITS } from '../CharacterScreen/logic/traitsData';
 import perksData from '../../../assets/Perks/perks.json';
 import PerkSelectModal from './PerkSelectModal';
+import { renderTextWithIcons } from '../WeaponsAndArmorScreen/textUtils';
 
 const PerksAndTraitsScreen = () => {
   const { 
@@ -11,6 +12,8 @@ const PerksAndTraitsScreen = () => {
     addPerkAttributePoints, attributesSaved 
   } = useCharacter();
   const [isPerkModalVisible, setPerkModalVisible] = useState(false);
+  const extraPerkSlots = trait?.modifiers?.extraPerkSlots || 0;
+  const perkLimit = level + extraPerkSlots;
 
   // Создаем массив из 20 строк
   const emptyRows = Array(20).fill(null);
@@ -18,7 +21,7 @@ const PerksAndTraitsScreen = () => {
   const annotatedPerks = useMemo(() => annotatePerks(perksData), [annotatePerks]);
 
   const handleAddPerkPress = () => {
-    if (selectedPerks.length >= level) {
+    if (selectedPerks.length >= perkLimit) {
       const message = 'На текущем уровне больше перков взять нельзя';
       if (Platform.OS === 'web') {
         window.alert(message);
@@ -34,7 +37,7 @@ const PerksAndTraitsScreen = () => {
     if (!perk) return;
     
     // Блокируем выбор, если уже взяли максимум на уровне (доп. защита)
-    if (selectedPerks.length >= level) {
+    if (selectedPerks.length >= perkLimit) {
       const message = 'На текущем уровне больше перков взять нельзя';
       if (Platform.OS === 'web') {
         window.alert(message);
@@ -88,22 +91,41 @@ const PerksAndTraitsScreen = () => {
           </View>
 
           {/* Строка с чертой, если она есть */}
-          {trait && (
-            <View style={styles.row}>
-              <Text style={[styles.cell, styles.nameColumn]}>{trait.name}</Text>
-              <Text style={[styles.cell, styles.rankColumn]}></Text>
-              <Text style={[styles.cell, styles.descriptionColumn]}>
-                {getTraitDisplayDescription(trait)}
-              </Text>
-            </View>
-          )}
+          {trait && (() => {
+            const selectedNames = trait?.modifiers?.selectedTraitNames;
+            if (Array.isArray(selectedNames) && selectedNames.length > 0) {
+              return selectedNames.map((name, idx) => {
+                const baseTrait = TRAITS[name] || {};
+                return (
+                  <View key={`trait-${idx}-${name}`} style={styles.row}>
+                    <Text style={[styles.cell, styles.nameColumn]}>{name}</Text>
+                    <Text style={[styles.cell, styles.rankColumn]}></Text>
+                    {renderTextWithIcons(
+                      getTraitDisplayDescription({ name, modifiers: baseTrait.modifiers }),
+                      [styles.cell, styles.descriptionColumn]
+                    )}
+                  </View>
+                );
+              });
+            }
+            return (
+              <View style={styles.row}>
+                <Text style={[styles.cell, styles.nameColumn]}>{trait.name}</Text>
+                <Text style={[styles.cell, styles.rankColumn]}></Text>
+                {renderTextWithIcons(
+                  getTraitDisplayDescription(trait),
+                  [styles.cell, styles.descriptionColumn]
+                )}
+              </View>
+            );
+          })()}
 
           {/* Выбранные перки (по уровням) */}
           {selectedPerks.map((perk, idx) => (
             <View key={`perk-${idx}`} style={styles.row}>
               <Text style={[styles.cell, styles.nameColumn]}>{perk.perk_name}</Text>
               <Text style={[styles.cell, styles.rankColumn]}>{perk.rank ?? ''}</Text>
-              <Text style={[styles.cell, styles.descriptionColumn]}>{perk.description}</Text>
+              {renderTextWithIcons(perk.description, [styles.cell, styles.descriptionColumn])}
             </View>
           ))}
 

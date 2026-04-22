@@ -1,5 +1,6 @@
 // OriginModal.js
 import React from 'react';
+import { tCharacterScreen } from '../logic/characterScreenI18n';
 import { 
   View, 
   Text, 
@@ -22,7 +23,7 @@ const OriginModal = ({
   return (
     <View style={styles.modalOverlay}>
       <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>Выберите происхождение</Text>
+        <Text style={styles.modalTitle}>{tCharacterScreen('modals.origin.title', 'Select origin')}</Text>
         
         <ScrollView style={styles.originsList}>
           {origins.map(origin => (
@@ -45,7 +46,7 @@ const OriginModal = ({
             style={[styles.modalButton, styles.cancelButton]} 
             onPress={onClose}
           >
-            <Text style={styles.buttonText}>Отмена</Text>
+            <Text style={styles.buttonText}>{tCharacterScreen('buttons.cancel', 'Cancel')}</Text>
           </TouchableOpacity>
           
           {selectedOrigin && (
@@ -53,7 +54,7 @@ const OriginModal = ({
               style={[styles.modalButton, styles.selectButton]} 
               onPress={onConfirm}
             >
-              <Text style={styles.buttonText}>Выбрать</Text>
+              <Text style={styles.buttonText}>{tCharacterScreen('buttons.select', 'Select')}</Text>
             </TouchableOpacity>
           )}
         </View>

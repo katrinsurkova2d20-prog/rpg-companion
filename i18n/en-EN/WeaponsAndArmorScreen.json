@@ -9,19 +9,37 @@
   },
   "armor": {
     "slots": {
-      "head": { "title": "Head", "subtitle": "1-2" },
-      "leftArm": { "title": "Left Arm", "subtitle": "9-11" },
-      "rightArm": { "title": "Right Arm", "subtitle": "12-14" },
-      "body": { "title": "Body", "subtitle": "3-8" },
-      "leftLeg": { "title": "Left Leg", "subtitle": "15-17" },
-      "rightLeg": { "title": "Right Leg", "subtitle": "18-20" }
+      "head": {
+        "title": "Head",
+        "subtitle": "1-2"
+      },
+      "leftArm": {
+        "title": "Left Arm",
+        "subtitle": "9-11"
+      },
+      "rightArm": {
+        "title": "Right Arm",
+        "subtitle": "12-14"
+      },
+      "body": {
+        "title": "Body",
+        "subtitle": "3-8"
+      },
+      "leftLeg": {
+        "title": "Left Leg",
+        "subtitle": "15-17"
+      },
+      "rightLeg": {
+        "title": "Right Leg",
+        "subtitle": "18-20"
+      }
     },
     "fields": {
       "physical": "Phys. DR",
       "energy": "Energy DR",
       "radiation": "Rad. DR",
-      "clothingModification": "Clothing Mod",
-      "armorModification": "Armor Mod"
+      "clothingModification": "Upgrade clothing",
+      "armorModification": "Upgrade armor"
     }
   },
   "weapon": {
@@ -44,8 +62,8 @@
   },
   "modals": {
     "requirements": "Requirements",
-    "armorModification": "Armor Modification",
-    "clothingModification": "Clothing Modification",
+    "armorModification": "Upgrade armor",
+    "clothingModification": "Upgrade clothing",
     "availableModifications": "Available modifications",
     "standard": "Standard",
     "unique": "Unique",
@@ -59,6 +77,8 @@
     "cost": "Cost",
     "cancel": "Cancel",
     "apply": "Apply",
-    "improvements": "Improvements"
+    "improvements": "Improvements",
+    "clothingReinforced": "Reinforced seams",
+    "clothingInsulated": "Insulated lining"
   }
 }

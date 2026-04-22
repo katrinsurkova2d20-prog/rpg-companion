@@ -12,6 +12,31 @@ const parseProtectedAreas = (item) => {
   return [];
 };
 
+const findCatalogArmorById = (catalog, id) => {
+  if (!id) return null;
+  return catalog?.armorIndex?.byId?.get(id) || null;
+};
+
+const findCatalogClothingById = (catalog, id) => {
+  if (!id) return null;
+  const allClothes = (catalog?.clothes?.clothes || []).flatMap((group) => group.items || []);
+  return allClothes.find((item) => item.id === id) || null;
+};
+
+const resolveLocalizedItem = (catalog, targetItem, isClothingMode) => {
+  if (!targetItem) return null;
+  const byId = isClothingMode
+    ? findCatalogClothingById(catalog, targetItem.id)
+    : findCatalogArmorById(catalog, targetItem.id);
+
+  return {
+    ...(byId || {}),
+    ...targetItem,
+    name: byId?.name || byId?.Name || targetItem?.name || targetItem?.Name,
+    Name: byId?.Name || byId?.name || targetItem?.Name || targetItem?.name,
+  };
+};
+
 const CollapsibleSection = ({ title, children, isExpanded, onToggle }) => (
   <View style={styles.collapsibleSection}>
     <TouchableOpacity onPress={onToggle} style={styles.sectionHeader}>
@@ -44,39 +69,45 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
   const isClothingMode = mode === 'clothing';
   const stdKey = isClothingMode ? 'appliedClothingModId' : 'appliedArmorModId';
   const uniqKey = isClothingMode ? null : 'appliedUniqueArmorModId';
+  const localizedTargetItem = useMemo(
+    () => resolveLocalizedItem(catalog, targetItem, isClothingMode),
+    [catalog, targetItem, isClothingMode],
+  );
 
   useEffect(() => {
-    if (!visible || !targetItem) return;
-    setSelectedStd(targetItem[stdKey] || null);
-    setSelectedUniq(uniqKey ? (targetItem[uniqKey] || null) : null);
+    if (!visible || !localizedTargetItem) return;
+    setSelectedStd(localizedTargetItem[stdKey] || null);
+    setSelectedUniq(uniqKey ? (localizedTargetItem[uniqKey] || null) : null);
     setExpandedCategories({ standard: false, unique: false });
-  }, [visible, targetItem, stdKey, uniqKey]);
+  }, [visible, localizedTargetItem, stdKey, uniqKey]);
 
   const { standardMods, uniqueMods } = useMemo(() => {
-    if (!targetItem) return { standardMods: [], uniqueMods: [] };
+    if (!localizedTargetItem) return { standardMods: [], uniqueMods: [] };
 
-    const area = parseProtectedAreas(targetItem);
-    const categoryCfg = catalog?.armorRaw?.[targetItem.armorCategoryKey] || null;
+    const area = parseProtectedAreas(localizedTargetItem);
+    const categoryCfg = catalog?.armorRaw?.[localizedTargetItem.armorCategoryKey] || null;
     const allowedStd = new Set(categoryCfg?.allowedModCategories || ['standardMods']);
     const allowedUniq = new Set(categoryCfg?.allowedUniqueModCategories || []);
 
+    if (isClothingMode) {
+      return { standardMods: [], uniqueMods: [] };
+    }
+
     const standardMods = (catalog.armorMods || []).filter((m) =>
-      (isClothingMode || allowedStd.has(m.modCategory)) && hasIntersection(m.protectedAreas || [], area),
+      allowedStd.has(m.modCategory) && hasIntersection(m.protectedAreas || [], area),
     );
 
-    const uniqueMods = isClothingMode
-      ? []
-      : (catalog.uniqArmorMods || []).filter((m) =>
-          (allowedUniq.size === 0 || allowedUniq.has(m.modCategory)) && hasIntersection(m.protectedAreas || [], area),
-        );
+    const uniqueMods = (catalog.uniqArmorMods || []).filter((m) =>
+      (allowedUniq.size === 0 || allowedUniq.has(m.modCategory)) && hasIntersection(m.protectedAreas || [], area),
+    );
 
     return { standardMods, uniqueMods };
-  }, [targetItem, catalog, isClothingMode]);
+  }, [localizedTargetItem, catalog, isClothingMode]);
 
   const previewItem = useMemo(() => {
-    if (!targetItem) return null;
+    if (!localizedTargetItem) return null;
     const simulatedItem = {
-      ...targetItem,
+      ...localizedTargetItem,
       [stdKey]: selectedStd || null,
       ...(uniqKey ? { [uniqKey]: selectedUniq || null } : {}),
     };
@@ -84,26 +115,28 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
     return applyArmorMods(simulatedItem, catalog, {
       standardKey: stdKey,
       uniqueKey: uniqKey || 'unusedUniqueKey',
+      standardMods,
+      uniqueMods,
     });
-  }, [targetItem, catalog, stdKey, uniqKey, selectedStd, selectedUniq]);
+  }, [localizedTargetItem, catalog, stdKey, uniqKey, selectedStd, selectedUniq, standardMods, uniqueMods]);
 
   const handleToggleCategory = (key) => {
     setExpandedCategories((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const apply = () => {
-    if (!targetItem) return;
-    const payload = { ...targetItem, [stdKey]: selectedStd || null };
+    if (!localizedTargetItem) return;
+    const payload = { ...localizedTargetItem, [stdKey]: selectedStd || null };
     if (uniqKey) payload[uniqKey] = selectedUniq || null;
     onApply(payload);
     onClose();
   };
 
-  if (!targetItem) {
+  if (!localizedTargetItem) {
     return null;
   }
 
-  const baseName = targetItem?.name || targetItem?.Name || '—';
+  const baseName = localizedTargetItem?.name || localizedTargetItem?.Name || '—';
   const previewEffects = (previewItem?.effects?.bonusEffects || []).map((x) => x.description).filter(Boolean);
 
   return (
@@ -121,7 +154,7 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
             <View style={styles.itemInfo}>
               <Text style={styles.itemTitle}>{baseName}</Text>
               <Text style={styles.itemStats}>
-                {tWeaponsAndArmorScreen('armor.fields.physical')}: {targetItem.physicalDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.energy')}: {targetItem.energyDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.radiation')}: {targetItem.radiationDamageRating || 0}
+                {tWeaponsAndArmorScreen('armor.fields.physical')}: {localizedTargetItem.physicalDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.energy')}: {localizedTargetItem.energyDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.radiation')}: {localizedTargetItem.radiationDamageRating || 0}
               </Text>
             </View>
 
@@ -133,12 +166,14 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
                 isExpanded={expandedCategories.standard}
                 onToggle={() => handleToggleCategory('standard')}
               >
-                <TouchableOpacity
-                  style={[styles.modificationItem, !selectedStd && styles.selectedModification]}
-                  onPress={() => setSelectedStd(null)}
-                >
-                  <Text style={styles.modificationName}>{selectedStd ? tWeaponsAndArmorScreen('modals.removeStandard') : tWeaponsAndArmorScreen('modals.noStandard')}</Text>
-                </TouchableOpacity>
+                {!isClothingMode && (
+                  <TouchableOpacity
+                    style={[styles.modificationItem, !selectedStd && styles.selectedModification]}
+                    onPress={() => setSelectedStd(null)}
+                  >
+                    <Text style={styles.modificationName}>{selectedStd ? tWeaponsAndArmorScreen('modals.removeStandard') : tWeaponsAndArmorScreen('modals.noStandard')}</Text>
+                  </TouchableOpacity>
+                )}
                 {standardMods.map((m) => (
                   <ModRow key={m.id} mod={m} selected={selectedStd === m.id} onPress={() => setSelectedStd(m.id)} />
                 ))}
@@ -170,8 +205,8 @@ const ArmorModificationModal = ({ visible, onClose, targetItem, mode = 'armor', 
                 <Text style={styles.previewStats}>
                   {tWeaponsAndArmorScreen('armor.fields.physical')}: {previewItem?.item?.physicalDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.energy')}: {previewItem?.item?.energyDamageRating || 0} | {tWeaponsAndArmorScreen('armor.fields.radiation')}: {previewItem?.item?.radiationDamageRating || 0}
                 </Text>
-                <Text style={styles.previewStats}>{tWeaponsAndArmorScreen('modals.weight')}: {previewItem?.item?.weight ?? targetItem?.weight ?? 0}</Text>
-                <Text style={styles.previewStats}>{tWeaponsAndArmorScreen('modals.cost')}: {previewItem?.item?.cost ?? targetItem?.cost ?? 0}</Text>
+                <Text style={styles.previewStats}>{tWeaponsAndArmorScreen('modals.weight')}: {previewItem?.item?.weight ?? localizedTargetItem?.weight ?? 0}</Text>
+                <Text style={styles.previewStats}>{tWeaponsAndArmorScreen('modals.cost')}: {previewItem?.item?.cost ?? localizedTargetItem?.cost ?? 0}</Text>
                 <Text style={styles.previewText}>{tWeaponsAndArmorScreen('modals.effects')}: {previewEffects.length ? previewEffects.join(' | ') : '—'}</Text>
               </View>
             </View>
@@ -238,41 +273,42 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   itemStats: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#666',
   },
   modificationsSection: {
-    marginBottom: 18,
+    marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   collapsibleSection: {
-    marginBottom: 10,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    overflow: 'hidden',
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#ddd',
   },
   sectionHeaderTitle: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   expandIcon: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
   },
   sectionContent: {
-    paddingLeft: 8,
-    paddingTop: 6,
+    padding: 8,
   },
   modificationItem: {
     padding: 10,
@@ -284,38 +320,42 @@ const styles = StyleSheet.create({
   },
   selectedModification: {
     borderColor: '#007AFF',
-    backgroundColor: '#f0f8ff',
+    backgroundColor: '#E3F2FD',
   },
   modificationName: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: 'bold',
+    marginBottom: 4,
   },
   modificationText: {
     fontSize: 12,
-    color: '#444',
-    marginTop: 4,
+    color: '#666',
+    marginBottom: 2,
   },
   previewSection: {
-    marginBottom: 20,
+    marginBottom: 8,
   },
   previewContent: {
     padding: 10,
-    backgroundColor: '#e8f5e8',
+    borderWidth: 1,
+    borderColor: '#ddd',
     borderRadius: 5,
+    backgroundColor: '#f9f9f9',
   },
   previewTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     marginBottom: 6,
   },
   previewStats: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
+    fontSize: 13,
+    color: '#444',
+    marginBottom: 2,
   },
   previewText: {
     fontSize: 12,
-    color: '#333',
+    color: '#666',
+    marginTop: 4,
   },
   modalFooter: {
     flexDirection: 'row',
@@ -325,27 +365,28 @@ const styles = StyleSheet.create({
     borderTopColor: '#eee',
   },
   cancelButton: {
-    padding: 10,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#ddd',
     flex: 1,
-    marginRight: 10,
+    padding: 10,
+    marginRight: 8,
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
     alignItems: 'center',
   },
   cancelButtonText: {
     color: '#666',
+    fontWeight: '600',
   },
   applyButton: {
+    flex: 1,
     padding: 10,
+    marginLeft: 8,
     borderRadius: 5,
     backgroundColor: '#007AFF',
-    flex: 1,
     alignItems: 'center',
   },
   applyButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
 

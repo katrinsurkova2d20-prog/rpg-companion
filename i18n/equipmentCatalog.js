@@ -12,6 +12,10 @@ import ruChems from './ru-RU/chems.json';
 import ruDrinks from './ru-RU/drinks.json';
 import ruMisc from './ru-RU/miscellaneous.json';
 import ruAmmoData from './ru-RU/ammoData.json';
+import ruRobotWeapons from './ru-RU/robotWeapons.json';
+import ruRobotArmor from './ru-RU/robotArmor.json';
+import ruRobotModules from './ru-RU/robotModules.json';
+import ruRobotItems from './ru-RU/robotItems.json';
 
 import enWeapons from './en-EN/weapons.json';
 import enWeaponMods from './en-EN/weapon_mods.json';
@@ -27,8 +31,18 @@ import enChems from './en-EN/chems.json';
 import enDrinks from './en-EN/drinks.json';
 import enMisc from './en-EN/miscellaneous.json';
 import enAmmoData from './en-EN/ammoData.json';
+import enRobotWeapons from './en-EN/robotWeapons.json';
+import enRobotArmor from './en-EN/robotArmor.json';
+import enRobotModules from './en-EN/robotModules.json';
+import enRobotItems from './en-EN/robotItems.json';
 
-import { flattenArmorCatalog, groupArmorForPicker, normalizeClothesCatalog, buildArmorIndex } from './equipmentNormalizer';
+import {
+  flattenArmorCatalog,
+  groupArmorForPicker,
+  normalizeClothesCatalog,
+  buildArmorIndex,
+  normalizeWeaponsCatalog,
+} from './equipmentNormalizer';
 import { getCurrentLocale, normalizeLocale } from './locale';
 
 const EQUIPMENT_BY_LOCALE = {
@@ -47,6 +61,10 @@ const EQUIPMENT_BY_LOCALE = {
     drinks: ruDrinks,
     miscellaneous: ruMisc,
     ammoData: ruAmmoData,
+    robotWeapons: ruRobotWeapons,
+    robotArmor: ruRobotArmor,
+    robotModules: ruRobotModules,
+    robotItems: ruRobotItems,
   },
   'en-EN': {
     weapons: enWeapons,
@@ -63,6 +81,10 @@ const EQUIPMENT_BY_LOCALE = {
     drinks: enDrinks,
     miscellaneous: enMisc,
     ammoData: enAmmoData,
+    robotWeapons: enRobotWeapons,
+    robotArmor: enRobotArmor,
+    robotModules: enRobotModules,
+    robotItems: enRobotItems,
   },
 };
 
@@ -91,15 +113,25 @@ export const getEquipmentCatalog = (locale = getCurrentLocale()) => {
   const baseCatalog = EQUIPMENT_BY_LOCALE[normalized] || EQUIPMENT_BY_LOCALE['ru-RU'];
   const armorPickerGroups = groupArmorForPicker(baseCatalog.armor);
   const normalizedClothes = normalizeClothesCatalog(baseCatalog.clothes);
+  const normalizedWeapons = normalizeWeaponsCatalog([...(baseCatalog.weapons || []), ...(baseCatalog.robotWeapons || [])]);
+  const mergedArmorRaw = {
+    armor: [
+      ...(groupArmorForPicker(baseCatalog.armor || {}).map((g) => ({ ...g }))),
+      ...((baseCatalog.robotArmor && Array.isArray(baseCatalog.robotArmor.armor)) ? baseCatalog.robotArmor.armor : []),
+    ],
+  };
 
   return {
     ...baseCatalog,
-    armorRaw: baseCatalog.armor,
-    armor: { armor: armorPickerGroups },
-    armorList: flattenArmorCatalog(baseCatalog.armor),
-    armorIndex: buildArmorIndex(baseCatalog.armor),
+    weapons: normalizedWeapons,
+    armorRaw: mergedArmorRaw,
+    armor: { armor: [...armorPickerGroups, ...((baseCatalog.robotArmor && Array.isArray(baseCatalog.robotArmor.armor)) ? baseCatalog.robotArmor.armor : [])] },
+    armorList: flattenArmorCatalog(mergedArmorRaw),
+    armorIndex: buildArmorIndex(mergedArmorRaw),
     clothes: { clothes: normalizedClothes },
     chems: validateConsumablesContract(baseCatalog.chems, ['chem'], 'chem'),
     drinks: validateConsumablesContract(baseCatalog.drinks, ['drinks'], 'drinks'),
+    robotModules: Array.isArray(baseCatalog.robotModules) ? baseCatalog.robotModules : [],
+    robotItems: Array.isArray(baseCatalog.robotItems) ? baseCatalog.robotItems : [],
   };
 };

@@ -94,6 +94,13 @@ const InventoryScreen = () => {
     return category.includes('power') || name.includes('силов');
   };
   const toWeight = (value) => parseFloat(String(value ?? 0).replace(',', '.')) || 0;
+  const flattenMiscellaneousItems = (miscCatalog) => {
+    if (Array.isArray(miscCatalog)) return miscCatalog;
+    if (Array.isArray(miscCatalog?.miscellaneous)) {
+      return miscCatalog.miscellaneous.flatMap((group) => group?.items || []);
+    }
+    return [];
+  };
 
   const resolveLocalizedItem = (item) => {
     if (!item || !item.id) return item;
@@ -166,7 +173,8 @@ const InventoryScreen = () => {
       };
     }
 
-    const base = (equipmentCatalog?.miscellaneous || []).find((entry) => entry.id === item.id) || (equipmentCatalog?.robotModules || []).find((entry) => entry.id === item.id) || (equipmentCatalog?.robotItems || []).find((entry) => entry.id === item.id);
+    const miscItems = flattenMiscellaneousItems(equipmentCatalog?.miscellaneous);
+    const base = miscItems.find((entry) => entry.id === item.id) || (equipmentCatalog?.robotModules || []).find((entry) => entry.id === item.id) || (equipmentCatalog?.robotItems || []).find((entry) => entry.id === item.id);
     if (!base) return item;
     return {
       ...base,

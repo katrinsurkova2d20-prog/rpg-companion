@@ -26,8 +26,12 @@
     "robotCannotSelfUseMessage": "Роботы не могут применять еду, напитки и препараты на себя.",
     "robotOnlyWeaponTitle": "Ограничение экипировки",
     "robotOnlyWeaponMessage": "Это оружие могут использовать только роботы.",
+    "robotBodyWeaponMismatchTitle": "Incompatible robot weapon",
+    "robotBodyWeaponMismatchMessage": "The current robot body does not support this weapon.",
+    "manipulatorRequiredTitle": "Manipulator required",
+    "manipulatorRequiredMessage": "A manipulator must be equipped before a robot can equip a standard weapon.",
     "manipulatorWeightTitle": "Перегрузка манипулятора",
-    "manipulatorWeightMessage": "Это оружие превышает допустимый удерживаемый вес манипулятора (40 фунтов).",
+    "manipulatorWeightMessage": "This weapon exceeds the manipulator held-weight limit ({maxHeldWeight} lbs).",
     "robotArmorOnlyTitle": "Ограничение экипировки",
     "robotArmorOnlyMessage": "Роботы не могут экипировать типовую или силовую броню."
   },

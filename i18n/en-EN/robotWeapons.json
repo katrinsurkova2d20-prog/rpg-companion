@@ -18,7 +18,10 @@
     "rarity": 0,
     "robotOnly": true,
     "manipulatorMaxHeldWeight": 40,
-    "builtinManipulator": true
+    "builtinManipulator": true,
+    "canHandelWeapon": true,
+    "maxHandelWeaponWeight": 40,
+    "excludeTwoHanded": false
   },
   {
     "id": "robot_weapon_flamethrower",
@@ -43,7 +46,10 @@
     "main_attr": "STR",
     "main_skill": "BIG_GUNS",
     "rules": "",
-    "flavour": ""
+    "flavour": "",
+    "canHandelWeapon": false,
+    "maxHandelWeaponWeight": null,
+    "excludeTwoHanded": false
   },
   {
     "id": "robot_weapon_circular_saw",
@@ -62,7 +68,10 @@
     "weight": 0,
     "cost": 0,
     "rarity": 0,
-    "robotOnly": true
+    "robotOnly": true,
+    "canHandelWeapon": false,
+    "maxHandelWeaponWeight": null,
+    "excludeTwoHanded": false
   },
   {
     "id": "robot_weapon_laser_cutter",
@@ -87,7 +96,10 @@
     "main_attr": "AGI",
     "main_skill": "SMALL_GUNS",
     "rules": "",
-    "flavour": ""
+    "flavour": "",
+    "canHandelWeapon": false,
+    "maxHandelWeaponWeight": null,
+    "excludeTwoHanded": false
   },
   {
     "id": "robot_weapon_auto_10mm",
@@ -115,6 +127,9 @@
     "flavour": "",
     "appliedMods": {
       "Receivers": "mod_008"
-    }
+    },
+    "canHandelWeapon": false,
+    "maxHandelWeaponWeight": null,
+    "excludeTwoHanded": false
   }
 ]

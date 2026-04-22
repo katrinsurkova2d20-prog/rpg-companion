@@ -425,6 +425,8 @@ const InventoryScreen = () => {
 
   const handleEquipWeapon = (weaponToEquip) => {
     const displayWeapon = weaponToEquip;
+    const weaponQualities = String(displayWeapon?.qualities || '').toLowerCase();
+    const isTwoHandedWeapon = ['двуруч', 'two-handed', 'two handed'].some((token) => weaponQualities.includes(token));
     
     if (isRobotCharacter && isRobotOnlyItem(displayWeapon) && Array.isArray(robotBodyUpgrade?.allowedRobotWeaponIds)) {
       const allowedWeaponIds = robotBodyUpgrade.allowedRobotWeaponIds;
@@ -442,30 +444,53 @@ const InventoryScreen = () => {
       return;
     }
     if (!isRobotOnlyItem(displayWeapon) && isRobotCharacter) {
-      const requiresManipulator = Boolean(robotBodyUpgrade?.requiresManipulatorForStandardWeapons);
-      const equippedManipulator = equippedWeapons.find((w) => Boolean(w?.id === 'robot_weapon_manipulator'));
+      const handlers = (equippedWeapons || [])
+        .filter(Boolean)
+        .filter((w) => Boolean(w?.canHandelWeapon));
 
-      if (requiresManipulator) {
-        if (!equippedManipulator) {
-          Alert.alert(
-            tInventory('screen.alerts.manipulatorRequiredTitle'),
-            tInventory('screen.alerts.manipulatorRequiredMessage')
-          );
-          return;
+      if (!handlers.length) {
+        Alert.alert(
+          tInventory('screen.alerts.manipulatorRequiredTitle'),
+          tInventory('screen.alerts.robotNoHandlingLimbMessage')
+        );
+        return;
+      }
+
+      const candidateWeight = toWeight(displayWeapon.weight);
+      const canAnyHandlerEquip = handlers.some((handler) => {
+        const excludeTwoHanded = Boolean(handler?.excludeTwoHanded);
+        if (excludeTwoHanded && isTwoHandedWeapon) return false;
+
+        const maxWeightRaw = handler?.maxHandelWeaponWeight;
+        if (maxWeightRaw === null || maxWeightRaw === undefined || maxWeightRaw === '' || maxWeightRaw === 'unlimited') {
+          return true;
         }
+        const maxHeldWeight = toWeight(maxWeightRaw);
+        return candidateWeight <= maxHeldWeight;
+      });
 
-        const candidateWeight = toWeight(displayWeapon.weight);
-        const maxHeldWeight = Number(equippedManipulator?.manipulatorMaxHeldWeight ?? 40) || 40;
-        if (candidateWeight > maxHeldWeight) {
+      if (!canAnyHandlerEquip) {
+        if (isTwoHandedWeapon && handlers.some((handler) => Boolean(handler?.excludeTwoHanded))) {
           Alert.alert(
             tInventory('screen.alerts.manipulatorWeightTitle'),
-            formatInventoryText(
-              tInventory('screen.alerts.manipulatorWeightMessage'),
-              { maxHeldWeight },
-            ),
+            tInventory('screen.alerts.robotCannotUseTwoHandedMessage')
           );
           return;
         }
+        const numericLimits = handlers
+          .map((handler) => handler?.maxHandelWeaponWeight)
+          .filter((value) => value !== null && value !== undefined && value !== '' && value !== 'unlimited')
+          .map((value) => toWeight(value))
+          .filter((value) => value > 0);
+        const maxHeldWeight = numericLimits.length ? Math.max(...numericLimits) : 0;
+        Alert.alert(
+          tInventory('screen.alerts.manipulatorWeightTitle'),
+          formatInventoryText(
+            tInventory('screen.alerts.manipulatorWeightMessage'),
+            { maxHeldWeight },
+          ),
+        );
+        return;
       }
     }
 

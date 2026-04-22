@@ -30,8 +30,10 @@
     "robotBodyWeaponMismatchMessage": "Текущий корпус робота не поддерживает это оружие.",
     "manipulatorRequiredTitle": "Требуется манипулятор",
     "manipulatorRequiredMessage": "Для экипировки обычного оружия роботу сначала нужен манипулятор.",
+    "robotNoHandlingLimbMessage": "У робота нет манипулятора или руки, способной удерживать обычное оружие.",
     "manipulatorWeightTitle": "Перегрузка манипулятора",
     "manipulatorWeightMessage": "Это оружие превышает допустимый удерживаемый вес манипулятора ({maxHeldWeight} фунтов).",
+    "robotCannotUseTwoHandedMessage": "Текущие руки/манипуляторы робота не могут использовать двуручное оружие.",
     "robotArmorOnlyTitle": "Ограничение экипировки",
     "robotArmorOnlyMessage": "Роботы не могут экипировать типовую или силовую броню."
   },

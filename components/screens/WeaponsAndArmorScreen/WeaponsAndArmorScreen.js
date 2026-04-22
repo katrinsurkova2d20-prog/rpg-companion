@@ -407,7 +407,7 @@ const WeaponsAndArmorScreen = () => {
             key={slotKey} 
             title={config.title} 
             subtitle={config.subtitle}
-            armorName={(slotKey === 'body' && robotBodyUpgrade ? (robotBodyUpgrade?.name || robotBodyUpgrade?.Name) : null) || modifiedArmor?.name || modifiedArmor?.Name}
+            armorName={(slotKey === 'body' && robotBodyUpgrade ? robotBodyUpgrade?.name : null) || modifiedArmor?.name || modifiedArmor?.Name}
             clothingName={modifiedClothing?.name || modifiedClothing?.Name}
             stats={stats}
         />

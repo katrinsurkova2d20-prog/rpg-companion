@@ -2,8 +2,6 @@
   {
     "id": "robot_body_mister_handy",
     "name": "Mr. Handy body",
-    "Name": "Mr. Handy body",
-    "Название": "Корпус Мистера Помощника",
     "slot": "body",
     "partType": "body",
     "itemType": "robotPart",

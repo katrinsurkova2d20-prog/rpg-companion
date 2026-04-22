@@ -2,8 +2,6 @@
   {
     "id": "robot_body_mister_handy",
     "name": "Корпус Мистера Помощника",
-    "Name": "Корпус Мистера Помощника",
-    "Название": "Корпус Мистера Помощника",
     "slot": "body",
     "partType": "body",
     "itemType": "robotPart",

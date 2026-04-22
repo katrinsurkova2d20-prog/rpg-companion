@@ -422,8 +422,8 @@ const InventoryScreen = () => {
       const allowedWeaponIds = robotBodyUpgrade.allowedRobotWeaponIds;
       if (displayWeapon?.id && !allowedWeaponIds.includes(displayWeapon.id)) {
         Alert.alert(
-          tInventory('screen.alerts.robotBodyWeaponMismatchTitle', 'Несовместимое робот-оружие'),
-          tInventory('screen.alerts.robotBodyWeaponMismatchMessage', 'Текущий корпус робота не поддерживает это оружие.')
+          tInventory('screen.alerts.robotBodyWeaponMismatchTitle'),
+          tInventory('screen.alerts.robotBodyWeaponMismatchMessage')
         );
         return;
       }
@@ -440,8 +440,8 @@ const InventoryScreen = () => {
       if (requiresManipulator) {
         if (!equippedManipulator) {
           Alert.alert(
-            tInventory('screen.alerts.manipulatorRequiredTitle', 'Требуется манипулятор'),
-            tInventory('screen.alerts.manipulatorRequiredMessage', 'Для экипировки обычного оружия роботу сначала нужен манипулятор.')
+            tInventory('screen.alerts.manipulatorRequiredTitle'),
+            tInventory('screen.alerts.manipulatorRequiredMessage')
           );
           return;
         }
@@ -450,8 +450,11 @@ const InventoryScreen = () => {
         const maxHeldWeight = Number(equippedManipulator?.manipulatorMaxHeldWeight ?? 40) || 40;
         if (candidateWeight > maxHeldWeight) {
           Alert.alert(
-            tInventory('screen.alerts.manipulatorWeightTitle', 'Перегрузка манипулятора'),
-            tInventory('screen.alerts.manipulatorWeightMessage', `Это оружие превышает допустимый удерживаемый вес манипулятора (${maxHeldWeight} фунтов).`)
+            tInventory('screen.alerts.manipulatorWeightTitle'),
+            formatInventoryText(
+              tInventory('screen.alerts.manipulatorWeightMessage'),
+              { maxHeldWeight },
+            ),
           );
           return;
         }

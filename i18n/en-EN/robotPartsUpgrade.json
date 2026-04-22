@@ -6,6 +6,7 @@
     "Название": "Корпус Мистера Помощника",
     "slot": "body",
     "partType": "body",
+    "itemType": "robotPart",
     "robotBodyPlan": "misterHandy",
     "requiresManipulatorForStandardWeapons": true,
     "allowedRobotWeaponIds": [

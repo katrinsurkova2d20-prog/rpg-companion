@@ -203,6 +203,7 @@ const EquipmentKitModal = ({ visible, onClose, equipmentKits, onSelectKit }) => 
     const groups = {};
 
     (kit.items || []).forEach((entry, index) => {
+      if (entry?.hiddenInKitModal) return;
       if (entry?.type === 'choice') {
         const firstOption = (entry.items || [])[0];
         const category = getItemCategory(firstOption);

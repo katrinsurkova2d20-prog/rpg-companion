@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, ImageBackground, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ImageBackground, TouchableOpacity, SafeAreaView, Modal } from 'react-native';
 import { useCharacter } from '../../CharacterContext';
 import { calculateInitiative, calculateDefense, calculateMeleeBonus, calculateMaxHealth } from '../CharacterScreen/logic/characterLogic';
 import { TRAITS } from '../CharacterScreen/logic/traitsData';
@@ -258,6 +258,11 @@ const findLocalizedClothing = (catalog, clothingItem) => {
   };
 };
 
+const findRobotBodyUpgradeByPlan = (catalog, robotBodyPlan) => {
+  if (!robotBodyPlan) return null;
+  return (catalog?.robotPartsUpgrade || []).find((entry) => entry?.robotBodyPlan === robotBodyPlan) || null;
+};
+
 
 // --- Main Component ---
 
@@ -287,6 +292,7 @@ const WeaponsAndArmorScreen = () => {
   const hasPoisonImmunity = effects.includes('Иммунитет к яду');
   const hasTimedEffects = (activeTimedEffects || []).length > 0;
   const equipmentCatalog = getEquipmentCatalog(locale);
+  const robotBodyUpgrade = findRobotBodyUpgradeByPlan(equipmentCatalog, trait?.modifiers?.robotBodyPlan);
   const localizedEquippedWeapons = equippedWeapons.map((weapon) => findLocalizedWeapon(equipmentCatalog, weapon));
   
   // Состояние для модального окна модификаций
@@ -295,6 +301,7 @@ const WeaponsAndArmorScreen = () => {
   const [armorModalVisible, setArmorModalVisible] = useState(false);
   const [selectedArmorSlot, setSelectedArmorSlot] = useState(null);
   const [armorModalMode, setArmorModalMode] = useState('armor');
+  const [robotBodyUpgradeModalVisible, setRobotBodyUpgradeModalVisible] = useState(false);
   
 
   
@@ -386,12 +393,21 @@ const WeaponsAndArmorScreen = () => {
       ...(modifiedArmor ? [{ label: tWeaponsAndArmorScreen('armor.fields.armorModification'), value: '⋯', type: 'button', onPress: () => handleOpenArmorModal(slotKey, 'armor') }] : []),
     ];
 
+    if (slotKey === 'body' && robotBodyUpgrade) {
+      stats.push({
+        label: tWeaponsAndArmorScreen('armor.fields.armorModification'),
+        value: '⋯',
+        type: 'button',
+        onPress: () => setRobotBodyUpgradeModalVisible(true),
+      });
+    }
+
     return (
         <ArmorPart 
             key={slotKey} 
             title={config.title} 
             subtitle={config.subtitle}
-            armorName={modifiedArmor?.name || modifiedArmor?.Name}
+            armorName={(slotKey === 'body' && robotBodyUpgrade ? (robotBodyUpgrade?.name || robotBodyUpgrade?.Name) : null) || modifiedArmor?.name || modifiedArmor?.Name}
             clothingName={modifiedClothing?.name || modifiedClothing?.Name}
             stats={stats}
         />
@@ -492,6 +508,29 @@ const WeaponsAndArmorScreen = () => {
         mode={armorModalMode}
         onApply={handleApplyArmorModification}
       />
+      <Modal
+        visible={robotBodyUpgradeModalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setRobotBodyUpgradeModalVisible(false)}
+      >
+        <View style={localStyles.modalOverlay}>
+          <View style={localStyles.robotBodyModalContent}>
+            <Text style={localStyles.robotBodyModalTitle}>
+              {locale === 'ru-RU' ? 'Модернизация корпуса' : 'Body upgrade'}
+            </Text>
+            <Text style={localStyles.robotBodyModalText}>
+              {locale === 'ru-RU' ? 'Скоро добавим' : 'Comming Soon'}
+            </Text>
+            <TouchableOpacity
+              style={localStyles.robotBodyModalButton}
+              onPress={() => setRobotBodyUpgradeModalVisible(false)}
+            >
+              <Text style={localStyles.robotBodyModalButtonText}>{tWeaponsAndArmorScreen('common.close')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 };
@@ -669,7 +708,45 @@ const localStyles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-  }
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  robotBodyModalContent: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#5a5a5a',
+    alignItems: 'center',
+  },
+  robotBodyModalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  robotBodyModalText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  robotBodyModalButton: {
+    backgroundColor: '#005A9C',
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 6,
+  },
+  robotBodyModalButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
 });
 
 export default WeaponsAndArmorScreen;

@@ -15,6 +15,7 @@ const ROLL_TABLE_TAG = {
   chem: 'chem',
   outcast: 'outcast',
 };
+const MR_HANDY_BODY_ID = 'robot_body_mister_handy';
 
 const toNumber = (value) => Number.isFinite(value) ? value : Number(value) || 0;
 const safeDbCall = async (fn, ...args) => {
@@ -114,6 +115,7 @@ const resolveItemById = (item) => {
       ...(catalog?.drinks || []),
       ...(catalog?.robotModules || []),
       ...(catalog?.robotItems || []),
+      ...(catalog?.robotPartsUpgrade || []),
     ];
     const found = all.find((entry) => entry.id === item.itemId);
     if (found) {
@@ -243,8 +245,26 @@ export async function resolveKitItems(kit) {
     }
   }
 
+  const withAutoRobotBody = [...flatEntries];
+  const isMisterHandyKit = String(kit?.id || '').startsWith('mister_handy_');
+  const hasMisterHandyBody = withAutoRobotBody.some((entry) => entry?.id === MR_HANDY_BODY_ID || entry?.itemId === MR_HANDY_BODY_ID);
+
+  if (isMisterHandyKit && !hasMisterHandyBody) {
+    const bodyPart = resolveItemById({
+      type: 'fixed',
+      itemId: MR_HANDY_BODY_ID,
+      itemType: 'robotPart',
+      hiddenInKitModal: true,
+      quantity: 1,
+      autoInjected: true,
+    });
+    if (bodyPart) {
+      withAutoRobotBody.push(bodyPart);
+    }
+  }
+
   return {
     ...kit,
-    items: flatEntries,
+    items: withAutoRobotBody,
   };
 }
